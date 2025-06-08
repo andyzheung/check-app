@@ -1,0 +1,24 @@
+{
+  "name": "check-app-web",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@zxing/browser": "^0.1.4",
+    "@zxing/library": "^0.20.0",
+    "axios": "^1.6.7",
+    "dayjs": "^1.11.10",
+    "pinia": "^2.1.7",
+    "vant": "^4.8.2",
+    "vue": "^3.4.15",
+    "vue-router": "^4.2.5"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^5.0.3",
+    "vite": "^5.0.11"
+  }
+}

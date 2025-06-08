@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>巡检记录 - 巡检管理系统</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="css/common.css" rel="stylesheet">
+    <link href="css/records.css" rel="stylesheet">
+</head>
+<body>
+    <div class="records-container">
+        <div class="records-header">
+            <h1>巡检记录</h1>
+            <div class="filter-button">
+                <span class="material-icons">filter_list</span>
+            </div>
+        </div>
+
+        <div class="records-content">
+            <div class="record-card" onclick="window.location.href='inspection-details.html'">
+                <div class="record-header">
+                    <div>区域A</div>
+                    <div class="record-status status-normal">正常</div>
+                </div>
+                <div class="record-info">
+                    <div class="record-time">2024-03-20 14:30</div>
+                    <div class="record-inspector">巡检人：张三</div>
+                </div>
+            </div>
+
+            <div class="record-card" onclick="window.location.href='inspection-details.html'">
+                <div class="record-header">
+                    <div>区域B</div>
+                    <div class="record-status status-abnormal">异常</div>
+                </div>
+                <div class="record-info">
+                    <div class="record-time">2024-03-20 13:15</div>
+                    <div class="record-inspector">巡检人：李四</div>
+                </div>
+            </div>
+
+            <div class="record-card" onclick="window.location.href='inspection-details.html'">
+                <div class="record-header">
+                    <div>区域C</div>
+                    <div class="record-status status-normal">正常</div>
+                </div>
+                <div class="record-info">
+                    <div class="record-time">2024-03-20 11:45</div>
+                    <div class="record-inspector">巡检人：王五</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 底部导航 -->
+        <div class="bottom-nav">
+            <a href="scan.html" class="nav-item">
+                <span class="material-icons">qr_code_scanner</span>
+                <span>巡检</span>
+            </a>
+            <a href="records.html" class="nav-item active">
+                <span class="material-icons">history</span>
+                <span>记录</span>
+            </a>
+            <a href="profile.html" class="nav-item">
+                <span class="material-icons">person</span>
+                <span>我的</span>
+            </a>
+        </div>
+    </div>
+</body>
+</html> 

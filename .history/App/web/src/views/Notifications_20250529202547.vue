@@ -1,0 +1,209 @@
+<template>
+  <div class="notifications-container">
+    <!-- 顶部导航 -->
+    <div class="notifications-header">
+      <a class="back-button" @click.prevent="router.push('/profile')">
+        <span class="material-icons">arrow_back</span>
+      </a>
+      <h1>消息通知</h1>
+    </div>
+
+    <!-- 消息列表 -->
+    <div class="notifications-content">
+      <div v-if="notifications.length > 0" class="notification-list">
+        <div v-for="notification in notifications" :key="notification.id" 
+             class="notification-item" :class="{ unread: notification.status === 'unread' }"
+             @click="handleNotificationClick(notification)">
+          <div class="notification-title">{{ notification.title }}</div>
+          <div class="notification-content">{{ notification.content }}</div>
+          <div class="notification-time">{{ formatTime(notification.createTime) }}</div>
+        </div>
+      </div>
+      <div v-else class="empty-state">
+        <span class="material-icons">notifications_off</span>
+        <p>暂无消息通知</p>
+      </div>
+
+      <!-- 加载更多 -->
+      <div v-if="hasMore" class="load-more" @click="loadMore">
+        加载更多
+      </div>
+    </div>
+  </div>
+</template>
+
+<script setup>
+import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
+import request from '@/utils/request'
+
+const router = useRouter()
+const notifications = ref([])
+const page = ref(1)
+const size = ref(10)
+const hasMore = ref(false)
+const loading = ref(false)
+
+// 格式化时间
+function formatTime(time) {
+  if (!time) return ''
+  const date = new Date(time)
+  return date.toLocaleString('zh-CN', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false
+  })
+}
+
+// 获取消息列表
+async function fetchNotifications(isLoadMore = false) {
+  if (loading.value) return
+  loading.value = true
+  try {
+    const res = await request.get('/notifications', {
+      params: {
+        page: page.value,
+        size: size.value
+      }
+    })
+    if (res.code === 200 || res.code === 0) {
+      if (isLoadMore) {
+        notifications.value.push(...res.data.list)
+      } else {
+        notifications.value = res.data.list
+      }
+      hasMore.value = notifications.value.length < res.data.total
+    }
+  } catch (err) {
+    console.error('获取消息列表失败:', err)
+  } finally {
+    loading.value = false
+  }
+}
+
+// 加载更多
+function loadMore() {
+  if (loading.value || !hasMore.value) return
+  page.value++
+  fetchNotifications(true)
+}
+
+// 处理消息点击
+async function handleNotificationClick(notification) {
+  if (notification.status === 'unread') {
+    try {
+      await request.put(`/notifications/${notification.id}/read`)
+      notification.status = 'read'
+    } catch (err) {
+      console.error('标记消息已读失败:', err)
+    }
+  }
+  // TODO: 根据消息类型处理跳转
+}
+
+onMounted(() => {
+  fetchNotifications()
+})
+</script>
+
+<style scoped>
+.notifications-container {
+  max-width: 420px;
+  margin: 0 auto;
+  min-height: 100vh;
+  background: #f8f9fa;
+}
+
+.notifications-header {
+  padding: 28px 0 18px 0;
+  text-align: center;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--primary-color, #2196F3);
+  letter-spacing: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fff;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+}
+
+.notifications-header .back-button {
+  position: absolute;
+  left: 18px;
+  top: 32px;
+  color: #888;
+  text-decoration: none;
+}
+
+.notifications-content {
+  padding: 20px;
+}
+
+.notification-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.notification-item {
+  background: #fff;
+  border-radius: 12px;
+  padding: 16px;
+  cursor: pointer;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  transition: transform 0.2s;
+}
+
+.notification-item:active {
+  transform: scale(0.98);
+}
+
+.notification-item.unread {
+  border-left: 4px solid var(--primary-color, #2196F3);
+}
+
+.notification-title {
+  font-size: 16px;
+  font-weight: 500;
+  color: #333;
+  margin-bottom: 8px;
+}
+
+.notification-content {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 12px;
+  line-height: 1.5;
+}
+
+.notification-time {
+  font-size: 12px;
+  color: #999;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 40px 0;
+  color: #999;
+}
+
+.empty-state .material-icons {
+  font-size: 48px;
+  margin-bottom: 12px;
+}
+
+.load-more {
+  text-align: center;
+  padding: 16px;
+  color: #666;
+  cursor: pointer;
+}
+
+.load-more:active {
+  opacity: 0.8;
+}
+</style> 

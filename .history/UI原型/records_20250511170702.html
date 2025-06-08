@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>巡检记录 - 巡检管理系统</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="css/common.css" rel="stylesheet">
+    <link href="css/records.css" rel="stylesheet">
+</head>
+<body>
+    <div class="records-container">
+        <div class="records-header">
+            <h1>巡检记录</h1>
+            <!-- 角色切换，仅演示用，实际应由登录态决定 -->
+            <div class="role-switch">
+                <button class="role-btn active" id="userViewBtn">普通用户</button>
+                <button class="role-btn" id="adminViewBtn">管理员</button>
+            </div>
+        </div>
+
+        <!-- 普通用户视图 -->
+        <div class="records-filter user-filter" id="userFilter">
+            <input type="date" class="filter-input" placeholder="日期">
+            <select class="filter-input">
+                <option>全部区域</option>
+                <option>A区机房</option>
+                <option>B区机房</option>
+                <option>C区机房</option>
+            </select>
+            <select class="filter-input">
+                <option>全部状态</option>
+                <option>正常</option>
+                <option>异常</option>
+            </select>
+            <input type="text" class="filter-input" placeholder="搜索关键字">
+            <button class="search-btn"><span class="material-icons">search</span></button>
+        </div>
+        <div class="records-content user-records" id="userRecords">
+            <div class="record-card" onclick="window.location.href='inspection-details.html'">
+                <div class="record-header">
+                    <div>区域A</div>
+                    <div class="record-status status-normal">正常</div>
+                </div>
+                <div class="record-info">
+                    <div class="record-time">2024-03-20 14:30</div>
+                </div>
+            </div>
+            <div class="record-card" onclick="window.location.href='inspection-details.html'">
+                <div class="record-header">
+                    <div>区域B</div>
+                    <div class="record-status status-abnormal">异常</div>
+                </div>
+                <div class="record-info">
+                    <div class="record-time">2024-03-20 13:15</div>
+                </div>
+            </div>
+            <div class="record-card" onclick="window.location.href='inspection-details.html'">
+                <div class="record-header">
+                    <div>区域C</div>
+                    <div class="record-status status-normal">正常</div>
+                </div>
+                <div class="record-info">
+                    <div class="record-time">2024-03-20 11:45</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 管理员视图 -->
+        <div class="records-filter admin-filter" id="adminFilter" style="display:none;">
+            <input type="date" class="filter-input" placeholder="日期">
+            <select class="filter-input">
+                <option>全部区域</option>
+                <option>A区机房</option>
+                <option>B区机房</option>
+                <option>C区机房</option>
+            </select>
+            <select class="filter-input">
+                <option>全部人员</option>
+                <option>张三</option>
+                <option>李四</option>
+                <option>王五</option>
+            </select>
+            <select class="filter-input">
+                <option>全部状态</option>
+                <option>正常</option>
+                <option>异常</option>
+            </select>
+            <button class="search-btn"><span class="material-icons">search</span></button>
+        </div>
+        <div class="records-content admin-records" id="adminRecords" style="display:none;">
+            <div class="record-card" onclick="window.location.href='inspection-details.html'">
+                <div class="record-header">
+                    <div>区域A</div>
+                    <div class="record-status status-normal">正常</div>
+                    <div class="record-inspector">张三</div>
+                </div>
+                <div class="record-info">
+                    <div class="record-time">2024-03-20 14:30</div>
+                </div>
+            </div>
+            <div class="record-card" onclick="window.location.href='inspection-details.html'">
+                <div class="record-header">
+                    <div>区域B</div>
+                    <div class="record-status status-abnormal">异常</div>
+                    <div class="record-inspector">李四</div>
+                </div>
+                <div class="record-info">
+                    <div class="record-time">2024-03-20 13:15</div>
+                </div>
+            </div>
+            <div class="record-card" onclick="window.location.href='inspection-details.html'">
+                <div class="record-header">
+                    <div>区域C</div>
+                    <div class="record-status status-normal">正常</div>
+                    <div class="record-inspector">王五</div>
+                </div>
+                <div class="record-info">
+                    <div class="record-time">2024-03-20 11:45</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 底部导航 -->
+        <div class="bottom-nav">
+            <a href="scan.html" class="nav-item">
+                <span class="material-icons">qr_code_scanner</span>
+                <span>巡检</span>
+            </a>
+            <a href="records.html" class="nav-item active">
+                <span class="material-icons">history</span>
+                <span>记录</span>
+            </a>
+            <a href="profile.html" class="nav-item">
+                <span class="material-icons">person</span>
+                <span>我的</span>
+            </a>
+        </div>
+    </div>
+    <script>
+        // 角色切换演示脚本
+        const userBtn = document.getElementById('userViewBtn');
+        const adminBtn = document.getElementById('adminViewBtn');
+        const userFilter = document.getElementById('userFilter');
+        const adminFilter = document.getElementById('adminFilter');
+        const userRecords = document.getElementById('userRecords');
+        const adminRecords = document.getElementById('adminRecords');
+        userBtn.onclick = function() {
+            userBtn.classList.add('active');
+            adminBtn.classList.remove('active');
+            userFilter.style.display = '';
+            userRecords.style.display = '';
+            adminFilter.style.display = 'none';
+            adminRecords.style.display = 'none';
+        };
+        adminBtn.onclick = function() {
+            adminBtn.classList.add('active');
+            userBtn.classList.remove('active');
+            userFilter.style.display = 'none';
+            userRecords.style.display = 'none';
+            adminFilter.style.display = '';
+            adminRecords.style.display = '';
+        };
+    </script>
+</body>
+</html> 

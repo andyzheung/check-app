@@ -1,0 +1,183 @@
+package com.pensun.checkapp.service.impl;
+
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.pensun.checkapp.common.Result;
+import com.pensun.checkapp.dto.AreaDTO;
+import com.pensun.checkapp.entity.Area;
+import com.pensun.checkapp.entity.AreaType;
+import com.pensun.checkapp.mapper.AreaMapper;
+import com.pensun.checkapp.mapper.AreaTypeMapper;
+import com.pensun.checkapp.service.AreaService;
+import com.pensun.checkapp.utils.QRCodeUtils;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
+import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+
+@Slf4j
+@Service
+@RequiredArgsConstructor
+public class AreaServiceImpl extends ServiceImpl<AreaMapper, Area> implements AreaService {
+    private final AreaMapper areaMapper;
+    private final AreaTypeMapper areaTypeMapper;
+    private final QRCodeUtils qrCodeUtils;
+    
+    private static final Pattern AREA_CODE_PATTERN = Pattern.compile("^AREA[A-C]\\d{3}$");
+
+    @Override
+    public List<AreaDTO> getAllAreas() {
+        // 查询所有未删除的区域
+        LambdaQueryWrapper<Area> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(Area::getDeleted, 0);
+        List<Area> areas = areaMapper.selectList(queryWrapper);
+        
+        // 查询所有区域类型
+        LambdaQueryWrapper<AreaType> typeQuery = new LambdaQueryWrapper<>();
+        List<AreaType> areaTypes = areaTypeMapper.selectList(typeQuery);
+        Map<String, String> typeNameMap = new HashMap<>();
+        for (AreaType type : areaTypes) {
+            typeNameMap.put(type.getTypeCode(), type.getTypeName());
+        }
+        
+        // 转换为DTO
+        List<AreaDTO> areaDTOs = new ArrayList<>();
+        for (Area area : areas) {
+            AreaDTO areaDTO = new AreaDTO();
+            BeanUtils.copyProperties(area, areaDTO);
+            // 设置区域类型名称
+            if (area.getAreaType() != null) {
+                areaDTO.setAreaTypeName(typeNameMap.get(area.getAreaType()));
+            }
+            areaDTOs.add(areaDTO);
+        }
+        
+        return areaDTOs;
+    }
+
+    @Override
+    public AreaDTO getAreaByCode(String areaCode) {
+        // 验证区域编码格式
+        if (!AREA_CODE_PATTERN.matcher(areaCode).matches()) {
+            throw new RuntimeException("区域编码格式不正确，应为AREA[A-C]加3位数字，例如：AREAA001");
+        }
+        
+        try {
+            log.debug("开始查询区域信息，区域编码：{}", areaCode);
+            
+            // 查询区域信息
+            LambdaQueryWrapper<Area> queryWrapper = new LambdaQueryWrapper<>();
+            queryWrapper.eq(Area::getAreaCode, areaCode.toUpperCase()) // 转换为大写
+                    .eq(Area::getDeleted, 0);
+            
+            Area area = areaMapper.selectOne(queryWrapper);
+            
+            if (area == null) {
+                log.warn("区域不存在，区域编码：{}", areaCode);
+                throw new RuntimeException("区域不存在");
+            }
+            
+            log.debug("查询到区域信息：{}", area);
+            
+            // 转换为DTO
+            AreaDTO areaDTO = new AreaDTO();
+            BeanUtils.copyProperties(area, areaDTO);
+            
+            // 查询区域类型名称
+            if (area.getAreaType() != null) {
+                LambdaQueryWrapper<AreaType> typeQuery = new LambdaQueryWrapper<>();
+                typeQuery.eq(AreaType::getTypeCode, area.getAreaType());
+                AreaType areaType = areaTypeMapper.selectOne(typeQuery);
+                if (areaType != null) {
+                    areaDTO.setAreaTypeName(areaType.getTypeName());
+                }
+            }
+            
+            return areaDTO;
+        } catch (Exception e) {
+            log.error("查询区域信息失败", e);
+            throw new RuntimeException("查询区域信息失败: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public String generateQRCode(Long id) {
+        Area area = areaMapper.selectById(id);
+        if (area == null || area.getDeleted() == 1) {
+            throw new RuntimeException("区域不存在");
+        }
+        
+        // 生成二维码数据
+        Map<String, Object> qrData = new HashMap<>();
+        qrData.put("areaCode", area.getAreaCode());
+        qrData.put("timestamp", System.currentTimeMillis());
+        
+        // 生成签名
+        String signature = qrCodeUtils.generateSignature(qrData);
+        qrData.put("signature", signature);
+        
+        // 生成二维码
+        String qrCodeUrl = qrCodeUtils.generateQRCode(qrData);
+        
+        // 更新区域的二维码URL
+        area.setQrCodeUrl(qrCodeUrl);
+        areaMapper.updateById(area);
+        
+        return qrCodeUrl;
+    }
+
+    @Override
+    public Boolean verifyQRCode(String qrData) {
+        return qrCodeUtils.verifyQRCode(qrData);
+    }
+
+    @Override
+    public Result<Page<AreaDTO>> getAllAreas(String status, String type, String keyword, Integer page, Integer size) {
+        log.info("获取区域列表（带过滤） - status: {}, type: {}, keyword: {}, page: {}, size: {}", 
+                status, type, keyword, page, size);
+        
+        // 查询所有区域
+        List<AreaDTO> allAreas = getAllAreas();
+        log.info("原始区域列表大小: {}", allAreas.size());
+        
+        // 应用过滤条件
+        List<AreaDTO> filteredAreas = allAreas.stream()
+            .filter(area -> StringUtils.isEmpty(status) || status.equalsIgnoreCase(area.getStatus()))
+            .filter(area -> StringUtils.isEmpty(type) || type.equalsIgnoreCase(area.getAreaType()))
+            .filter(area -> StringUtils.isEmpty(keyword) || 
+                    (area.getAreaName() != null && area.getAreaName().contains(keyword)) || 
+                    (area.getAreaCode() != null && area.getAreaCode().contains(keyword)))
+            .collect(Collectors.toList());
+        
+        log.info("过滤后区域列表大小: {}", filteredAreas.size());
+        
+        // 手动分页
+        int total = filteredAreas.size();
+        int start = (page - 1) * size;
+        int end = Math.min(start + size, total);
+        
+        // 防止越界
+        if (start >= total) {
+            start = 0;
+            end = 0;
+        }
+        
+        List<AreaDTO> pagedAreas = filteredAreas.subList(start, end);
+        
+        // 构建分页对象
+        Page<AreaDTO> pageResult = new Page<>(page, size, total);
+        pageResult.setRecords(pagedAreas);
+        
+        log.info("返回区域列表（分页） - 总数: {}, 当前页数量: {}", total, pagedAreas.size());
+        return Result.success(pageResult);
+    }
+} 

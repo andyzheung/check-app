@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>像素鸟游戏</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background: #2c3e50;
+        }
+        canvas {
+            border: 2px solid #fff;
+            border-radius: 5px;
+        }
+        .score {
+            color: white;
+            font-size: 2em;
+            margin: 20px 0;
+            font-family: Arial, sans-serif;
+        }
+        .start-btn {
+            padding: 10px 20px;
+            font-size: 1.2em;
+            background: #27ae60;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 10px 0;
+        }
+        .start-btn:hover {
+            background: #219a52;
+        }
+    </style>
+</head>
+<body>
+    <div class="score">分数: <span id="score">0</span></div>
+    <canvas id="gameCanvas" width="320" height="480"></canvas>
+    <button class="start-btn" id="startBtn">开始游戏</button>
+    <script src="game.js"></script>
+</body>
+</html> 

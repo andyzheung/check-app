@@ -1,0 +1,43 @@
+<mxfile host="Electron" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/27.0.2 Chrome/134.0.6998.205 Electron/35.3.0 Safari/537.36" version="27.0.2">
+  <diagram name="第 1 页" id="NI719cFwt7NmjbOm1PBw">
+    <mxGraphModel dx="834" dy="628" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="6MpnEtxMsf52xb5SO4Is-4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="6MpnEtxMsf52xb5SO4Is-1" target="6MpnEtxMsf52xb5SO4Is-2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="6MpnEtxMsf52xb5SO4Is-8" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;" edge="1" parent="1" source="6MpnEtxMsf52xb5SO4Is-1" target="6MpnEtxMsf52xb5SO4Is-7">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="6MpnEtxMsf52xb5SO4Is-1" value="&lt;b&gt;巡检App&lt;/b&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="220" y="240" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="6MpnEtxMsf52xb5SO4Is-5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="6MpnEtxMsf52xb5SO4Is-2" target="6MpnEtxMsf52xb5SO4Is-3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="6MpnEtxMsf52xb5SO4Is-11" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="6MpnEtxMsf52xb5SO4Is-2" target="6MpnEtxMsf52xb5SO4Is-10">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="6MpnEtxMsf52xb5SO4Is-2" value="&lt;b&gt;App Backend&lt;/b&gt;&lt;div&gt;&lt;b&gt;on k8s&lt;/b&gt;&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="450" y="240" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="6MpnEtxMsf52xb5SO4Is-3" value="&lt;b&gt;MySQL&lt;/b&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="450" y="370" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="6MpnEtxMsf52xb5SO4Is-7" value="&lt;b&gt;二维码&lt;/b&gt;" style="shape=tape;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="240" y="80" width="70" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="6MpnEtxMsf52xb5SO4Is-9" value="&lt;b&gt;扫码&lt;/b&gt;" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="290" y="160" width="40" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="6MpnEtxMsf52xb5SO4Is-10" value="&lt;b&gt;AD系统&lt;/b&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="450" y="120" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="6MpnEtxMsf52xb5SO4Is-12" value="&lt;b&gt;&lt;font style=&quot;font-size: 14px;&quot;&gt;系统架构图&lt;/font&gt;&lt;/b&gt;" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="100" y="100" width="90" height="30" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

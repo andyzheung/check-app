@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>个人中心 - 巡检管理系统</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="css/common.css" rel="stylesheet">
+    <link href="css/profile.css" rel="stylesheet">
+</head>
+<body>
+    <div class="profile-container">
+        <div class="profile-topbar">个人中心</div>
+        <div class="profile-card">
+            <div class="profile-avatar">张</div>
+            <div class="profile-info-block">
+                <div class="profile-name">张三</div>
+                <div class="profile-meta">工号：10086</div>
+                <div class="profile-meta">部门：运维部</div>
+            </div>
+        </div>
+        <div class="menu-list">
+            <div class="menu-item">
+                <span class="menu-icon" style="color:#4b3fae;"><span class="material-icons">person</span></span>
+                <span class="menu-label">个人信息</span>
+                <span class="material-icons">chevron_right</span>
+            </div>
+            <div class="menu-item">
+                <span class="menu-icon" style="color:#ffb300;"><span class="material-icons">lock</span></span>
+                <span class="menu-label">修改密码</span>
+                <span class="material-icons">chevron_right</span>
+            </div>
+            <div class="menu-item">
+                <span class="menu-icon" style="color:#ffb300;"><span class="material-icons">notifications</span></span>
+                <span class="menu-label">消息通知</span>
+                <span class="material-icons">chevron_right</span>
+            </div>
+            <div class="menu-item">
+                <span class="menu-icon" style="color:#039be5;"><span class="material-icons">info</span></span>
+                <span class="menu-label">关于</span>
+                <span class="material-icons">chevron_right</span>
+            </div>
+        </div>
+        <div class="logout-button highlight" onclick="window.location.href='login.html'">
+            退出登录
+        </div>
+        <div style="height:32px;"></div>
+        <!-- 底部导航 -->
+        <div class="bottom-nav">
+            <a href="scan.html" class="nav-item">
+                <span class="material-icons">qr_code_scanner</span>
+                <span>巡检</span>
+            </a>
+            <a href="records.html" class="nav-item">
+                <span class="material-icons">history</span>
+                <span>记录</span>
+            </a>
+            <a href="profile.html" class="nav-item active">
+                <span class="material-icons">person</span>
+                <span>我的</span>
+            </a>
+        </div>
+    </div>
+</body>
+</html> 

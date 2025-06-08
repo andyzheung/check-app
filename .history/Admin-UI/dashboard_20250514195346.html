@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>仪表盘 - 巡检App后台管理</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ant-design-vue@3.2.20/dist/antd.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: #f0f2f5;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+        }
+        .nav {
+            background: #fff;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            padding: 0 32px;
+            display: flex;
+            align-items: center;
+            height: 56px;
+            justify-content: space-between;
+        }
+        .nav .logo {
+            font-weight: bold;
+            color: #1890ff;
+            font-size: 22px;
+        }
+        .nav .menu {
+            display: flex;
+            gap: 32px;
+            font-size: 16px;
+        }
+        .nav .user {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .dashboard-container {
+            max-width: 1300px;
+            margin: 32px auto 0 auto;
+            padding: 0 16px;
+        }
+        .card-row {
+            display: flex;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+        .card {
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(31, 38, 135, 0.08);
+            flex: 1;
+            padding: 24px 20px 16px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            min-width: 0;
+            cursor: pointer;
+            transition: box-shadow 0.2s;
+        }
+        .card:hover {
+            box-shadow: 0 4px 16px rgba(31, 38, 135, 0.18);
+        }
+        .card-title {
+            font-size: 16px;
+            color: #888;
+            margin-bottom: 8px;
+        }
+        .card-value {
+            font-size: 28px;
+            font-weight: bold;
+            color: #222;
+        }
+        .card-trend {
+            font-size: 12px;
+            color: #52c41a;
+            margin-top: 4px;
+        }
+        .chart-row {
+            display: flex;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+        .chart-card {
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(31, 38, 135, 0.08);
+            flex: 1;
+            padding: 20px 16px 8px 16px;
+            min-width: 0;
+        }
+        .table-card {
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(31, 38, 135, 0.08);
+            padding: 20px 16px 8px 16px;
+            margin-bottom: 24px;
+        }
+        .table-title {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .table-title a {
+            font-size: 14px;
+            color: #1890ff;
+            text-decoration: none;
+        }
+        .ant-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .ant-table th, .ant-table td {
+            padding: 12px 8px;
+            text-align: left;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .ant-table th {
+            background: #fafafa;
+            font-weight: 500;
+        }
+        .status-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 12px;
+        }
+        .status-open {
+            background: #fff1f0;
+            color: #f5222d;
+        }
+        .status-closed {
+            background: #f6ffed;
+            color: #52c41a;
+        }
+        .footer {
+            text-align: center;
+            color: #999;
+            margin: 32px 0 16px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="nav">
+        <div class="logo">巡检App</div>
+        <div class="menu">
+            <span style="color:#1890ff;">仪表盘</span>
+            <span onclick="window.location.href='records.html'" style="cursor:pointer;">巡检记录</span>
+            <span onclick="window.location.href='issues.html'" style="cursor:pointer;">问题列表</span>
+            <span>用户管理</span>
+        </div>
+        <div class="user">
+            <span class="anticon anticon-user"></span>
+            <span>管理员</span>
+        </div>
+    </div>
+    <div class="dashboard-container">
+        <div class="card-row">
+            <div class="card" onclick="window.location.href='records.html'">
+                <div class="card-title">累计巡检次数</div>
+                <div class="card-value">1280</div>
+            </div>
+            <div class="card" onclick="window.location.href='records.html'">
+                <div class="card-title">累计参与人数</div>
+                <div class="card-value">256</div>
+            </div>
+            <div class="card" onclick="window.location.href='issues.html'">
+                <div class="card-title">累计问题数量</div>
+                <div class="card-value">80</div>
+            </div>
+            <div class="card">
+                <div class="card-title">累计活跃人员</div>
+                <div class="card-value">48</div>
+            </div>
+        </div>
+        <div class="card-row">
+            <div class="card" onclick="window.location.href='records.html'">
+                <div class="card-title">本周巡检次数</div>
+                <div class="card-value">128</div>
+                <div class="card-trend">↑ 12.5% 本周环比</div>
+            </div>
+            <div class="card" onclick="window.location.href='records.html'">
+                <div class="card-title">本周参与人数</div>
+                <div class="card-value">24</div>
+                <div class="card-trend">↑ 4.2% 本周环比</div>
+            </div>
+            <div class="card" onclick="window.location.href='issues.html'">
+                <div class="card-title">本周问题数量</div>
+                <div class="card-value">8</div>
+                <div class="card-trend" style="color:#f5222d;">↓ 2.1% 本周环比</div>
+            </div>
+            <div class="card">
+                <div class="card-title">本周活跃人员</div>
+                <div class="card-value">16</div>
+                <div class="card-trend">↑ 8.3% 本周环比</div>
+            </div>
+        </div>
+        <div class="chart-row">
+            <div class="chart-card">
+                <div class="card-title">巡检趋势（周）</div>
+                <div id="trendChart" style="width:100%;height:220px;"></div>
+            </div>
+            <div class="chart-card">
+                <div class="card-title">问题类型分布</div>
+                <div id="pieChart" style="width:100%;height:220px;"></div>
+            </div>
+        </div>
+        <div class="chart-row">
+            <div class="chart-card">
+                <div class="card-title">巡检人员排名（TOP10）</div>
+                <div id="barChart" style="width:100%;height:220px;"></div>
+            </div>
+            <div class="chart-card">
+                <div class="table-title">
+                    <span>本周问题列表</span>
+                    <a href="issues.html">查看全部</a>
+                </div>
+                <table class="ant-table">
+                    <thead>
+                        <tr>
+                            <th>问题描述</th>
+                            <th>时间</th>
+                            <th>记录人</th>
+                            <th>状态</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>机房温度异常</td>
+                            <td>05-10</td>
+                            <td>张三</td>
+                            <td><span class="status-badge status-open">未闭环</span></td>
+                        </tr>
+                        <tr>
+                            <td>门禁系统异常</td>
+                            <td>05-09</td>
+                            <td>李四</td>
+                            <td><span class="status-badge status-closed">已闭环</span></td>
+                        </tr>
+                        <tr>
+                            <td>漏水检测报警</td>
+                            <td>05-08</td>
+                            <td>王五</td>
+                            <td><span class="status-badge status-open">未闭环</span></td>
+                        </tr>
+                        <tr>
+                            <td>空调系统异常</td>
+                            <td>05-07</td>
+                            <td>赵六</td>
+                            <td><span class="status-badge status-closed">已闭环</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="footer">© 2025 巡检App后台管理</div>
+    <script>
+        // 折线图
+        var trendChart = echarts.init(document.getElementById('trendChart'));
+        trendChart.setOption({
+            xAxis: { type: 'category', data: ['第1周','第2周','第3周','第4周','第5周','第6周','第7周'] },
+            yAxis: { type: 'value' },
+            series: [{ data: [120, 132, 101, 134, 90, 230, 210], type: 'line', smooth: true, areaStyle: {} }],
+            grid: { left: 40, right: 20, top: 30, bottom: 30 },
+            tooltip: { trigger: 'axis' }
+        });
+        // 饼图
+        var pieChart = echarts.init(document.getElementById('pieChart'));
+        pieChart.setOption({
+            tooltip: { trigger: 'item' },
+            legend: { top: 'bottom' },
+            series: [{
+                name: '问题类型',
+                type: 'pie',
+                radius: ['40%', '70%'],
+                avoidLabelOverlap: false,
+                itemStyle: { borderRadius: 8, borderColor: '#fff', borderWidth: 2 },
+                label: { show: false, position: 'center' },
+                emphasis: { label: { show: true, fontSize: 18, fontWeight: 'bold' } },
+                labelLine: { show: false },
+                data: [
+                    { value: 10, name: '设备异常' },
+                    { value: 8, name: '环境异常' },
+                    { value: 6, name: '安全隐患' },
+                    { value: 5, name: '其他' }
+                ]
+            }]
+        });
+        // 柱状图
+        var barChart = echarts.init(document.getElementById('barChart'));
+        barChart.setOption({
+            xAxis: { type: 'category', data: ['张三','李四','王五','赵六','钱七','孙八','周九','吴十'] },
+            yAxis: { type: 'value' },
+            series: [{ data: [120, 110, 98, 80, 75, 66, 58, 50], type: 'bar', barWidth: 32, itemStyle: { color: '#1890ff', borderRadius: [8,8,0,0] } }],
+            grid: { left: 40, right: 20, top: 30, bottom: 30 },
+            tooltip: { trigger: 'axis' }
+        });
+    </script>
+</body>
+</html> 

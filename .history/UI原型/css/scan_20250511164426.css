@@ -1,0 +1,178 @@
+/* 扫码页面样式 */
+.scan-container {
+    height: 100vh;
+    background-color: #f5f5f5;
+    display: flex;
+    flex-direction: column;
+}
+
+.scan-header {
+    padding: 20px 0 10px 0;
+    color: #222;
+    text-align: center;
+    position: relative;
+    background: transparent;
+}
+
+.scan-header .back-button {
+    position: absolute;
+    left: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #888;
+    text-decoration: none;
+}
+
+.scan-header h1 {
+    font-size: 20px;
+    font-weight: 500;
+    margin: 0;
+}
+
+.scan-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding-top: 32px;
+}
+
+.scan-frame {
+    width: 280px;
+    height: 280px;
+    position: relative;
+    background: #888;
+    border-radius: 18px;
+    margin-bottom: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+}
+
+.scan-frame::before {
+    content: '';
+    position: absolute;
+    left: 16px;
+    top: 16px;
+    right: 16px;
+    bottom: 16px;
+    border: 3px dashed #fff;
+    border-radius: 12px;
+    pointer-events: none;
+}
+
+.scan-line {
+    position: absolute;
+    left: 16px;
+    right: 16px;
+    height: 3px;
+    background-color: #3b82f6;
+    top: 60px;
+    border-radius: 2px;
+    animation: scan 2s linear infinite;
+}
+
+@keyframes scan {
+    0% { top: 60px; }
+    50% { top: 200px; }
+    100% { top: 60px; }
+}
+
+.scan-tip {
+    margin-top: 8px;
+    text-align: center;
+}
+
+.tip-main {
+    font-size: 17px;
+    color: #222;
+    margin-bottom: 2px;
+}
+
+.tip-sub {
+    font-size: 14px;
+    color: #888;
+}
+
+.scan-bottom-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 36px 0 0 0;
+}
+
+.scan-bottom-btn .material-icons {
+    background: #fff;
+    color: #ffd600;
+    border-radius: 50%;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    font-size: 32px;
+    padding: 18px;
+    border: 1.5px solid #eee;
+    transition: box-shadow 0.2s;
+}
+
+.scan-bottom-btn .material-icons:active {
+    box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+}
+
+.scan-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.scan-text {
+    color: white;
+    text-align: center;
+    padding: 20px;
+    background: rgba(0, 0, 0, 0.7);
+    border-radius: 10px;
+    margin-top: 300px;
+}
+
+.scan-footer {
+    padding: 20px;
+    background: white;
+    border-top-left-radius: 20px;
+    border-top-right-radius: 20px;
+}
+
+.scan-footer h2 {
+    margin-bottom: 15px;
+    color: var(--text-color);
+}
+
+.recent-records {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.record-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    background: var(--background-color);
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.record-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.record-time {
+    font-size: 12px;
+    color: #666;
+} 

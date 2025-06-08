@@ -1,0 +1,116 @@
+/* 个人中心页面样式 */
+.profile-container {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background-color: var(--background-color);
+}
+
+.profile-header {
+    padding: 20px;
+    background-color: var(--card-background);
+    position: relative;
+    text-align: center;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.profile-header h1 {
+    font-size: 18px;
+    color: var(--text-color);
+}
+
+.profile-content {
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto;
+}
+
+.profile-card {
+    background-color: var(--card-background);
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.profile-info {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.profile-avatar {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background-color: #e9ecef;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    color: var(--primary-color);
+}
+
+.profile-details {
+    flex: 1;
+}
+
+.profile-name {
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 5px;
+    color: var(--text-color);
+}
+
+.profile-role {
+    font-size: 14px;
+    color: var(--text-color);
+    opacity: 0.8;
+}
+
+.menu-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.menu-item {
+    display: flex;
+    align-items: center;
+    padding: 15px 0;
+    border-bottom: 1px solid #eee;
+    cursor: pointer;
+}
+
+.menu-item:last-child {
+    border-bottom: none;
+}
+
+.menu-item i {
+    width: 24px;
+    margin-right: 10px;
+    color: var(--primary-color);
+}
+
+.menu-item span {
+    flex: 1;
+    font-size: 16px;
+    color: var(--text-color);
+}
+
+.menu-item .arrow {
+    color: #999;
+}
+
+.logout-button {
+    width: 100%;
+    padding: 12px;
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 16px;
+    cursor: pointer;
+    margin-top: 20px;
+} 

@@ -1,0 +1,56 @@
+/* 主页面样式 */
+.main-container {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.content-area {
+    flex: 1;
+    padding: 20px;
+    padding-bottom: 70px; /* 为底部导航留出空间 */
+}
+
+.welcome-card {
+    background-color: var(--card-background);
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+    text-align: center;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.welcome-card h2 {
+    margin-bottom: 10px;
+    color: var(--text-color);
+}
+
+.welcome-card p {
+    color: #666;
+}
+
+.action-buttons {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.action-button {
+    background-color: var(--card-background);
+    border-radius: 8px;
+    padding: 20px;
+    text-align: center;
+    text-decoration: none;
+    color: var(--text-color);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+.action-button .material-icons {
+    font-size: 32px;
+    color: var(--primary-color);
+} 

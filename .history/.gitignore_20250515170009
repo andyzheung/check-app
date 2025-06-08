@@ -1,0 +1,35 @@
+# Android
+App/inspectionapp/.gradle/
+App/inspectionapp/app/build/
+App/inspectionapp/build/
+App/inspectionapp/local.properties
+App/inspectionapp/.idea/
+App/inspectionapp/*.iml
+App/inspectionapp/app/*.iml
+
+# Node.js
+App/web/node_modules/
+App/web/dist/
+App/web/.vite/
+App/web/*.log
+App/web/npm-debug.log*
+App/web/yarn-debug.log*
+App/web/yarn-error.log*
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+
+# Build
+build/
+dist/
+out/
+
+# Local env files
+.env
+.env.local
+.env.*.local 
+node_modules

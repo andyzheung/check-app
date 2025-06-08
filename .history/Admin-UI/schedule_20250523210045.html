@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>巡检管理系统后台</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: #f5f7fa;
+            color: #333;
+        }
+        .header {
+            background: #fff;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        .header-title {
+            font-size: 22px;
+            padding: 15px 20px;
+            color: #333;
+            font-weight: normal;
+        }
+        .nav {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            height: 50px;
+            padding: 0 20px;
+        }
+        .nav-brand {
+            font-size: 18px;
+            color: #333;
+            text-decoration: none;
+            margin-right: 40px;
+        }
+        .nav-items {
+            display: flex;
+            gap: 30px;
+        }
+        .nav-item {
+            color: #666;
+            text-decoration: none;
+            font-size: 15px;
+            position: relative;
+            padding: 0 4px;
+        }
+        .nav-item.active {
+            color: #2196F3;
+        }
+        .nav-item.active::after {
+            content: '';
+            position: absolute;
+            bottom: -15px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: #2196F3;
+        }
+        .container {
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .filter-card {
+            background: #fff;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        .filter-title {
+            font-size: 16px;
+            color: #333;
+            margin-bottom: 15px;
+        }
+        .filter-form {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .form-group {
+            display: flex;
+            align-items: center;
+        }
+        .form-group label {
+            margin-right: 8px;
+            color: #666;
+            font-size: 14px;
+        }
+        .form-control {
+            padding: 6px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            min-width: 120px;
+            font-size: 14px;
+        }
+        .btn {
+            padding: 6px 16px;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .btn-primary {
+            background: #2196F3;
+            color: #fff;
+        }
+        .btn-default {
+            background: #f5f5f5;
+            color: #666;
+            border: 1px solid #ddd;
+        }
+        .table-card {
+            background: #fff;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        .table-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .table-title {
+            font-size: 16px;
+            color: #333;
+        }
+        .schedule-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .schedule-table th {
+            background: #f5f7fa;
+            padding: 12px;
+            text-align: left;
+            font-weight: normal;
+            color: #666;
+            border-bottom: 1px solid #eee;
+            font-size: 14px;
+        }
+        .schedule-table td {
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+            font-size: 14px;
+            color: #333;
+        }
+        .status {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+        .status-normal {
+            background: #e8f5e9;
+            color: #4caf50;
+        }
+        .status-abnormal {
+            background: #ffebee;
+            color: #f44336;
+        }
+        .action-link {
+            color: #2196F3;
+            text-decoration: none;
+            margin-right: 10px;
+            font-size: 14px;
+        }
+        .pagination {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+            gap: 8px;
+        }
+        .page-item {
+            padding: 6px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            color: #666;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 14px;
+        }
+        .page-item.active {
+            background: #2196F3;
+            color: #fff;
+            border-color: #2196F3;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            align-items: center;
+            justify-content: center;
+        }
+        .modal.active {
+            display: flex;
+        }
+        .modal-content {
+            background: #fff;
+            border-radius: 8px;
+            padding: 20px;
+            width: 400px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+        }
+        .modal-header {
+            margin-bottom: 20px;
+        }
+        .modal-title {
+            font-size: 18px;
+            color: #333;
+        }
+        .form-row {
+            margin-bottom: 15px;
+        }
+        .form-row label {
+            display: block;
+            margin-bottom: 5px;
+            color: #666;
+            font-size: 14px;
+        }
+        .form-row input,
+        .form-row select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1 class="header-title">巡检管理系统后台</h1>
+        <nav class="nav">
+            <div class="nav-items">
+                <a href="dashboard.html" class="nav-item">仪表盘</a>
+                <a href="records.html" class="nav-item">巡检记录</a>
+                <a href="schedule.html" class="nav-item active">巡检排班</a>
+                <a href="issues.html" class="nav-item">问题列表</a>
+                <a href="users.html" class="nav-item">用户管理</a>
+            </div>
+        </nav>
+    </div>
+
+    <div class="container">
+        <!-- 筛选条件卡片 -->
+        <div class="filter-card">
+            <div class="filter-title">筛选条件</div>
+            <div class="filter-form">
+                <div class="form-group">
+                    <label>时间范围</label>
+                    <input type="date" class="form-control" id="startDate">
+                    <span style="margin: 0 8px">-</span>
+                    <input type="date" class="form-control" id="endDate">
+                </div>
+                <div class="form-group">
+                    <label>巡检区域</label>
+                    <select class="form-control" id="areaFilter">
+                        <option value="">全部区域</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>巡检人员</label>
+                    <select class="form-control" id="userFilter">
+                        <option value="">全部人员</option>
+                    </select>
+                </div>
+                <button class="btn btn-default" onclick="resetFilters()">重置</button>
+                <button class="btn btn-primary" onclick="fetchSchedules()">查询</button>
+            </div>
+        </div>
+
+        <!-- 排班列表卡片 -->
+        <div class="table-card">
+            <div class="table-header">
+                <div class="table-title">排班列表</div>
+                <button class="btn btn-primary" onclick="openModal()">新增排班</button>
+            </div>
+            <table class="schedule-table">
+                <thead>
+                    <tr>
+                        <th>排班编号</th>
+                        <th>日期</th>
+                        <th>班次</th>
+                        <th>巡检区域</th>
+                        <th>巡检人员</th>
+                        <th>备注</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody id="scheduleBody">
+                    <!-- 动态填充 -->
+                </tbody>
+            </table>
+            <div class="pagination">
+                <a href="#" class="page-item">上一页</a>
+                <a href="#" class="page-item active">1</a>
+                <a href="#" class="page-item">2</a>
+                <a href="#" class="page-item">3</a>
+                <a href="#" class="page-item">下一页</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- 新增/编辑排班弹窗 -->
+    <div class="modal" id="scheduleModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modalTitle">新增排班</h3>
+            </div>
+            <div class="form-row">
+                <label>日期</label>
+                <input type="date" id="dateInput" class="form-control">
+            </div>
+            <div class="form-row">
+                <label>班次</label>
+                <select id="shiftInput" class="form-control">
+                    <option value="早班">早班</option>
+                    <option value="中班">中班</option>
+                    <option value="晚班">晚班</option>
+                </select>
+            </div>
+            <div class="form-row">
+                <label>巡检区域</label>
+                <select id="areaInput" class="form-control"></select>
+            </div>
+            <div class="form-row">
+                <label>巡检人员</label>
+                <select id="userInput" class="form-control"></select>
+            </div>
+            <div class="form-row">
+                <label>备注</label>
+                <input type="text" id="remarkInput" class="form-control">
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-default" onclick="closeModal()">取消</button>
+                <button class="btn btn-primary" onclick="saveSchedule()">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let schedules = [];
+        let editingId = null;
+
+        // 获取排班列表
+        function fetchSchedules() {
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+            const areaId = document.getElementById('areaFilter').value;
+            const userId = document.getElementById('userFilter').value;
+
+            // TODO: 调用后端接口获取数据
+            // 这里模拟一些数据
+            schedules = [
+                {
+                    id: 'SCH20240501001',
+                    date: '2024-05-01',
+                    shift: '早班',
+                    areaName: 'A区机房',
+                    userName: '张三',
+                    remark: '例行巡检'
+                },
+                {
+                    id: 'SCH20240501002',
+                    date: '2024-05-01',
+                    shift: '中班',
+                    areaName: 'B区机房',
+                    userName: '李四',
+                    remark: '重点检查制冷'
+                }
+            ];
+
+            renderScheduleTable();
+        }
+
+        // 渲染排班表格
+        function renderScheduleTable() {
+            const tbody = document.getElementById('scheduleBody');
+            tbody.innerHTML = '';
+            schedules.forEach(sch => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${sch.id}</td>
+                    <td>${sch.date}</td>
+                    <td>${sch.shift}</td>
+                    <td>${sch.areaName}</td>
+                    <td>${sch.userName}</td>
+                    <td>${sch.remark || ''}</td>
+                    <td>
+                        <a href="javascript:void(0)" class="action-link" onclick="editSchedule('${sch.id}')">编辑</a>
+                        <a href="javascript:void(0)" class="action-link" onclick="deleteSchedule('${sch.id}')">删除</a>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // 重置筛选条件
+        function resetFilters() {
+            document.getElementById('startDate').value = '';
+            document.getElementById('endDate').value = '';
+            document.getElementById('areaFilter').value = '';
+            document.getElementById('userFilter').value = '';
+        }
+
+        // 打开新增/编辑弹窗
+        function openModal(id = null) {
+            editingId = id;
+            document.getElementById('scheduleModal').classList.add('active');
+            document.getElementById('modalTitle').innerText = id ? '编辑排班' : '新增排班';
+            if (id) {
+                const schedule = schedules.find(s => s.id === id);
+                if (schedule) {
+                    document.getElementById('dateInput').value = schedule.date;
+                    document.getElementById('shiftInput').value = schedule.shift;
+                    // TODO: 设置区域和人员选择
+                    document.getElementById('remarkInput').value = schedule.remark || '';
+                }
+            }
+        }
+
+        // 关闭弹窗
+        function closeModal() {
+            document.getElementById('scheduleModal').classList.remove('active');
+            editingId = null;
+            // 清空表单
+            document.getElementById('dateInput').value = '';
+            document.getElementById('shiftInput').value = '早班';
+            document.getElementById('areaInput').value = '';
+            document.getElementById('userInput').value = '';
+            document.getElementById('remarkInput').value = '';
+        }
+
+        // 保存排班
+        function saveSchedule() {
+            const data = {
+                date: document.getElementById('dateInput').value,
+                shift: document.getElementById('shiftInput').value,
+                areaId: document.getElementById('areaInput').value,
+                userId: document.getElementById('userInput').value,
+                remark: document.getElementById('remarkInput').value
+            };
+
+            // TODO: 调用后端接口保存数据
+            console.log('保存排班:', data);
+            
+            closeModal();
+            fetchSchedules();
+        }
+
+        // 编辑排班
+        function editSchedule(id) {
+            openModal(id);
+        }
+
+        // 删除排班
+        function deleteSchedule(id) {
+            if (confirm('确定要删除这条排班记录吗？')) {
+                // TODO: 调用后端接口删除数据
+                console.log('删除排班:', id);
+                fetchSchedules();
+            }
+        }
+
+        // 页面加载时初始化
+        window.onload = function() {
+            // 获取区域列表
+            // TODO: 调用后端接口获取区域列表
+            const areas = ['A区机房', 'B区机房', 'C区机房'];
+            const areaFilter = document.getElementById('areaFilter');
+            const areaInput = document.getElementById('areaInput');
+            areas.forEach(area => {
+                areaFilter.add(new Option(area, area));
+                areaInput.add(new Option(area, area));
+            });
+
+            // 获取人员列表
+            // TODO: 调用后端接口获取人员列表
+            const users = ['张三', '李四', '王五'];
+            const userFilter = document.getElementById('userFilter');
+            const userInput = document.getElementById('userInput');
+            users.forEach(user => {
+                userFilter.add(new Option(user, user));
+                userInput.add(new Option(user, user));
+            });
+
+            // 获取排班列表
+            fetchSchedules();
+        };
+    </script>
+</body>
+</html> 

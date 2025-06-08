@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>扫码巡检 - 巡检管理系统</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="css/common.css" rel="stylesheet">
+    <link href="css/scan.css" rel="stylesheet">
+</head>
+<body>
+    <div class="scan-container">
+        <div class="scan-header">
+            <a href="main.html" class="back-button">
+                <span class="material-icons">arrow_back</span>
+            </a>
+            <h1>扫码巡检</h1>
+        </div>
+        <div class="scan-body">
+            <div class="scan-frame">
+                <div class="scan-line"></div>
+            </div>
+            <div class="scan-overlay">
+                <div class="scan-text">
+                    请将二维码放入框内，即可自动扫描
+                </div>
+            </div>
+        </div>
+        <div class="scan-footer">
+            <h2>最近巡检记录</h2>
+            <div class="recent-records">
+                <div class="record-item" onclick="window.location.href='inspection-form.html'">
+                    <div class="record-info">
+                        <div>区域A</div>
+                        <div class="record-time">2024-03-20 14:30</div>
+                    </div>
+                    <span class="material-icons">chevron_right</span>
+                </div>
+                <div class="record-item" onclick="window.location.href='inspection-form.html'">
+                    <div class="record-info">
+                        <div>区域B</div>
+                        <div class="record-time">2024-03-20 13:15</div>
+                    </div>
+                    <span class="material-icons">chevron_right</span>
+                </div>
+                <div class="record-item" onclick="window.location.href='inspection-form.html'">
+                    <div class="record-info">
+                        <div>区域C</div>
+                        <div class="record-time">2024-03-20 11:45</div>
+                    </div>
+                    <span class="material-icons">chevron_right</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html> 

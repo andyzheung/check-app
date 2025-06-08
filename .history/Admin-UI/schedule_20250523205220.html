@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>巡检排班管理</title>
+  <link rel="stylesheet" href="dashboard.css">
+  <style>
+    .schedule-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    .schedule-table th, .schedule-table td { border: 1px solid #e0e0e0; padding: 8px 12px; text-align: center; }
+    .schedule-table th { background: #f5f7fa; }
+    .schedule-actions button { margin: 0 4px; }
+    .filter-bar { margin: 20px 0; display: flex; gap: 16px; align-items: center; }
+    .modal { display: none; position: fixed; left: 0; top: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.2); justify-content: center; align-items: center; }
+    .modal.active { display: flex; }
+    .modal-content { background: #fff; padding: 24px 32px; border-radius: 8px; min-width: 320px; }
+    .modal-content label { display: block; margin: 12px 0 4px; }
+    .modal-content input, .modal-content select { width: 100%; padding: 6px 8px; }
+    .modal-content .actions { margin-top: 18px; text-align: right; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>巡检排班管理</h2>
+    <div class="filter-bar">
+      <label>周次:
+        <input type="week" id="weekInput">
+      </label>
+      <label>区域:
+        <select id="areaFilter"></select>
+      </label>
+      <label>人员:
+        <select id="userFilter"></select>
+      </label>
+      <button onclick="fetchSchedules()">查询</button>
+      <button onclick="openModal()">新增排班</button>
+    </div>
+    <table class="schedule-table">
+      <thead>
+        <tr>
+          <th>日期</th>
+          <th>班次</th>
+          <th>区域</th>
+          <th>人员</th>
+          <th>备注</th>
+          <th>操作</th>
+        </tr>
+      </thead>
+      <tbody id="scheduleBody">
+        <!-- 动态填充 -->
+      </tbody>
+    </table>
+  </div>
+
+  <!-- 新增/编辑排班弹窗 -->
+  <div class="modal" id="scheduleModal">
+    <div class="modal-content">
+      <h3 id="modalTitle">新增排班</h3>
+      <label>日期：<input type="date" id="dateInput"></label>
+      <label>班次：
+        <select id="shiftInput">
+          <option value="早班">早班</option>
+          <option value="中班">中班</option>
+          <option value="晚班">晚班</option>
+        </select>
+      </label>
+      <label>区域：<select id="areaInput"></select></label>
+      <label>人员：<select id="userInput"></select></label>
+      <label>备注：<input type="text" id="remarkInput"></label>
+      <div class="actions">
+        <button onclick="saveSchedule()">保存</button>
+        <button onclick="closeModal()">取消</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // 示例数据，实际应通过接口获取
+    let schedules = [];
+    let editingId = null;
+
+    function fetchSchedules() {
+      // TODO: 调用后端接口，带筛选参数
+      // fetch('/api/v1/schedules?...').then(...)
+      // 这里只做静态演示
+      const tbody = document.getElementById('scheduleBody');
+      tbody.innerHTML = '';
+      schedules.forEach(sch => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${sch.date}</td>
+          <td>${sch.shift}</td>
+          <td>${sch.areaName}</td>
+          <td>${sch.userName}</td>
+          <td>${sch.remark || ''}</td>
+          <td class="schedule-actions">
+            <button onclick="editSchedule('${sch.id}')">编辑</button>
+            <button onclick="deleteSchedule('${sch.id}')">删除</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function openModal(id = null) {
+      editingId = id;
+      document.getElementById('scheduleModal').classList.add('active');
+      document.getElementById('modalTitle').innerText = id ? '编辑排班' : '新增排班';
+      // TODO: 如果是编辑，填充表单
+    }
+    function closeModal() {
+      document.getElementById('scheduleModal').classList.remove('active');
+      editingId = null;
+    }
+    function saveSchedule() {
+      // TODO: 收集表单数据，调用后端保存接口
+      closeModal();
+      fetchSchedules();
+    }
+    function editSchedule(id) {
+      openModal(id);
+      // TODO: 填充表单
+    }
+    function deleteSchedule(id) {
+      if (confirm('确定删除该排班吗？')) {
+        // TODO: 调用后端删除接口
+        fetchSchedules();
+      }
+    }
+    // TODO: 页面加载时拉取区域、人员下拉数据
+    window.onload = fetchSchedules;
+  </script>
+</body>
+</html> 

@@ -1,0 +1,17 @@
+package com.pensun.checkapp.viewmodel;
+
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.ViewModel;
+import java.util.List;
+import com.pensun.checkapp.model.Record;
+import com.pensun.checkapp.repository.RecordRepository;
+
+public class RecordsViewModel extends ViewModel {
+    private final RecordRepository recordRepository = new RecordRepository();
+    public LiveData<List<Record>> getRecords(String token) {
+        return recordRepository.getRecords(token);
+    }
+    public LiveData<Boolean> uploadScanResult(String token, String code) {
+        return recordRepository.uploadScanResult(token, code);
+    }
+} 

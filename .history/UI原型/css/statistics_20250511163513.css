@@ -1,0 +1,71 @@
+/* 统计页面样式 */
+.statistics-container {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background-color: var(--background-color);
+}
+
+.statistics-header {
+    padding: 20px;
+    background-color: var(--card-background);
+    position: relative;
+    text-align: center;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.statistics-header h1 {
+    font-size: 18px;
+    color: var(--text-color);
+}
+
+.statistics-content {
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto;
+}
+
+.statistics-card {
+    background-color: var(--card-background);
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.statistics-title {
+    font-size: 16px;
+    font-weight: bold;
+    margin-bottom: 15px;
+    color: var(--text-color);
+}
+
+.statistics-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+}
+
+.statistics-item {
+    background-color: #f8f9fa;
+    padding: 15px;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.statistics-value {
+    font-size: 24px;
+    font-weight: bold;
+    color: var(--primary-color);
+    margin-bottom: 5px;
+}
+
+.statistics-label {
+    font-size: 14px;
+    color: var(--text-color);
+}
+
+.chart-container {
+    height: 300px;
+    margin-top: 20px;
+} 

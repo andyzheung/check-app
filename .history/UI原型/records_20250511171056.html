@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>巡检记录 - 巡检管理系统</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="css/common.css" rel="stylesheet">
+    <link href="css/records.css" rel="stylesheet">
+</head>
+<body>
+    <div class="records-container">
+        <div class="records-header">
+            <h1>巡检记录</h1>
+            <!-- 角色切换按钮已移除，后续由后端权限自动控制显示内容 -->
+        </div>
+
+        <!-- 筛选栏：后端根据权限返回不同筛选项和数据 -->
+        <div class="records-filter">
+            <input type="date" class="filter-input" placeholder="日期">
+            <select class="filter-input">
+                <option>全部区域</option>
+                <option>A区机房</option>
+                <option>B区机房</option>
+                <option>C区机房</option>
+            </select>
+            <!-- 管理员可见：人员筛选 -->
+            <select class="filter-input" id="inspectorSelect" style="display:none;">
+                <option>全部人员</option>
+                <option>张三</option>
+                <option>李四</option>
+                <option>王五</option>
+            </select>
+            <select class="filter-input">
+                <option>全部状态</option>
+                <option>正常</option>
+                <option>异常</option>
+            </select>
+            <input type="text" class="filter-input" placeholder="搜索关键字">
+            <button class="search-btn"><span class="material-icons">search</span></button>
+        </div>
+        <div class="records-content">
+            <!-- 普通用户：仅显示本人记录；管理员：显示所有记录并展示巡检人 -->
+            <div class="record-card" onclick="window.location.href='inspection-details.html'">
+                <div class="record-header">
+                    <div>区域A</div>
+                    <div class="record-status status-normal">正常</div>
+                    <div class="record-inspector" style="display:none;">张三</div>
+                </div>
+                <div class="record-info">
+                    <div class="record-time">2024-03-20 14:30</div>
+                </div>
+            </div>
+            <div class="record-card" onclick="window.location.href='inspection-details.html'">
+                <div class="record-header">
+                    <div>区域B</div>
+                    <div class="record-status status-abnormal">异常</div>
+                    <div class="record-inspector" style="display:none;">李四</div>
+                </div>
+                <div class="record-info">
+                    <div class="record-time">2024-03-20 13:15</div>
+                </div>
+            </div>
+            <div class="record-card" onclick="window.location.href='inspection-details.html'">
+                <div class="record-header">
+                    <div>区域C</div>
+                    <div class="record-status status-normal">正常</div>
+                    <div class="record-inspector" style="display:none;">王五</div>
+                </div>
+                <div class="record-info">
+                    <div class="record-time">2024-03-20 11:45</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 底部导航 -->
+        <div class="bottom-nav">
+            <a href="scan.html" class="nav-item">
+                <span class="material-icons">qr_code_scanner</span>
+                <span>巡检</span>
+            </a>
+            <a href="records.html" class="nav-item active">
+                <span class="material-icons">history</span>
+                <span>记录</span>
+            </a>
+            <a href="profile.html" class="nav-item">
+                <span class="material-icons">person</span>
+                <span>我的</span>
+            </a>
+        </div>
+        <!-- 后续由后端根据登录用户权限动态渲染筛选项和记录内容 -->
+    </div>
+</body>
+</html> 

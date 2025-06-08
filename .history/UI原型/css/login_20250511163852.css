@@ -1,0 +1,141 @@
+/* 登录页面样式 */
+.login-container {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background-color: #f7f7f7;
+}
+
+.login-logo {
+    width: 100px;
+    height: 100px;
+    background-color: var(--primary-color);
+    border-radius: 25px;
+    margin-bottom: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 28px;
+    font-weight: 500;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+}
+
+.login-form {
+    width: 100%;
+    max-width: 320px;
+    background-color: white;
+    padding: 30px;
+    border-radius: 16px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.input-group {
+    margin-bottom: 20px;
+}
+
+.input-field {
+    width: 100%;
+    padding: 15px;
+    border: 1px solid #e5e5e5;
+    border-radius: 12px;
+    font-size: 16px;
+    transition: all 0.3s ease;
+    background-color: #f7f7f7;
+}
+
+.input-field:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    background-color: white;
+    box-shadow: 0 0 0 2px rgba(0, 122, 255, 0.1);
+}
+
+.remember-password {
+    margin-bottom: 25px;
+}
+
+.checkbox-container {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    font-size: 15px;
+    color: #666;
+    user-select: none;
+}
+
+.checkbox-container input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+    height: 0;
+    width: 0;
+}
+
+.checkmark {
+    position: relative;
+    height: 20px;
+    width: 20px;
+    background-color: #f7f7f7;
+    border: 1.5px solid #ddd;
+    border-radius: 6px;
+    margin-right: 10px;
+    transition: all 0.2s ease;
+}
+
+.checkbox-container:hover input ~ .checkmark {
+    border-color: var(--primary-color);
+    background-color: rgba(0, 122, 255, 0.05);
+}
+
+.checkbox-container input:checked ~ .checkmark {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.checkmark:after {
+    content: "";
+    position: absolute;
+    display: none;
+}
+
+.checkbox-container input:checked ~ .checkmark:after {
+    display: block;
+}
+
+.checkbox-container .checkmark:after {
+    left: 6px;
+    top: 2px;
+    width: 5px;
+    height: 10px;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+}
+
+.login-button {
+    width: 100%;
+    padding: 15px;
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 17px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0, 122, 255, 0.2);
+}
+
+.login-button:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(0, 122, 255, 0.3);
+}
+
+.login-button:active {
+    transform: translateY(1px);
+    box-shadow: 0 2px 8px rgba(0, 122, 255, 0.2);
+} 

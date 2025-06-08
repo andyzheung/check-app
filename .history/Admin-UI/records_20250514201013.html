@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>巡检记录 - 巡检管理系统后台</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ant-design-vue@3.2.20/dist/antd.min.css">
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: #f0f2f5;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    }
+    .nav {
+      background: #fff;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      padding: 0 32px;
+      display: flex;
+      align-items: center;
+      height: 56px;
+      justify-content: space-between;
+    }
+    .nav .logo {
+      font-weight: bold;
+      color: #1890ff;
+      font-size: 22px;
+    }
+    .nav .menu {
+      display: flex;
+      gap: 32px;
+      font-size: 16px;
+    }
+    .nav .user {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .container {
+      max-width: 1300px;
+      margin: 32px auto 0 auto;
+      padding: 0 16px;
+    }
+    .filter-card {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(31, 38, 135, 0.08);
+      padding: 24px;
+      margin-bottom: 24px;
+    }
+    .filter-title {
+      font-size: 16px;
+      font-weight: bold;
+      margin-bottom: 16px;
+    }
+    .filter-form {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+    .filter-item {
+      flex: 1;
+      min-width: 200px;
+    }
+    .filter-label {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 14px;
+    }
+    .filter-input {
+      width: 100%;
+      padding: 8px 12px;
+      border: 1px solid #d9d9d9;
+      border-radius: 4px;
+    }
+    .filter-select {
+      width: 100%;
+      padding: 8px 12px;
+      border: 1px solid #d9d9d9;
+      border-radius: 4px;
+      background: #fff;
+    }
+    .filter-buttons {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 16px;
+      gap: 12px;
+    }
+    .btn {
+      padding: 8px 16px;
+      border-radius: 4px;
+      cursor: pointer;
+      border: none;
+      font-size: 14px;
+    }
+    .btn-primary {
+      background: #1890ff;
+      color: white;
+    }
+    .btn-default {
+      background: #f0f0f0;
+      color: #000;
+    }
+    .table-card {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(31, 38, 135, 0.08);
+      padding: 24px;
+      margin-bottom: 24px;
+    }
+    .table-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+    .table-title {
+      font-size: 16px;
+      font-weight: bold;
+    }
+    .table-actions {
+      display: flex;
+      gap: 12px;
+    }
+    .ant-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .ant-table th, .ant-table td {
+      padding: 12px 8px;
+      text-align: left;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    .ant-table th {
+      background: #fafafa;
+      font-weight: 500;
+    }
+    .ant-table-row:hover {
+      background: #f5f5f5;
+    }
+    .status-badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 10px;
+      font-size: 12px;
+    }
+    .status-normal {
+      background: #f6ffed;
+      color: #52c41a;
+    }
+    .status-abnormal {
+      background: #fff1f0;
+      color: #f5222d;
+    }
+    .link-btn {
+      color: #1890ff;
+      cursor: pointer;
+    }
+    .pagination {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 16px;
+    }
+    .pagination-item {
+      padding: 4px 12px;
+      border: 1px solid #d9d9d9;
+      margin: 0 4px;
+      cursor: pointer;
+    }
+    .pagination-item.active {
+      background: #1890ff;
+      color: white;
+      border-color: #1890ff;
+    }
+    .footer {
+      text-align: center;
+      color: #999;
+      margin: 32px 0 16px 0;
+    }
+    
+    /* 详情弹窗样式 */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      display: none;
+    }
+    .modal-content {
+      background: #fff;
+      border-radius: 8px;
+      width: 800px;
+      max-width: 90%;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+    .modal-header {
+      padding: 16px 24px;
+      border-bottom: 1px solid #f0f0f0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .modal-title {
+      font-size: 16px;
+      font-weight: bold;
+    }
+    .modal-close {
+      cursor: pointer;
+      font-size: 18px;
+    }
+    .modal-body {
+      padding: 24px;
+    }
+    .inspection-section {
+      margin-bottom: 24px;
+    }
+    .section-title {
+      font-size: 16px;
+      font-weight: bold;
+      margin-bottom: 16px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    .inspection-item {
+      display: flex;
+      margin-bottom: 12px;
+    }
+    .item-label {
+      width: 160px;
+      color: #666;
+    }
+    .item-value {
+      flex: 1;
+    }
+    .item-status {
+      margin-left: 16px;
+    }
+    .item-status.normal {
+      color: #52c41a;
+    }
+    .item-status.abnormal {
+      color: #f5222d;
+    }
+    .inspection-notes {
+      margin-top: 16px;
+      padding: 16px;
+      background: #f9f9f9;
+      border-radius: 4px;
+    }
+    .modal-footer {
+      padding: 10px 24px;
+      border-top: 1px solid #f0f0f0;
+      text-align: right;
+    }
+  </style>
+</head>
+<body>
+  <div class="nav">
+    <div class="logo">巡检管理系统后台</div>
+    <div class="menu">
+      <span onclick="window.location.href='dashboard.html'" style="cursor:pointer;">仪表盘</span>
+      <span style="color:#1890ff;">巡检记录</span>
+      <span onclick="window.location.href='issues.html'" style="cursor:pointer;">问题列表</span>
+      <span onclick="window.location.href='users.html'" style="cursor:pointer;">用户管理</span>
+    </div>
+    <div class="user">
+      <span class="anticon anticon-user"></span>
+      <span>管理员</span>
+    </div>
+  </div>
+  
+  <div class="container">
+    <div class="filter-card">
+      <div class="filter-title">筛选条件</div>
+      <div class="filter-form">
+        <div class="filter-item">
+          <label class="filter-label">时间范围</label>
+          <input type="date" class="filter-input" placeholder="开始日期">
+        </div>
+        <div class="filter-item">
+          <label class="filter-label">&nbsp;</label>
+          <input type="date" class="filter-input" placeholder="结束日期">
+        </div>
+        <div class="filter-item">
+          <label class="filter-label">巡检区域</label>
+          <select class="filter-select">
+            <option value="">全部区域</option>
+            <option value="A">A区机房</option>
+            <option value="B">B区机房</option>
+            <option value="C">C区机房</option>
+          </select>
+        </div>
+        <div class="filter-item">
+          <label class="filter-label">巡检人员</label>
+          <select class="filter-select">
+            <option value="">全部人员</option>
+            <option value="1">张三</option>
+            <option value="2">李四</option>
+            <option value="3">王五</option>
+          </select>
+        </div>
+        <div class="filter-item">
+          <label class="filter-label">巡检状态</label>
+          <select class="filter-select">
+            <option value="">全部状态</option>
+            <option value="normal">正常</option>
+            <option value="abnormal">异常</option>
+          </select>
+        </div>
+      </div>
+      <div class="filter-buttons">
+        <button class="btn btn-default">重置</button>
+        <button class="btn btn-primary">查询</button>
+      </div>
+    </div>
+    
+    <div class="table-card">
+      <div class="table-header">
+        <div class="table-title">巡检记录列表</div>
+        <div class="table-actions">
+          <button class="btn btn-default">导出</button>
+        </div>
+      </div>
+      <table class="ant-table">
+        <thead>
+          <tr>
+            <th>巡检编号</th>
+            <th>巡检时间</th>
+            <th>巡检区域</th>
+            <th>巡检人员</th>
+            <th>巡检状态</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="ant-table-row">
+            <td>INS20240510001</td>
+            <td>2024-05-10 09:30</td>
+            <td>A区机房</td>
+            <td>张三</td>
+            <td><span class="status-badge status-abnormal">异常</span></td>
+            <td><span class="link-btn" onclick="showDetail('INS20240510001')">查看详情</span></td>
+          </tr>
+          <tr class="ant-table-row">
+            <td>INS20240509002</td>
+            <td>2024-05-09 14:20</td>
+            <td>B区机房</td>
+            <td>李四</td>
+            <td><span class="status-badge status-normal">正常</span></td>
+            <td><span class="link-btn" onclick="showDetail('INS20240509002')">查看详情</span></td>
+          </tr>
+          <tr class="ant-table-row">
+            <td>INS20240508003</td>
+            <td>2024-05-08 10:15</td>
+            <td>C区机房</td>
+            <td>王五</td>
+            <td><span class="status-badge status-abnormal">异常</span></td>
+            <td><span class="link-btn" onclick="showDetail('INS20240508003')">查看详情</span></td>
+          </tr>
+          <tr class="ant-table-row">
+            <td>INS20240507004</td>
+            <td>2024-05-07 16:45</td>
+            <td>A区机房</td>
+            <td>赵六</td>
+            <td><span class="status-badge status-normal">正常</span></td>
+            <td><span class="link-btn" onclick="showDetail('INS20240507004')">查看详情</span></td>
+          </tr>
+          <tr class="ant-table-row">
+            <td>INS20240506005</td>
+            <td>2024-05-06 11:30</td>
+            <td>B区机房</td>
+            <td>张三</td>
+            <td><span class="status-badge status-normal">正常</span></td>
+            <td><span class="link-btn" onclick="showDetail('INS20240506005')">查看详情</span></td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="pagination">
+        <div class="pagination-item">上一页</div>
+        <div class="pagination-item active">1</div>
+        <div class="pagination-item">2</div>
+        <div class="pagination-item">3</div>
+        <div class="pagination-item">下一页</div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- 巡检详情弹窗 -->
+  <div id="detailModal" class="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div class="modal-title">巡检详情 - <span id="inspectionTitle"></span></div>
+        <div class="modal-close" onclick="closeModal()">×</div>
+      </div>
+      <div class="modal-body">
+        <div class="inspection-section">
+          <div class="section-title">基本信息</div>
+          <div class="inspection-item">
+            <div class="item-label">巡检编号：</div>
+            <div class="item-value" id="inspectionId"></div>
+          </div>
+          <div class="inspection-item">
+            <div class="item-label">巡检时间：</div>
+            <div class="item-value" id="inspectionTime"></div>
+          </div>
+          <div class="inspection-item">
+            <div class="item-label">巡检人员：</div>
+            <div class="item-value" id="inspectionPerson"></div>
+          </div>
+          <div class="inspection-item">
+            <div class="item-label">巡检区域：</div>
+            <div class="item-value" id="inspectionArea"></div>
+          </div>
+        </div>
+        
+        <div class="inspection-section">
+          <div class="section-title">环境巡检</div>
+          <div class="inspection-item">
+            <div class="item-label">机房温度：</div>
+            <div class="item-value">-</div>
+            <div class="item-status normal" id="tempStatus">正常</div>
+          </div>
+          <div class="inspection-item">
+            <div class="item-label">冷通道回风温度：</div>
+            <div class="item-value">-</div>
+            <div class="item-status normal" id="coldAirStatus">正常</div>
+          </div>
+          <div class="inspection-item">
+            <div class="item-label">供电情况：</div>
+            <div class="item-value">-</div>
+            <div class="item-status normal" id="powerStatus">正常</div>
+          </div>
+        </div>
+        
+        <div class="inspection-section">
+          <div class="section-title">安全巡检</div>
+          <div class="inspection-item">
+            <div class="item-label">门禁状态：</div>
+            <div class="item-value">-</div>
+            <div class="item-status normal" id="doorStatus">正常</div>
+          </div>
+          <div class="inspection-item">
+            <div class="item-label">声光报警：</div>
+            <div class="item-value">-</div>
+            <div class="item-status normal" id="alarmStatus">正常</div>
+          </div>
+          <div class="inspection-item">
+            <div class="item-label">漏水检测：</div>
+            <div class="item-value">-</div>
+            <div class="item-status normal" id="leakStatus">正常</div>
+          </div>
+          <div class="inspection-item">
+            <div class="item-label">易燃物检查：</div>
+            <div class="item-value">-</div>
+            <div class="item-status normal" id="flammableStatus">正常</div>
+          </div>
+        </div>
+        
+        <div class="inspection-section">
+          <div class="section-title">备注信息</div>
+          <div class="inspection-notes" id="inspectionNotes">无</div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-default" onclick="closeModal()">关闭</button>
+      </div>
+    </div>
+  </div>
+  
+  <div class="footer">© 2025 巡检管理系统后台</div>
+  
+  <script>
+    // 打开详情弹窗
+    function showDetail(id) {
+      // 根据ID获取巡检记录详情，这里模拟数据
+      const inspectionData = {
+        'INS20240510001': {
+          id: 'INS20240510001',
+          time: '2024-05-10 09:30',
+          person: '张三',
+          area: 'A区机房',
+          status: {
+            temp: 'abnormal',
+            coldAir: 'normal',
+            power: 'normal',
+            door: 'normal',
+            alarm: 'normal',
+            leak: 'normal',
+            flammable: 'normal'
+          },
+          notes: '机房温度异常，已通知维修人员。'
+        },
+        'INS20240509002': {
+          id: 'INS20240509002',
+          time: '2024-05-09 14:20',
+          person: '李四',
+          area: 'B区机房',
+          status: {
+            temp: 'normal',
+            coldAir: 'normal',
+            power: 'normal',
+            door: 'normal',
+            alarm: 'normal',
+            leak: 'normal',
+            flammable: 'normal'
+          },
+          notes: '巡检正常，无异常情况。'
+        },
+        'INS20240508003': {
+          id: 'INS20240508003',
+          time: '2024-05-08 10:15',
+          person: '王五',
+          area: 'C区机房',
+          status: {
+            temp: 'normal',
+            coldAir: 'normal',
+            power: 'normal',
+            door: 'normal',
+            alarm: 'normal',
+            leak: 'abnormal',
+            flammable: 'normal'
+          },
+          notes: '发现漏水情况，已处理。'
+        }
+      };
+      
+      const data = inspectionData[id] || {
+        id: id,
+        time: '-',
+        person: '-',
+        area: '-',
+        status: {
+          temp: 'normal',
+          coldAir: 'normal',
+          power: 'normal',
+          door: 'normal',
+          alarm: 'normal',
+          leak: 'normal',
+          flammable: 'normal'
+        },
+        notes: '无详细记录'
+      };
+      
+      // 填充弹窗数据
+      document.getElementById('inspectionTitle').textContent = data.area;
+      document.getElementById('inspectionId').textContent = data.id;
+      document.getElementById('inspectionTime').textContent = data.time;
+      document.getElementById('inspectionPerson').textContent = data.person;
+      document.getElementById('inspectionArea').textContent = data.area;
+      document.getElementById('inspectionNotes').textContent = data.notes || '无';
+      
+      // 设置状态
+      setStatus('tempStatus', data.status.temp);
+      setStatus('coldAirStatus', data.status.coldAir);
+      setStatus('powerStatus', data.status.power);
+      setStatus('doorStatus', data.status.door);
+      setStatus('alarmStatus', data.status.alarm);
+      setStatus('leakStatus', data.status.leak);
+      setStatus('flammableStatus', data.status.flammable);
+      
+      // 显示弹窗
+      document.getElementById('detailModal').style.display = 'flex';
+    }
+    
+    // 设置状态样式和文本
+    function setStatus(elementId, status) {
+      const element = document.getElementById(elementId);
+      if (status === 'abnormal') {
+        element.className = 'item-status abnormal';
+        element.textContent = '异常';
+      } else {
+        element.className = 'item-status normal';
+        element.textContent = '正常';
+      }
+    }
+    
+    // 关闭弹窗
+    function closeModal() {
+      document.getElementById('detailModal').style.display = 'none';
+    }
+  </script>
+</body>
+</html> 

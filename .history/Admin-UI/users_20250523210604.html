@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>用户管理 - 巡检管理系统后台</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ant-design-vue@3.2.20/dist/antd.min.css">
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: #f0f2f5;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    }
+    .nav {
+      background: #fff;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      padding: 0 32px;
+      display: flex;
+      align-items: center;
+      height: 56px;
+      justify-content: space-between;
+    }
+    .nav .logo {
+      font-weight: bold;
+      color: #1890ff;
+      font-size: 22px;
+    }
+    .nav .menu {
+      display: flex;
+      gap: 32px;
+      font-size: 16px;
+    }
+    .nav .user {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .container {
+      max-width: 1300px;
+      margin: 32px auto 0 auto;
+      padding: 0 16px;
+    }
+    .filter-card {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(31, 38, 135, 0.08);
+      padding: 24px;
+      margin-bottom: 24px;
+    }
+    .filter-title {
+      font-size: 16px;
+      font-weight: bold;
+      margin-bottom: 16px;
+    }
+    .filter-form {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+    .filter-item {
+      flex: 1;
+      min-width: 200px;
+    }
+    .filter-label {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 14px;
+    }
+    .filter-input {
+      width: 100%;
+      padding: 8px 12px;
+      border: 1px solid #d9d9d9;
+      border-radius: 4px;
+    }
+    .filter-select {
+      width: 100%;
+      padding: 8px 12px;
+      border: 1px solid #d9d9d9;
+      border-radius: 4px;
+      background: #fff;
+    }
+    .filter-buttons {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 16px;
+      gap: 12px;
+    }
+    .btn {
+      padding: 8px 16px;
+      border-radius: 4px;
+      cursor: pointer;
+      border: none;
+      font-size: 14px;
+    }
+    .btn-primary {
+      background: #1890ff;
+      color: white;
+    }
+    .btn-default {
+      background: #f0f0f0;
+      color: #000;
+    }
+    .btn-danger {
+      background: #ff4d4f;
+      color: white;
+    }
+    .table-card {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(31, 38, 135, 0.08);
+      padding: 24px;
+      margin-bottom: 24px;
+    }
+    .table-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+    .table-title {
+      font-size: 16px;
+      font-weight: bold;
+    }
+    .table-actions {
+      display: flex;
+      gap: 12px;
+    }
+    .ant-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .ant-table th, .ant-table td {
+      padding: 12px 8px;
+      text-align: left;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    .ant-table th {
+      background: #fafafa;
+      font-weight: 500;
+    }
+    .ant-table-row:hover {
+      background: #f5f5f5;
+    }
+    .tag {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 10px;
+      font-size: 12px;
+      margin-right: 4px;
+    }
+    .tag-admin {
+      background: #e6f7ff;
+      color: #1890ff;
+    }
+    .tag-user {
+      background: #f9f0ff;
+      color: #722ed1;
+    }
+    .link-btn {
+      color: #1890ff;
+      cursor: pointer;
+      margin-right: 8px;
+    }
+    .danger-link {
+      color: #ff4d4f;
+      cursor: pointer;
+    }
+    .pagination {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 16px;
+    }
+    .pagination-item {
+      padding: 4px 12px;
+      border: 1px solid #d9d9d9;
+      margin: 0 4px;
+      cursor: pointer;
+    }
+    .pagination-item.active {
+      background: #1890ff;
+      color: white;
+      border-color: #1890ff;
+    }
+    .footer {
+      text-align: center;
+      color: #999;
+      margin: 32px 0 16px 0;
+    }
+    
+    /* 弹窗样式 */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      display: none;
+    }
+    .modal-content {
+      background: #fff;
+      border-radius: 8px;
+      width: 500px;
+      max-width: 90%;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+    .modal-header {
+      padding: 16px 24px;
+      border-bottom: 1px solid #f0f0f0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .modal-title {
+      font-size: 16px;
+      font-weight: bold;
+    }
+    .modal-close {
+      cursor: pointer;
+      font-size: 18px;
+    }
+    .modal-body {
+      padding: 24px;
+    }
+    .form-group {
+      margin-bottom: 16px;
+    }
+    .form-label {
+      display: block;
+      margin-bottom: 8px;
+    }
+    .form-input {
+      width: 100%;
+      padding: 8px 12px;
+      border: 1px solid #d9d9d9;
+      border-radius: 4px;
+    }
+    .checkbox-group {
+      margin-top: 8px;
+    }
+    .checkbox-item {
+      margin-bottom: 8px;
+    }
+    .modal-footer {
+      padding: 10px 24px;
+      border-top: 1px solid #f0f0f0;
+      text-align: right;
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+    }
+  </style>
+</head>
+<body>
+  <div class="nav">
+    <div class="logo">巡检管理系统后台</div>
+    <div class="menu">
+      <a href="dashboard.html">仪表盘</a>
+      <a href="records.html">巡检记录</a>
+      <a href="schedule.html">巡检排班</a>
+      <a href="issues.html">问题列表</a>
+      <a href="users.html" style="color:#1890ff;">用户管理</a>
+    </div>
+    <div class="user">
+      <span>管理员</span>
+      <a href="login.html">退出</a>
+    </div>
+  </div>
+  
+  <div class="container">
+    <div class="filter-card">
+      <div class="filter-title">筛选条件</div>
+      <div class="filter-form">
+        <div class="filter-item">
+          <label class="filter-label">用户名</label>
+          <input type="text" class="filter-input" placeholder="请输入用户名">
+        </div>
+        <div class="filter-item">
+          <label class="filter-label">部门</label>
+          <select class="filter-select">
+            <option value="">全部部门</option>
+            <option value="ops">运维部</option>
+            <option value="security">安全部</option>
+            <option value="it">IT部</option>
+          </select>
+        </div>
+        <div class="filter-item">
+          <label class="filter-label">角色</label>
+          <select class="filter-select">
+            <option value="">全部角色</option>
+            <option value="admin">管理员</option>
+            <option value="user">普通用户</option>
+          </select>
+        </div>
+        <div class="filter-item">
+          <label class="filter-label">状态</label>
+          <select class="filter-select">
+            <option value="">全部状态</option>
+            <option value="active">活跃</option>
+            <option value="inactive">未激活</option>
+            <option value="locked">已锁定</option>
+          </select>
+        </div>
+      </div>
+      <div class="filter-buttons">
+        <button class="btn btn-default">重置</button>
+        <button class="btn btn-primary">查询</button>
+      </div>
+    </div>
+    
+    <div class="table-card">
+      <div class="table-header">
+        <div class="table-title">用户列表</div>
+        <div class="table-actions">
+          <button class="btn btn-primary" onclick="showAddUserModal()">添加用户</button>
+        </div>
+      </div>
+      <table class="ant-table">
+        <thead>
+          <tr>
+            <th>用户名</th>
+            <th>姓名</th>
+            <th>部门</th>
+            <th>角色</th>
+            <th>状态</th>
+            <th>创建时间</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="ant-table-row">
+            <td>admin</td>
+            <td>系统管理员</td>
+            <td>IT部</td>
+            <td><span class="tag tag-admin">管理员</span></td>
+            <td>活跃</td>
+            <td>2024-01-01</td>
+            <td>
+              <span class="link-btn" onclick="showEditUserModal('admin')">编辑</span>
+              <span class="link-btn" onclick="showPermissionModal('admin')">权限</span>
+              <span class="danger-link" onclick="confirmDelete('admin')">删除</span>
+            </td>
+          </tr>
+          <tr class="ant-table-row">
+            <td>zhangsan</td>
+            <td>张三</td>
+            <td>运维部</td>
+            <td><span class="tag tag-user">普通用户</span></td>
+            <td>活跃</td>
+            <td>2024-02-15</td>
+            <td>
+              <span class="link-btn" onclick="showEditUserModal('zhangsan')">编辑</span>
+              <span class="link-btn" onclick="showPermissionModal('zhangsan')">权限</span>
+              <span class="danger-link" onclick="confirmDelete('zhangsan')">删除</span>
+            </td>
+          </tr>
+          <tr class="ant-table-row">
+            <td>lisi</td>
+            <td>李四</td>
+            <td>安全部</td>
+            <td><span class="tag tag-user">普通用户</span></td>
+            <td>活跃</td>
+            <td>2024-03-10</td>
+            <td>
+              <span class="link-btn" onclick="showEditUserModal('lisi')">编辑</span>
+              <span class="link-btn" onclick="showPermissionModal('lisi')">权限</span>
+              <span class="danger-link" onclick="confirmDelete('lisi')">删除</span>
+            </td>
+          </tr>
+          <tr class="ant-table-row">
+            <td>wangwu</td>
+            <td>王五</td>
+            <td>运维部</td>
+            <td><span class="tag tag-user">普通用户</span></td>
+            <td>活跃</td>
+            <td>2024-03-20</td>
+            <td>
+              <span class="link-btn" onclick="showEditUserModal('wangwu')">编辑</span>
+              <span class="link-btn" onclick="showPermissionModal('wangwu')">权限</span>
+              <span class="danger-link" onclick="confirmDelete('wangwu')">删除</span>
+            </td>
+          </tr>
+          <tr class="ant-table-row">
+            <td>zhaoliu</td>
+            <td>赵六</td>
+            <td>安全部</td>
+            <td><span class="tag tag-admin">管理员</span></td>
+            <td>活跃</td>
+            <td>2024-04-05</td>
+            <td>
+              <span class="link-btn" onclick="showEditUserModal('zhaoliu')">编辑</span>
+              <span class="link-btn" onclick="showPermissionModal('zhaoliu')">权限</span>
+              <span class="danger-link" onclick="confirmDelete('zhaoliu')">删除</span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="pagination">
+        <div class="pagination-item">上一页</div>
+        <div class="pagination-item active">1</div>
+        <div class="pagination-item">2</div>
+        <div class="pagination-item">3</div>
+        <div class="pagination-item">下一页</div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- 添加/编辑用户弹窗 -->
+  <div id="userModal" class="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div class="modal-title" id="userModalTitle">添加用户</div>
+        <div class="modal-close" onclick="closeModal('userModal')">×</div>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">用户名</label>
+          <input type="text" class="form-input" id="username" placeholder="请输入用户名">
+        </div>
+        <div class="form-group">
+          <label class="form-label">姓名</label>
+          <input type="text" class="form-input" id="realname" placeholder="请输入姓名">
+        </div>
+        <div class="form-group">
+          <label class="form-label">密码</label>
+          <input type="password" class="form-input" id="password" placeholder="请输入密码">
+        </div>
+        <div class="form-group">
+          <label class="form-label">部门</label>
+          <select class="form-input" id="department">
+            <option value="ops">运维部</option>
+            <option value="security">安全部</option>
+            <option value="it">IT部</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">角色</label>
+          <select class="form-input" id="role">
+            <option value="user">普通用户</option>
+            <option value="admin">管理员</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">状态</label>
+          <select class="form-input" id="status">
+            <option value="active">活跃</option>
+            <option value="inactive">未激活</option>
+            <option value="locked">已锁定</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-default" onclick="closeModal('userModal')">取消</button>
+        <button class="btn btn-primary" onclick="saveUser()">保存</button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- 权限设置弹窗 -->
+  <div id="permissionModal" class="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div class="modal-title">权限设置 - <span id="permissionUsername"></span></div>
+        <div class="modal-close" onclick="closeModal('permissionModal')">×</div>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">权限分配</label>
+          <div class="checkbox-group">
+            <div class="checkbox-item">
+              <input type="checkbox" id="perm_dashboard" checked>
+              <label for="perm_dashboard">仪表盘查看权限</label>
+            </div>
+            <div class="checkbox-item">
+              <input type="checkbox" id="perm_records_view" checked>
+              <label for="perm_records_view">巡检记录查看权限</label>
+            </div>
+            <div class="checkbox-item">
+              <input type="checkbox" id="perm_records_all">
+              <label for="perm_records_all">查看所有巡检记录（否则只能查看自己的记录）</label>
+            </div>
+            <div class="checkbox-item">
+              <input type="checkbox" id="perm_records_export">
+              <label for="perm_records_export">巡检记录导出权限</label>
+            </div>
+            <div class="checkbox-item">
+              <input type="checkbox" id="perm_issues_view" checked>
+              <label for="perm_issues_view">问题列表查看权限</label>
+            </div>
+            <div class="checkbox-item">
+              <input type="checkbox" id="perm_issues_edit">
+              <label for="perm_issues_edit">问题处理权限</label>
+            </div>
+            <div class="checkbox-item">
+              <input type="checkbox" id="perm_user_manage">
+              <label for="perm_user_manage">用户管理权限</label>
+            </div>
+            <div class="checkbox-item">
+              <input type="checkbox" id="perm_system_config">
+              <label for="perm_system_config">系统配置权限</label>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-default" onclick="closeModal('permissionModal')">取消</button>
+        <button class="btn btn-primary" onclick="savePermissions()">保存</button>
+      </div>
+    </div>
+  </div>
+  
+  <div class="footer">© 2025 巡检管理系统后台</div>
+  
+  <script>
+    // 显示添加用户弹窗
+    function showAddUserModal() {
+      document.getElementById('userModalTitle').textContent = '添加用户';
+      document.getElementById('username').value = '';
+      document.getElementById('realname').value = '';
+      document.getElementById('password').value = '';
+      document.getElementById('department').value = 'ops';
+      document.getElementById('role').value = 'user';
+      document.getElementById('status').value = 'active';
+      document.getElementById('userModal').style.display = 'flex';
+    }
+    
+    // 显示编辑用户弹窗
+    function showEditUserModal(username) {
+      document.getElementById('userModalTitle').textContent = '编辑用户';
+      
+      // 模拟获取用户数据
+      const userData = {
+        'admin': { username: 'admin', realname: '系统管理员', department: 'it', role: 'admin', status: 'active' },
+        'zhangsan': { username: 'zhangsan', realname: '张三', department: 'ops', role: 'user', status: 'active' },
+        'lisi': { username: 'lisi', realname: '李四', department: 'security', role: 'user', status: 'active' },
+        'wangwu': { username: 'wangwu', realname: '王五', department: 'ops', role: 'user', status: 'active' },
+        'zhaoliu': { username: 'zhaoliu', realname: '赵六', department: 'security', role: 'admin', status: 'active' }
+      };
+      
+      const user = userData[username] || { username: '', realname: '', department: 'ops', role: 'user', status: 'active' };
+      
+      document.getElementById('username').value = user.username;
+      document.getElementById('realname').value = user.realname;
+      document.getElementById('password').value = ''; // 不显示密码
+      document.getElementById('department').value = user.department;
+      document.getElementById('role').value = user.role;
+      document.getElementById('status').value = user.status;
+      
+      document.getElementById('userModal').style.display = 'flex';
+    }
+    
+    // 显示权限设置弹窗
+    function showPermissionModal(username) {
+      document.getElementById('permissionUsername').textContent = username;
+      
+      // 模拟获取用户权限数据
+      const isAdmin = username === 'admin' || username === 'zhaoliu';
+      
+      document.getElementById('perm_dashboard').checked = true;
+      document.getElementById('perm_records_view').checked = true;
+      document.getElementById('perm_records_all').checked = isAdmin;
+      document.getElementById('perm_records_export').checked = isAdmin;
+      document.getElementById('perm_issues_view').checked = true;
+      document.getElementById('perm_issues_edit').checked = isAdmin;
+      document.getElementById('perm_user_manage').checked = isAdmin;
+      document.getElementById('perm_system_config').checked = username === 'admin';
+      
+      document.getElementById('permissionModal').style.display = 'flex';
+    }
+    
+    // 关闭弹窗
+    function closeModal(modalId) {
+      document.getElementById(modalId).style.display = 'none';
+    }
+    
+    // 保存用户
+    function saveUser() {
+      // 模拟保存用户数据
+      alert('用户信息保存成功！');
+      closeModal('userModal');
+    }
+    
+    // 保存权限
+    function savePermissions() {
+      // 模拟保存权限数据
+      alert('权限设置保存成功！');
+      closeModal('permissionModal');
+    }
+    
+    // 确认删除
+    function confirmDelete(username) {
+      if (confirm(`确定要删除用户 ${username} 吗？`)) {
+        // 模拟删除用户
+        alert(`用户 ${username} 已删除！`);
+      }
+    }
+  </script>
+</body>
+</html> 

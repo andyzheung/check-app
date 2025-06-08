@@ -1,0 +1,127 @@
+/* 主页面样式 */
+.main-container {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background-color: #f7f7f7;
+}
+
+.content-area {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.scan-button-container {
+    width: 100%;
+    max-width: 320px;
+    padding: 20px;
+}
+
+.scan-button {
+    width: 100%;
+    padding: 20px;
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 16px;
+    font-size: 18px;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    box-shadow: 0 8px 16px rgba(0, 122, 255, 0.2);
+    transition: all 0.3s ease;
+}
+
+.scan-button .material-icons {
+    font-size: 48px;
+}
+
+.scan-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 20px rgba(0, 122, 255, 0.3);
+}
+
+.scan-button:active {
+    transform: translateY(1px);
+    box-shadow: 0 4px 8px rgba(0, 122, 255, 0.2);
+}
+
+/* 底部导航样式 */
+.bottom-nav {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    background-color: white;
+    padding: 12px 0;
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-decoration: none;
+    color: #999;
+    font-size: 12px;
+    padding: 8px 0;
+    width: 33.33%;
+}
+
+.nav-item .material-icons {
+    font-size: 24px;
+    margin-bottom: 4px;
+}
+
+.nav-item.active {
+    color: var(--primary-color);
+}
+
+.welcome-card {
+    background-color: var(--card-background);
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+    text-align: center;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.welcome-card h2 {
+    margin-bottom: 10px;
+    color: var(--text-color);
+}
+
+.welcome-card p {
+    color: #666;
+}
+
+.action-buttons {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.action-button {
+    background-color: var(--card-background);
+    border-radius: 8px;
+    padding: 20px;
+    text-align: center;
+    text-decoration: none;
+    color: var(--text-color);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+.action-button .material-icons {
+    font-size: 32px;
+    color: var(--primary-color);
+} 

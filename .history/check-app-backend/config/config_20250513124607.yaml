@@ -1,0 +1,13 @@
+server:
+  port: 8080
+
+database:
+  host: localhost
+  port: 3306
+  user: root
+  password: pst.185423  # 请将这里改为你在安装MySQL时设置的密码
+  dbname: check_app
+
+jwt:
+  secret: your_jwt_secret_key
+  expire: 24  # 24小时 

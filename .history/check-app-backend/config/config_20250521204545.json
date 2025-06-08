@@ -1,0 +1,24 @@
+{
+    "server": {
+        "port": 8080,
+        "mode": "debug"
+    },
+    "database": {
+        "host": "localhost",
+        "port": 3306,
+        "user": "root",
+        "password": "pst.185423",
+        "dbname": "inspection_app"
+    },
+    "jwt": {
+        "secret": "your-secret-key",
+        "expire": 24
+    },
+    "ad": {
+        "server": "ldap.example.com",
+        "port": 389,
+        "base_dn": "dc=example,dc=com",
+        "bind_dn": "cn=admin,dc=example,dc=com",
+        "password": "admin-password"
+    }
+} 

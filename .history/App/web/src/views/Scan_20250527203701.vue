@@ -1,0 +1,343 @@
+<template>
+  <div class="scan-container">
+    <!-- 返回按钮 -->
+    <button class="back-btn" @click="goHome">
+      <span class="material-icons">arrow_back</span>
+    </button>
+    <div class="scan-header">
+      <h1>扫码巡检</h1>
+    </div>
+    <div class="scan-body">
+      <div class="scan-frame" ref="scanFrameRef">
+        <div class="scan-line"></div>
+        <!-- 手电筒按钮 -->
+        <button class="torch-btn" @click="toggleTorch">
+          <span class="material-icons">{{ torchOn ? 'flashlight_on' : 'flashlight_off' }}</span>
+        </button>
+      </div>
+      <div class="scan-tip">
+        <div class="tip-main">将二维码放入框内</div>
+        <div class="tip-sub">自动扫描</div>
+      </div>
+      <div class="input-group">
+        <input 
+          type="text" 
+          v-model="code" 
+          placeholder="请输入巡检点编号" 
+          @keyup.enter="handleCode"
+          pattern="^AREA[A-C]\d{3}$"
+          title="请输入正确的区域编码，例如：AREAA001"
+        />
+        <button @click="handleCode">确定</button>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script setup>
+import { ref, onMounted, onUnmounted } from 'vue'
+import { useRouter } from 'vue-router'
+import { verifyQRCode } from '@/api/inspection'
+import { showToast } from 'vant'
+
+const router = useRouter()
+const code = ref('')
+const torchOn = ref(false)
+const scanFrameRef = ref(null)
+let scanner = null
+
+// 初始化扫码器
+async function initScanner() {
+  try {
+    const { BrowserQRCodeReader } = await import('@zxing/browser')
+    scanner = new BrowserQRCodeReader()
+    
+    // 获取摄像头列表
+    const videoInputDevices = await scanner.listVideoInputDevices()
+    if (videoInputDevices.length === 0) {
+      showToast('未找到摄像头设备')
+      return
+    }
+    
+    // 使用后置摄像头（如果有）
+    const selectedDeviceId = videoInputDevices.find(device => 
+      device.label.toLowerCase().includes('back') || 
+      device.label.toLowerCase().includes('rear')
+    )?.deviceId || videoInputDevices[0].deviceId
+    
+    // 开始扫码
+    await startScanning(selectedDeviceId)
+  } catch (error) {
+    console.error('初始化扫码器失败:', error)
+    showToast('初始化扫码器失败，请检查摄像头权限')
+  }
+}
+
+// 开始扫码
+async function startScanning(deviceId) {
+  try {
+    if (!scanner || !scanFrameRef.value) return
+    
+    const controls = await scanner.decodeFromVideoDevice(
+      deviceId,
+      scanFrameRef.value,
+      async (result, error) => {
+        if (result) {
+          const text = result.getText()
+          console.log('扫码结果:', text)
+          await handleScanResult(text)
+        }
+        if (error && !(error instanceof Error)) {
+          console.error('扫码错误:', error)
+        }
+      }
+    )
+    
+    // 保存控制器以便后续关闭
+    scanner.controls = controls
+  } catch (error) {
+    console.error('启动扫码失败:', error)
+    showToast('启动扫码失败，请重试')
+  }
+}
+
+// 处理扫码结果
+async function handleScanResult(text) {
+  try {
+    // 验证二维码格式
+    const codePattern = /^AREA[A-C]\d{3}$/
+    if (!codePattern.test(text)) {
+      showToast('无效的区域编码')
+      return
+    }
+    
+    // 验证二维码
+    const res = await verifyQRCode({ code: text })
+    if (res.code === 200) {
+      // 跳转到巡检表单页面
+      router.push({
+        path: '/inspection-form',
+        query: { code: text }
+      })
+    } else {
+      showToast(res.message || '无效的区域编码')
+    }
+  } catch (error) {
+    console.error('验证二维码失败:', error)
+    showToast('验证二维码失败，请重试')
+  }
+}
+
+// 切换手电筒
+async function toggleTorch() {
+  try {
+    if (!scanner?.controls?.track) {
+      showToast('摄像头未就绪')
+      return
+    }
+    
+    const capabilities = scanner.controls.track.getCapabilities()
+    if (!capabilities.torch) {
+      showToast('设备不支持闪光灯')
+      return
+    }
+    
+    torchOn.value = !torchOn.value
+    await scanner.controls.track.applyConstraints({
+      advanced: [{ torch: torchOn.value }]
+    })
+  } catch (error) {
+    console.error('切换闪光灯失败:', error)
+    showToast('切换闪光灯失败')
+  }
+}
+
+// 处理手动输入的编码
+async function handleCode() {
+  if (!code.value) {
+    showToast('请输入巡检点编号')
+    return
+  }
+  
+  // 验证区域编码格式
+  const codePattern = /^AREA[A-C]\d{3}$/
+  if (!codePattern.test(code.value)) {
+    showToast('巡检点编号格式不正确，请输入正确的编号')
+    return
+  }
+  
+  try {
+    // 验证编码
+    const res = await verifyQRCode({ code: code.value })
+    if (res.code === 200) {
+      router.push({
+        path: '/inspection-form',
+        query: { code: code.value }
+      })
+    } else {
+      showToast(res.message || '无效的区域编码')
+    }
+  } catch (error) {
+    console.error('验证编码失败:', error)
+    showToast('验证编码失败，请重试')
+  }
+}
+
+function goHome() {
+  router.push('/home')
+}
+
+onMounted(() => {
+  initScanner()
+})
+
+onUnmounted(() => {
+  if (scanner?.controls) {
+    scanner.controls.stop()
+  }
+})
+</script>
+
+<style scoped>
+.scan-container {
+  min-height: 100vh;
+  background: #f5f5f5;
+  position: relative;
+}
+
+.back-btn {
+  position: absolute;
+  top: 18px;
+  left: 12px;
+  background: none;
+  border: none;
+  color: #888;
+  font-size: 28px;
+  z-index: 10;
+  cursor: pointer;
+}
+
+.scan-header {
+  padding: 28px 0 18px 0;
+  text-align: center;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--primary-color, #2196F3);
+  letter-spacing: 2px;
+}
+
+.scan-body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 24px;
+}
+
+.scan-frame {
+  width: 260px;
+  height: 260px;
+  background: #888;
+  border-radius: 18px;
+  margin-bottom: 18px;
+  position: relative;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 3px dashed #fff;
+  overflow: hidden;
+}
+
+.scan-frame video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.scan-line {
+  position: absolute;
+  left: 16px;
+  right: 16px;
+  height: 3px;
+  background-color: #3b82f6;
+  top: 60px;
+  border-radius: 2px;
+  animation: scan 2s linear infinite;
+}
+
+@keyframes scan {
+  0% { top: 60px; }
+  50% { top: 200px; }
+  100% { top: 60px; }
+}
+
+.torch-btn {
+  position: absolute;
+  right: 12px;
+  bottom: 12px;
+  background: rgba(255,255,255,0.85);
+  border: none;
+  border-radius: 50%;
+  width: 38px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fbc02d;
+  font-size: 26px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  cursor: pointer;
+  z-index: 10;
+}
+
+.scan-tip {
+  margin-top: 8px;
+  text-align: center;
+}
+
+.tip-main {
+  font-size: 17px;
+  color: #222;
+  margin-bottom: 2px;
+}
+
+.tip-sub {
+  font-size: 14px;
+  color: #888;
+}
+
+.input-group {
+  display: flex;
+  gap: 12px;
+  margin-top: 18px;
+  width: 260px;
+}
+
+.input-group input {
+  flex: 1;
+  height: 44px;
+  padding: 0 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 16px;
+  background: #fff;
+}
+
+.input-group input:invalid {
+  border-color: #f44336;
+}
+
+.input-group button {
+  width: 80px;
+  background: #1989fa;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.input-group button:active {
+  background: #1976d2;
+}
+</style> 

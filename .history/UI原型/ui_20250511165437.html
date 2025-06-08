@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>巡检表单 - 巡检App</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="css/inspection-form.css" rel="stylesheet">
+</head>
+<body>
+    <div class="form-container">
+        <div class="form-header">巡检表单</div>
+        <form>
+            <div class="form-section">
+                <div class="form-title">环境巡检项</div>
+                <div class="form-item">
+                    <span class="form-label">机房温度</span>
+                    <div class="radio-group">
+                        <label class="radio-option"><input type="radio" name="temperature" value="正常" required>正常</label>
+                        <label class="radio-option"><input type="radio" name="temperature" value="异常">异常</label>
+                    </div>
+                </div>
+                <div class="form-item">
+                    <span class="form-label">冷通道回风温度</span>
+                    <div class="radio-group">
+                        <label class="radio-option"><input type="radio" name="cold_channel_temperature" value="正常" required>正常</label>
+                        <label class="radio-option"><input type="radio" name="cold_channel_temperature" value="异常">异常</label>
+                    </div>
+                </div>
+                <div class="form-item">
+                    <span class="form-label">供电情况</span>
+                    <div class="radio-group">
+                        <label class="radio-option"><input type="radio" name="power_supply" value="正常" required>正常</label>
+                        <label class="radio-option"><input type="radio" name="power_supply" value="异常">异常</label>
+                    </div>
+                </div>
+            </div>
+            <div class="form-section">
+                <div class="form-title">安全巡检项</div>
+                <div class="form-item">
+                    <span class="form-label">门禁状态</span>
+                    <div class="radio-group">
+                        <label class="radio-option"><input type="radio" name="door_access" value="正常" required>正常</label>
+                        <label class="radio-option"><input type="radio" name="door_access" value="异常">异常</label>
+                    </div>
+                </div>
+                <div class="form-item">
+                    <span class="form-label">声光报警</span>
+                    <div class="radio-group">
+                        <label class="radio-option"><input type="radio" name="sound_light_alarm" value="正常" required>正常</label>
+                        <label class="radio-option"><input type="radio" name="sound_light_alarm" value="异常">异常</label>
+                    </div>
+                </div>
+                <div class="form-item">
+                    <span class="form-label">漏水检测</span>
+                    <div class="radio-group">
+                        <label class="radio-option"><input type="radio" name="leakage_detection" value="正常" required>正常</label>
+                        <label class="radio-option"><input type="radio" name="leakage_detection" value="异常">异常</label>
+                    </div>
+                </div>
+                <div class="form-item">
+                    <span class="form-label">易燃物检查</span>
+                    <div class="radio-group">
+                        <label class="radio-option"><input type="radio" name="flammable_object_check" value="正常" required>正常</label>
+                        <label class="radio-option"><input type="radio" name="flammable_object_check" value="异常">异常</label>
+                    </div>
+                </div>
+            </div>
+            <div class="form-section">
+                <div class="form-title">备注信息 <span style="color:#888;font-size:13px;">（可选）</span></div>
+                <textarea class="remarks-input" name="remarks" placeholder="请输入备注信息"></textarea>
+            </div>
+            <div class="form-actions">
+                <button type="submit" class="submit-button">提交</button>
+            </div>
+        </form>
+    </div>
+</body>
+</html>

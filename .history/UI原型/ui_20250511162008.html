@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>巡检管理系统</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Roboto', sans-serif;
+        }
+
+        :root {
+            --primary-color: #2196F3;
+            --success-color: #4CAF50;
+            --error-color: #F44336;
+            --background-color: #F5F5F5;
+            --text-color: #333333;
+            --card-background: #FFFFFF;
+        }
+
+        body {
+            background-color: var(--background-color);
+            color: var(--text-color);
+        }
+
+        /* 登录页面样式 */
+        .login-container {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .login-logo {
+            width: 120px;
+            height: 120px;
+            background-color: var(--primary-color);
+            border-radius: 60px;
+            margin-bottom: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+        }
+
+        .login-form {
+            width: 100%;
+            max-width: 320px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+
+        .login-button {
+            width: 100%;
+            padding: 12px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        /* 主界面样式 */
+        .main-container {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .content-area {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .bottom-nav {
+            display: flex;
+            justify-content: space-around;
+            padding: 10px;
+            background-color: white;
+            box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #666;
+            text-decoration: none;
+        }
+
+        .nav-item.active {
+            color: var(--primary-color);
+        }
+
+        /* 巡检表单样式 */
+        .inspection-form {
+            background-color: var(--card-background);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .form-section {
+            margin-bottom: 20px;
+        }
+
+        .form-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .form-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .radio-group {
+            display: flex;
+            gap: 20px;
+        }
+
+        .radio-option {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        /* 记录列表样式 */
+        .record-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .record-card {
+            background-color: var(--card-background);
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .record-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .record-status {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .status-normal {
+            background-color: var(--success-color);
+            color: white;
+        }
+
+        .status-abnormal {
+            background-color: var(--error-color);
+            color: white;
+        }
+
+        /* 个人中心样式 */
+        .profile-header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+        }
+
+        .profile-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 40px;
+            background-color: white;
+            margin: 0 auto 15px;
+        }
+
+        .menu-list {
+            background-color: var(--card-background);
+            margin-top: 20px;
+        }
+
+        .menu-item {
+            padding: 15px 20px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+    </style>
+</head>
+<body>
+    <!-- 登录页面 -->
+    <div class="login-container">
+        <div class="login-logo">巡检</div>
+        <div class="login-form">
+            <div class="input-group">
+                <input type="text" class="input-field" placeholder="请输入AD账号">
+            </div>
+            <div class="input-group">
+                <input type="password" class="input-field" placeholder="请输入密码">
+            </div>
+            <button class="login-button">登录</button>
+        </div>
+    </div>
+
+    <!-- 主界面 -->
+    <div class="main-container">
+        <div class="content-area">
+            <!-- 巡检表单 -->
+            <div class="inspection-form">
+                <div class="form-section">
+                    <div class="form-title">环境巡检</div>
+                    <div class="form-item">
+                        <span>机房温度</span>
+                        <div class="radio-group">
+                            <label class="radio-option">
+                                <input type="radio" name="temperature" value="normal">
+                                <span>正常</span>
+                            </label>
+                            <label class="radio-option">
+                                <input type="radio" name="temperature" value="abnormal">
+                                <span>异常</span>
+                            </label>
+                        </div>
+                    </div>
+                    <!-- 其他表单项... -->
+                </div>
+            </div>
+
+            <!-- 巡检记录列表 -->
+            <div class="record-list">
+                <div class="record-card">
+                    <div class="record-header">
+                        <div>区域A</div>
+                        <div class="record-status status-normal">正常</div>
+                    </div>
+                    <div>2024-03-20 14:30</div>
+                </div>
+                <!-- 其他记录卡片... -->
+            </div>
+        </div>
+
+        <!-- 底部导航 -->
+        <div class="bottom-nav">
+            <a href="#" class="nav-item active">
+                <span class="material-icons">qr_code_scanner</span>
+                <span>巡检</span>
+            </a>
+            <a href="#" class="nav-item">
+                <span class="material-icons">history</span>
+                <span>记录</span>
+            </a>
+            <a href="#" class="nav-item">
+                <span class="material-icons">person</span>
+                <span>我的</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- 个人中心 -->
+    <div class="profile-header">
+        <div class="profile-avatar"></div>
+        <h2>张三</h2>
+        <p>运维部</p>
+    </div>
+    <div class="menu-list">
+        <div class="menu-item">
+            <span>消息通知</span>
+            <span class="material-icons">chevron_right</span>
+        </div>
+        <div class="menu-item">
+            <span>语言设置</span>
+            <span class="material-icons">chevron_right</span>
+        </div>
+        <div class="menu-item">
+            <span>主题设置</span>
+            <span class="material-icons">chevron_right</span>
+        </div>
+        <div class="menu-item">
+            <span>清除缓存</span>
+            <span class="material-icons">chevron_right</span>
+        </div>
+    </div>
+
+    <!-- 扫码界面 -->
+    <div class="scan-container">
+        <div class="scan-content">
+            <div class="scan-header">
+                <h1>扫码</h1>
+            </div>
+            <div class="scan-body">
+                <div class="scan-frame">
+                    <div class="scan-overlay">
+                        <div class="scan-text">请将二维码放入框内，即可自动扫描</div>
+                    </div>
+                </div>
+            </div>
+            <div class="scan-footer">
+                <h2>最近巡检记录</h2>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

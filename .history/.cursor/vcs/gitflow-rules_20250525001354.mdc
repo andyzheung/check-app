@@ -1,0 +1,52 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# Git Flow 工作流规范
+
+## 主要分支
+- master/main：生产环境代码
+  - 只接受合并请求
+  - 每次合并必须打标签
+  - 不允许直接提交
+- develop：开发主分支
+  - 包含最新开发特性
+  - 所有特性分支的来源
+  - 经过测试的代码
+
+## 功能开发
+- feature 分支
+  - 从 develop 分支创建
+  - 命名规范：feature/功能名称
+  - 完成后合并回 develop
+  - 合并前进行代码审查
+
+## 版本发布
+- release 分支
+  - 从 develop 分支创建
+  - 命名规范：release/版本号
+  - 只修复 bug，不添加新功能
+  - 同时合并到 master 和 develop
+
+## 紧急修复
+- hotfix 分支
+  - 从 master 分支创建
+  - 命名规范：hotfix/问题描述
+  - 修复完成后合并到 master 和 develop
+  - 在 master 上打标签
+
+## 版本管理
+- 语义化版本号：主版本.次版本.修订号
+- 每次发布必须打标签
+- 标签必须有说明文档
+- 维护更新日志
+
+## 工作流程
+- 创建功能分支
+- 提交更改
+- 更新 develop
+- 创建合并请求
+- 代码审查
+- 合并到目标分支
+

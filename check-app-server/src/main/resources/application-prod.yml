@@ -1,0 +1,25 @@
+spring:
+  datasource:
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+  redis:
+    host: ${SPRING_REDIS_HOST}
+    port: ${SPRING_REDIS_PORT}
+    password: ${SPRING_REDIS_PASSWORD}
+    database: ${SPRING_REDIS_DATABASE}
+
+logging:
+  level:
+    root: INFO
+    com.pensun.checkapp: INFO
+  file:
+    name: /var/log/check-app-server/check-app-server.log
+  logback:
+    rollingpolicy:
+      max-file-size: 100MB
+      max-history: 30
+
+mybatis-plus:
+  configuration:
+    log-impl: org.apache.ibatis.logging.slf4j.Slf4jImpl 
