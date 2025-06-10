@@ -14,12 +14,25 @@ public class InspectionRecord {
     private Long id;
     
     private String recordNo;
+    private Long taskId;
     private Long areaId;
     private Long inspectorId;
     private LocalDateTime startTime;
     private LocalDateTime endTime;
     private String status;
     private String remark;
+    
+    /**
+     * 巡检路径（JSON格式存储）
+     */
+    @TableField("route_path")
+    private String routePath;
+    
+    /**
+     * 巡检路径数据（JSON格式存储）
+     */
+    @TableField("route_data")
+    private String routeData;
     
     @TableField(fill = FieldFill.INSERT)
     private LocalDateTime createTime;

@@ -30,6 +30,7 @@ public class User {
     /**
      * 真实姓名
      */
+    @TableField("real_name")
     private String realName;
 
     /**
@@ -39,14 +40,20 @@ public class User {
     private Long departmentId;
 
     /**
-     * 角色
+     * 角色：admin-管理员，inspector-巡检员，handler-处理员
      */
     private String role;
 
     /**
-     * 状态：active-正常，locked-锁定
+     * 状态：active-活跃，inactive-未激活
      */
     private String status;
+
+    /**
+     * 用户头像URL
+     */
+    @TableField("avatar")
+    private String avatar;
 
     /**
      * 手机号
@@ -57,12 +64,6 @@ public class User {
      * 邮箱
      */
     private String email;
-
-    /**
-     * 头像
-     */
-    @TableField("avatar")
-    private String avatar;
 
     /**
      * 最后登录时间

@@ -138,4 +138,30 @@ export function exportRecords(params) {
     params,
     responseType: 'blob'
   });
+}
+
+/**
+ * 提交巡检路径
+ * @param {string|number} id - 记录ID
+ * @param {Array} routeData - 路径数据
+ * @returns {Promise<any>}
+ */
+export function submitRecordRoute(id, routeData) {
+  return request({
+    url: `/records/${id}/route`,
+    method: 'post',
+    data: routeData
+  });
+}
+
+/**
+ * 获取巡检路径
+ * @param {string|number} id - 记录ID
+ * @returns {Promise<any>}
+ */
+export function getRecordRoute(id) {
+  return request({
+    url: `/records/${id}/route`,
+    method: 'get'
+  });
 } 

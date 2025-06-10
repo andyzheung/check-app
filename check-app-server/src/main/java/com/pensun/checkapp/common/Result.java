@@ -5,7 +5,7 @@ import lombok.Data;
 import java.io.Serializable;
 
 /**
- * 统一返回结果
+ * 统一响应结果类
  *
  * @param <T> 数据类型
  */
@@ -15,12 +15,12 @@ public class Result<T> implements Serializable {
     private static final long serialVersionUID = 1L;
 
     /**
-     * 状态码
+     * 状态码：200-成功，其他值-失败
      */
     private Integer code;
 
     /**
-     * 消息
+     * 状态信息
      */
     private String message;
 
@@ -29,10 +29,20 @@ public class Result<T> implements Serializable {
      */
     private T data;
 
-    protected Result() {
+    /**
+     * 私有构造方法
+     */
+    private Result() {
     }
 
-    protected Result(Integer code, String message, T data) {
+    /**
+     * 私有构造方法
+     *
+     * @param code    状态码
+     * @param message 状态信息
+     * @param data    数据
+     */
+    private Result(Integer code, String message, T data) {
         this.code = code;
         this.message = message;
         this.data = data;
@@ -74,8 +84,7 @@ public class Result<T> implements Serializable {
     /**
      * 失败
      *
-     * @param message 消息
-     * @param <T>     数据类型
+     * @param <T> 数据类型
      * @return 返回结果
      */
     public static <T> Result<T> failed() {
@@ -95,6 +104,10 @@ public class Result<T> implements Serializable {
 
     /**
      * 失败
+     *
+     * @param resultCode 结果码
+     * @param <T>        数据类型
+     * @return 返回结果
      */
     public static <T> Result<T> failed(ResultCode resultCode) {
         return new Result<>(resultCode.getCode(), resultCode.getMessage(), null);
@@ -103,8 +116,9 @@ public class Result<T> implements Serializable {
     /**
      * 失败
      *
-     * @param message 消息
-     * @param <T>     数据类型
+     * @param resultCode 结果码
+     * @param message    消息
+     * @param <T>        数据类型
      * @return 返回结果
      */
     public static <T> Result<T> failed(ResultCode resultCode, String message) {
@@ -112,17 +126,7 @@ public class Result<T> implements Serializable {
     }
 
     /**
-     * 验证失败
-     *
-     * @param <T> 数据类型
-     * @return 返回结果
-     */
-    public static <T> Result<T> validateFailed() {
-        return failed(ResultCode.VALIDATE_FAILED);
-    }
-
-    /**
-     * 验证失败
+     * 参数验证失败
      *
      * @param message 消息
      * @param <T>     数据类型
@@ -133,61 +137,58 @@ public class Result<T> implements Serializable {
     }
 
     /**
-     * 未授权
+     * 未登录
      *
-     * @param <T> 数据类型
+     * @param data 数据
+     * @param <T>  数据类型
      * @return 返回结果
      */
-    public static <T> Result<T> unauthorized() {
-        return failed(ResultCode.UNAUTHORIZED);
+    public static <T> Result<T> unauthorized(T data) {
+        return new Result<>(ResultCode.UNAUTHORIZED.getCode(), ResultCode.UNAUTHORIZED.getMessage(), data);
     }
 
     /**
-     * 禁止访问
+     * 未授权
      *
-     * @param <T> 数据类型
+     * @param data 数据
+     * @param <T>  数据类型
      * @return 返回结果
      */
-    public static <T> Result<T> forbidden() {
-        return failed(ResultCode.FORBIDDEN);
+    public static <T> Result<T> forbidden(T data) {
+        return new Result<>(ResultCode.FORBIDDEN.getCode(), ResultCode.FORBIDDEN.getMessage(), data);
     }
 
+    /**
+     * 错误响应
+     *
+     * @param message 错误消息
+     * @param <T>     数据类型
+     * @return 返回结果
+     */
     public static <T> Result<T> error(String message) {
         return new Result<>(ResultCode.FAILED.getCode(), message, null);
     }
 
+    /**
+     * 成功响应
+     *
+     * @param data 数据
+     * @param <T>  数据类型
+     * @return 返回结果
+     */
     public static <T> Result<T> ok(T data) {
-        Result<T> result = new Result<>();
-        result.setCode(0);
-        result.setMessage("success");
-        result.setData(data);
-        return result;
+        return new Result<>(ResultCode.SUCCESS.getCode(), ResultCode.SUCCESS.getMessage(), data);
     }
 
-    public static <T> Result<T> error(Integer code, String message) {
-        Result<T> result = new Result<>();
-        result.setCode(code);
-        result.setMessage(message);
-        return result;
-    }
-
-    public static <T> Result<T> ok() {
-        return new Result<>(200, "success", null);
-    }
-
+    /**
+     * 成功响应带消息
+     *
+     * @param message 消息
+     * @param data    数据
+     * @param <T>     数据类型
+     * @return 返回结果
+     */
     public static <T> Result<T> ok(String message, T data) {
-        return new Result<>(200, message, data);
-    }
-
-    public static <T> Result<T> fail(String message) {
-        return new Result<>(500, message, null);
-    }
-
-    public static <T> Result<T> fail(Integer code, String message) {
-        return new Result<>(code, message, null);
-    }
-
-    public static <T> Result<T> fail(Integer code, String message, T data) {
-        return new Result<>(code, message, data);
+        return new Result<>(ResultCode.SUCCESS.getCode(), message, data);
     }
 } 

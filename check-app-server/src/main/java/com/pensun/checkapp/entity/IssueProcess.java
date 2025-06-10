@@ -1,9 +1,6 @@
 package com.pensun.checkapp.entity;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.*;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
@@ -33,9 +30,8 @@ public class IssueProcess implements Serializable {
     private Long issueId;
 
     /**
-     * 操作类型：create-创建，process-处理，close-关闭
+     * 处理动作：create-创建，process-处理中，close-关闭
      */
-    @TableField("action")
     private String action;
 
     /**
@@ -53,24 +49,22 @@ public class IssueProcess implements Serializable {
     /**
      * 处理内容
      */
-    @TableField("content")
     private String content;
 
     /**
      * 图片（JSON数组存储多张图片URL）
      */
-    @TableField("images")
     private String images;
 
     /**
      * 创建时间
      */
-    @TableField("create_time")
+    @TableField(fill = FieldFill.INSERT)
     private LocalDateTime createTime;
 
     /**
      * 更新时间
      */
-    @TableField("update_time")
+    @TableField(fill = FieldFill.INSERT_UPDATE)
     private LocalDateTime updateTime;
 } 
