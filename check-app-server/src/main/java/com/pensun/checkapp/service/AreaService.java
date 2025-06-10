@@ -37,6 +37,14 @@ public interface AreaService {
     AreaDTO getAreaByCode(String areaCode);
     
     /**
+     * 获取区域二维码
+     *
+     * @param id 区域ID
+     * @return 二维码URL
+     */
+    String getQRCode(Long id);
+    
+    /**
      * 生成区域二维码
      *
      * @param id 区域ID

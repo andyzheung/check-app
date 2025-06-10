@@ -21,12 +21,16 @@ import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
 import java.time.LocalDateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 用户服务实现类
  */
 @Service
 public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements UserService {
+
+    private static final Logger log = LoggerFactory.getLogger(UserServiceImpl.class);
 
     @Resource
     private JwtTokenUtil jwtTokenUtil;
@@ -39,10 +43,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     @Override
     public UserLoginResponseDTO login(UserLoginDTO loginDTO) {
-        System.out.println("[UserServiceImpl] login 用户名: " + loginDTO.getUsername());
+        log.info("开始登录处理, 用户名: {}", loginDTO.getUsername());
         // 本地打桩账号：admin/123456，直接通过
         if ("admin".equals(loginDTO.getUsername()) && "123456".equals(loginDTO.getPassword())) {
-            System.out.println("[UserServiceImpl] 命中本地打桩账号");
+            log.info("命中本地打桩账号");
             User user = getByUsername("admin");
             if (user == null) {
                 user = new User();
@@ -54,7 +58,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
                 userPermissionService.initDefaultPermissions(user.getId());
             }
             String token = jwtTokenUtil.generateToken(user);
-            System.out.println("[UserServiceImpl] 生成token: " + token);
+            log.info("生成token成功: {}", token.substring(0, 10) + "...");
             UserLoginResponseDTO response = new UserLoginResponseDTO();
             response.setUserId(user.getId());
             response.setUsername(user.getUsername());
@@ -62,22 +66,23 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             response.setRole(user.getRole());
             response.setAvatar(user.getAvatar());
             response.setToken(token);
-            System.out.println("[UserServiceImpl] 返回响应: " + response);
+            log.info("登录响应准备完成: userId={}, username={}, role={}", 
+                    response.getUserId(), response.getUsername(), response.getRole());
             return response;
         }
 
         // 1. 调用AD域（LDAP）校验账号密码
         boolean adSuccess = adService.authenticate(loginDTO.getUsername(), loginDTO.getPassword());
-        System.out.println("[UserServiceImpl] AD校验结果: " + adSuccess);
+        log.info("AD校验结果: {}", adSuccess);
         if (!adSuccess) {
-            System.out.println("[UserServiceImpl] AD校验失败");
-            throw new RuntimeException("AD域账号或密码错误");
+            log.warn("AD校验失败");
+            throw new RuntimeException("账号或密码错误");
         }
 
         // 2. 本地用户表查找
         User user = getByUsername(loginDTO.getUsername());
         if (user == null) {
-            System.out.println("[UserServiceImpl] 本地用户不存在，自动创建");
+            log.info("本地用户不存在，自动创建");
             user = new User();
             user.setUsername(loginDTO.getUsername());
             user.setRole("user");
@@ -88,7 +93,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
         // 5. 生成token
         String token = jwtTokenUtil.generateToken(user);
-        System.out.println("[UserServiceImpl] 生成token: " + token);
+        log.info("生成token成功: {}", token.substring(0, 10) + "...");
 
         // 6. 构建响应
         UserLoginResponseDTO response = new UserLoginResponseDTO();
@@ -98,7 +103,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         response.setRole(user.getRole());
         response.setAvatar(user.getAvatar());
         response.setToken(token);
-        System.out.println("[UserServiceImpl] 返回响应: " + response);
+        log.info("登录响应准备完成: userId={}, username={}, role={}", 
+                response.getUserId(), response.getUsername(), response.getRole());
 
         return response;
     }

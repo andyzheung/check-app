@@ -16,6 +16,7 @@ import javax.validation.Valid;
 
 @RestController
 @RequestMapping("/api/v1/auth")
+@CrossOrigin(origins = "*", maxAge = 3600)
 public class AuthController {
     private static final Logger log = LoggerFactory.getLogger(AuthController.class);
     @Autowired
@@ -26,11 +27,16 @@ public class AuthController {
     private JwtTokenUtil jwtTokenUtil;
 
     @PostMapping("/login")
-    public UserLoginResponseDTO login(@Valid @RequestBody UserLoginDTO loginDTO) {
-        System.out.println("[AuthController] 收到登录请求: " + loginDTO.getUsername());
-        UserLoginResponseDTO resp = userService.login(loginDTO);
-        System.out.println("[AuthController] 登录响应: " + resp);
-        return resp;
+    public Result<UserLoginResponseDTO> login(@Valid @RequestBody UserLoginDTO loginDTO) {
+        log.info("收到登录请求: {}", loginDTO.getUsername());
+        try {
+            UserLoginResponseDTO resp = userService.login(loginDTO);
+            log.info("登录成功: {}, token: {}", resp.getUsername(), resp.getToken() != null ? "已生成" : "生成失败");
+            return Result.success(resp);
+        } catch (Exception e) {
+            log.error("登录失败: {}", e.getMessage(), e);
+            return Result.failed(e.getMessage());
+        }
     }
 
     @PostMapping("/logout")

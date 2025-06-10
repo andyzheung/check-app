@@ -141,6 +141,22 @@ public class AreaServiceImpl extends ServiceImpl<AreaMapper, Area> implements Ar
     }
 
     @Override
+    public String getQRCode(Long id) {
+        Area area = areaMapper.selectById(id);
+        if (area == null || area.getDeleted() == 1) {
+            throw new RuntimeException("区域不存在");
+        }
+        
+        // 如果区域已有二维码URL，直接返回
+        if (StringUtils.hasText(area.getQrCodeUrl())) {
+            return area.getQrCodeUrl();
+        }
+        
+        // 否则生成新的二维码
+        return generateQRCode(id);
+    }
+
+    @Override
     public Result<Page<AreaDTO>> getAllAreas(String status, String type, String keyword, Integer page, Integer size) {
         log.info("获取区域列表（带过滤） - status: {}, type: {}, keyword: {}, page: {}, size: {}", 
                 status, type, keyword, page, size);

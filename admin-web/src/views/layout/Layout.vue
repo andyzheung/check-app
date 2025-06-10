@@ -2,133 +2,222 @@
   <a-layout class="layout">
     <a-layout-header class="header">
       <div class="logo">巡检管理系统后台</div>
-      <a-menu
-        v-model:selectedKeys="selectedKeys"
-        theme="light"
-        mode="horizontal"
-        :style="{ lineHeight: '56px' }"
-      >
-        <a-menu-item v-for="item in menuItems" :key="item.key" @click="() => navigateTo(item.path)">
-          {{ item.label }}
-        </a-menu-item>
-      </a-menu>
-      <div class="user-info">
+      <div class="header-right">
         <a-dropdown>
-          <a class="ant-dropdown-link" @click.prevent>
-            <user-outlined /> {{ userInfo.name }} <down-outlined />
+          <a class="dropdown-link" @click.prevent>
+            {{ userInfo.realName || '管理员' }}
+            <down-outlined />
           </a>
           <template #overlay>
             <a-menu>
-              <a-menu-item key="0">
-                <a @click="handleLogout">退出登录</a>
+              <a-menu-item key="1" @click="logout">
+                退出登录
               </a-menu-item>
             </a-menu>
           </template>
         </a-dropdown>
       </div>
     </a-layout-header>
-    <a-layout-content>
-      <div class="container">
-        <router-view />
-      </div>
-    </a-layout-content>
-    <a-layout-footer class="footer">
-      © 2025 巡检管理系统后台
-    </a-layout-footer>
+    <a-layout>
+      <a-layout-sider width="200" class="sider">
+        <a-menu
+          mode="inline"
+          :selected-keys="[selectedKey]"
+          :open-keys="openKeys"
+          style="height: 100%"
+          @click="handleMenuClick"
+        >
+          <a-menu-item key="dashboard">
+            <dashboard-outlined />
+            <span>仪表盘</span>
+          </a-menu-item>
+          <a-sub-menu key="records">
+            <template #title>
+              <span>
+                <file-outlined />
+                <span>巡检记录</span>
+              </span>
+            </template>
+            <a-menu-item key="records-list">巡检记录列表</a-menu-item>
+            <a-menu-item key="records-export">导出记录</a-menu-item>
+          </a-sub-menu>
+          <a-sub-menu key="issues">
+            <template #title>
+              <span>
+                <exception-outlined />
+                <span>问题列表</span>
+              </span>
+            </template>
+            <a-menu-item key="issues-list">问题列表</a-menu-item>
+            <a-menu-item key="issues-statistics">问题统计</a-menu-item>
+          </a-sub-menu>
+          <a-sub-menu key="users">
+            <template #title>
+              <span>
+                <user-outlined />
+                <span>用户管理</span>
+              </span>
+            </template>
+            <a-menu-item key="users-list">用户列表</a-menu-item>
+          </a-sub-menu>
+        </a-menu>
+      </a-layout-sider>
+      <a-layout class="content-layout">
+        <a-layout-content class="content">
+          <router-view></router-view>
+        </a-layout-content>
+      </a-layout>
+    </a-layout>
   </a-layout>
 </template>
 
 <script>
-import { ref, computed, onMounted } from 'vue'
+import { defineComponent, ref, reactive, onMounted, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
-import { UserOutlined, DownOutlined } from '@ant-design/icons-vue'
+import { 
+  DashboardOutlined, 
+  FileOutlined, 
+  ExceptionOutlined, 
+  UserOutlined,
+  DownOutlined 
+} from '@ant-design/icons-vue'
 import { message } from 'ant-design-vue'
-import { getUserInfo, logout } from '@/api/user'
 
-export default {
+export default defineComponent({
   name: 'Layout',
   components: {
+    DashboardOutlined,
+    FileOutlined,
+    ExceptionOutlined,
     UserOutlined,
     DownOutlined
   },
   setup() {
     const router = useRouter()
     const route = useRoute()
-    const userInfo = ref({ name: '管理员' })
     
-    const menuItems = [
-      { key: 'dashboard', label: '仪表盘', path: '/' },
-      { key: 'records', label: '巡检记录', path: '/records' },
-      { key: 'issues', label: '问题列表', path: '/issues' },
-      { key: 'users', label: '用户管理', path: '/users' }
-    ]
+    // 当前选中的菜单项
+    const selectedKey = ref('dashboard')
+    // 当前展开的子菜单
+    const openKeys = ref(['dashboard'])
     
-    const selectedKeys = computed(() => {
-      const path = route.path
-      if (path === '/') return ['dashboard']
-      return [path.split('/')[1]]
+    // 用户信息
+    const userInfo = reactive({
+      id: 1,
+      username: 'admin',
+      realName: '系统管理员'
     })
     
-    const navigateTo = (path) => {
-      router.push(path)
-    }
+    // 监听路由变化，更新选中的菜单项
+    watch(() => route.path, (path) => {
+      if (path.includes('/dashboard')) {
+        selectedKey.value = 'dashboard'
+        openKeys.value = ['dashboard']
+      } else if (path.includes('/records')) {
+        selectedKey.value = path.includes('/export') ? 'records-export' : 'records-list'
+        openKeys.value = ['records']
+      } else if (path.includes('/issues')) {
+        selectedKey.value = path.includes('/statistics') ? 'issues-statistics' : 'issues-list'
+        openKeys.value = ['issues']
+      } else if (path.includes('/users')) {
+        selectedKey.value = 'users-list'
+        openKeys.value = ['users']
+      }
+    }, { immediate: true })
     
-    const handleLogout = async () => {
-      try {
-        await logout()
-        localStorage.removeItem('token')
-        message.success('退出登录成功')
-        router.push('/login')
-      } catch (error) {
-        console.error('Logout failed:', error)
+    // 菜单点击事件
+    const handleMenuClick = ({ key }) => {
+      switch(key) {
+        case 'dashboard':
+          router.push('/dashboard')
+          break
+        case 'records-list':
+          router.push('/records/list')
+          break
+        case 'records-export':
+          router.push('/records/export')
+          break
+        case 'issues-list':
+          router.push('/issues/list')
+          break
+        case 'issues-statistics':
+          router.push('/issues/statistics')
+          break
+        case 'users-list':
+          router.push('/users/list')
+          break
+        default:
+          router.push('/')
       }
     }
     
-    onMounted(async () => {
-      try {
-        const data = await getUserInfo()
-        userInfo.value = data
-      } catch (error) {
-        console.error('Failed to get user info:', error)
-      }
-    })
+    // 退出登录
+    const logout = () => {
+      localStorage.removeItem('token')
+      message.success('退出成功')
+      router.push('/login')
+    }
     
     return {
-      menuItems,
-      selectedKeys,
+      selectedKey,
+      openKeys,
       userInfo,
-      navigateTo,
-      handleLogout
+      handleMenuClick,
+      logout
     }
   }
-}
+})
 </script>
 
 <style scoped>
 .layout {
   min-height: 100vh;
 }
+
 .header {
   display: flex;
+  justify-content: space-between;
   align-items: center;
   background: #fff;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-  padding: 0 32px;
+  padding: 0 24px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+  z-index: 1;
 }
+
 .logo {
-  font-weight: bold;
+  font-size: 18px;
+  font-weight: 600;
   color: #1890ff;
-  font-size: 22px;
-  margin-right: 32px;
 }
-.user-info {
-  margin-left: auto;
-  cursor: pointer;
-}
-.ant-dropdown-link {
-  color: rgba(0, 0, 0, 0.85);
+
+.header-right {
   display: flex;
   align-items: center;
-  gap: 8px;
+}
+
+.dropdown-link {
+  display: flex;
+  align-items: center;
+  color: rgba(0, 0, 0, 0.65);
+}
+
+.sider {
+  background: #fff;
+  overflow: auto;
+  height: calc(100vh - 64px);
+  position: fixed;
+  left: 0;
+  box-shadow: 1px 0 4px rgba(0, 0, 0, 0.1);
+}
+
+.content-layout {
+  margin-left: 200px;
+}
+
+.content {
+  margin: 24px;
+  padding: 24px;
+  background: #fff;
+  min-height: calc(100vh - 112px);
 }
 </style> 

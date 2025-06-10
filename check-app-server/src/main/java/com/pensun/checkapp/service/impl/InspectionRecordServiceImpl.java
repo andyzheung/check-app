@@ -117,4 +117,58 @@ public class InspectionRecordServiceImpl extends ServiceImpl<InspectionRecordMap
             throw new RuntimeException("获取巡检记录详情失败: " + e.getMessage());
         }
     }
+    
+    @Override
+    public com.pensun.checkapp.common.Result<Boolean> saveRouteData(Long recordId, List<java.util.Map<String, Object>> routeData) {
+        if (recordId == null || routeData == null || routeData.isEmpty()) {
+            return com.pensun.checkapp.common.Result.failed("参数错误");
+        }
+        
+        // 检查记录是否存在
+        InspectionRecord record = getById(recordId);
+        if (record == null || record.getDeleted() == 1) {
+            return com.pensun.checkapp.common.Result.failed("巡检记录不存在");
+        }
+        
+        try {
+            // 将路径数据转换为JSON字符串
+            String routeDataJson = com.alibaba.fastjson.JSON.toJSONString(routeData);
+            
+            // 更新巡检记录中的路径数据
+            record.setRouteData(routeDataJson);
+            record.setUpdateTime(java.time.LocalDateTime.now());
+            updateById(record);
+            
+            return com.pensun.checkapp.common.Result.success(true);
+        } catch (Exception e) {
+            log.error("保存巡检路径数据失败", e);
+            return com.pensun.checkapp.common.Result.failed("保存巡检路径数据失败: " + e.getMessage());
+        }
+    }
+    
+    @Override
+    public List<java.util.Map<String, Object>> getRouteData(Long recordId) {
+        if (recordId == null) {
+            throw new IllegalArgumentException("记录ID不能为空");
+        }
+        
+        // 查询巡检记录
+        InspectionRecord record = getById(recordId);
+        if (record == null || record.getDeleted() == 1) {
+            throw new RuntimeException("巡检记录不存在");
+        }
+        
+        // 如果路径数据为空，返回空列表
+        if (record.getRouteData() == null || record.getRouteData().isEmpty()) {
+            return new ArrayList<>();
+        }
+        
+        try {
+            // 将JSON字符串转换为对象
+            return com.alibaba.fastjson.JSON.parseObject(record.getRouteData(), new com.alibaba.fastjson.TypeReference<List<java.util.Map<String, Object>>>(){});
+        } catch (Exception e) {
+            log.error("解析巡检路径数据失败", e);
+            throw new RuntimeException("解析巡检路径数据失败: " + e.getMessage());
+        }
+    }
 } 

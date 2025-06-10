@@ -68,12 +68,25 @@ public interface RecordService extends IService<InspectionRecord> {
     /**
      * 导出巡检记录
      *
+     * @param outputStream 输出流
      * @param areaId      区域ID
      * @param inspectorId 巡检人员ID
      * @param status      状态
      * @param startDate   开始日期
      * @param endDate     结束日期
-     * @return Excel文件字节数组
+     * @throws Exception 导出异常
+     */
+    void exportRecords(java.io.OutputStream outputStream, Long areaId, Long inspectorId, String status, LocalDate startDate, LocalDate endDate) throws Exception;
+
+    /**
+     * 导出巡检记录并返回字节数组
+     *
+     * @param areaId      区域ID
+     * @param inspectorId 巡检人员ID
+     * @param status      状态
+     * @param startDate   开始日期
+     * @param endDate     结束日期
+     * @return 导出的Excel文件字节数组
      */
     byte[] exportRecords(Long areaId, Long inspectorId, String status, LocalDate startDate, LocalDate endDate);
 

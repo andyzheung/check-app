@@ -49,10 +49,19 @@ public class AreaController {
     }
     
     /**
-     * 生成区域二维码
+     * 获取区域二维码
      */
     @GetMapping("/{id}/qrcode")
+    public Result<String> getQRCode(@PathVariable Long id) {
+        return Result.success(areaService.getQRCode(id));
+    }
+    
+    /**
+     * 生成区域二维码
+     */
+    @PostMapping("/{id}/qrcode")
     public Result<String> generateQRCode(@PathVariable Long id) {
+        log.info("生成区域二维码: id={}", id);
         return Result.success(areaService.generateQRCode(id));
     }
     

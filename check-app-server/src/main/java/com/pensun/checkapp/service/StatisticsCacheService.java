@@ -5,6 +5,7 @@ import com.pensun.checkapp.entity.StatisticsCache;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -112,4 +113,26 @@ public interface StatisticsCacheService extends IService<StatisticsCache> {
      * @return 清除的记录数
      */
     int clearExpiredCache();
+    
+    /**
+     * 获取问题趋势数据
+     *
+     * @param timeRange 时间范围，可选值：week, month, year
+     * @return 问题趋势数据
+     */
+    Map<String, Object> getIssueTrend(String timeRange);
+    
+    /**
+     * 获取区域问题分布
+     *
+     * @return 区域问题分布数据
+     */
+    List<Map<String, Object>> getIssueByArea();
+    
+    /**
+     * 获取问题处理人员排名
+     *
+     * @return 处理人员排名数据
+     */
+    List<Map<String, Object>> getIssueByHandler();
 } 

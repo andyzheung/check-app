@@ -30,6 +30,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.io.ByteArrayOutputStream;
+import java.io.OutputStream;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -456,6 +457,13 @@ public class RecordServiceImpl extends ServiceImpl<InspectionRecordMapper, Inspe
         } catch (Exception e) {
             throw new RuntimeException("导出巡检记录失败", e);
         }
+    }
+
+    @Override
+    public void exportRecords(OutputStream outputStream, Long areaId, Long inspectorId, String status, LocalDate startDate, LocalDate endDate) throws Exception {
+        byte[] data = exportRecords(areaId, inspectorId, status, startDate, endDate);
+        outputStream.write(data);
+        outputStream.flush();
     }
 
     @Override

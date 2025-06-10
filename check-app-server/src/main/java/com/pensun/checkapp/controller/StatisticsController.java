@@ -1,6 +1,8 @@
 package com.pensun.checkapp.controller;
 
 import com.pensun.checkapp.common.Result;
+import com.pensun.checkapp.dto.IssueDTO;
+import com.pensun.checkapp.service.IssueService;
 import com.pensun.checkapp.service.StatisticsCacheService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,6 +10,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -22,6 +25,9 @@ public class StatisticsController {
 
     @Autowired
     private StatisticsCacheService statisticsCacheService;
+    
+    @Autowired
+    private IssueService issueService;
 
     /**
      * 获取每日巡检统计
@@ -124,5 +130,45 @@ public class StatisticsController {
         }
         
         return Result.success(result);
+    }
+    
+    /**
+     * 获取问题趋势数据
+     * [ADMIN]
+     *
+     * @param timeRange 时间范围，可选值：week, month, year
+     * @return 问题趋势数据
+     */
+    @GetMapping("/issues/trend")
+    public Result<Map<String, Object>> getIssueTrend(@RequestParam(defaultValue = "week") String timeRange) {
+        log.info("获取问题趋势数据: timeRange={}", timeRange);
+        Map<String, Object> trendData = statisticsCacheService.getIssueTrend(timeRange);
+        return Result.success(trendData);
+    }
+    
+    /**
+     * 获取区域问题分布
+     * [ADMIN]
+     *
+     * @return 区域问题分布数据
+     */
+    @GetMapping("/issues/by-area")
+    public Result<List<Map<String, Object>>> getIssueByArea() {
+        log.info("获取区域问题分布");
+        List<Map<String, Object>> areaData = statisticsCacheService.getIssueByArea();
+        return Result.success(areaData);
+    }
+    
+    /**
+     * 获取问题处理人员排名
+     * [ADMIN]
+     *
+     * @return 处理人员排名数据
+     */
+    @GetMapping("/issues/by-handler")
+    public Result<List<Map<String, Object>>> getIssueByHandler() {
+        log.info("获取问题处理人员排名");
+        List<Map<String, Object>> handlerData = statisticsCacheService.getIssueByHandler();
+        return Result.success(handlerData);
     }
 } 

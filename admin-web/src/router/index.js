@@ -14,6 +14,10 @@ const routes = [
     children: [
       {
         path: '',
+        redirect: '/dashboard'
+      },
+      {
+        path: 'dashboard',
         name: 'Dashboard',
         component: () => import('../views/dashboard/Dashboard.vue'),
         meta: { title: '仪表盘' }
@@ -21,20 +25,50 @@ const routes = [
       {
         path: 'records',
         name: 'Records',
-        component: () => import('../views/records/Records.vue'),
+        redirect: '/records/list',
         meta: { title: '巡检记录' }
+      },
+      {
+        path: 'records/list',
+        name: 'RecordsList',
+        component: () => import('../views/records/Records.vue'),
+        meta: { title: '巡检记录列表' }
+      },
+      {
+        path: 'records/export',
+        name: 'RecordsExport',
+        component: () => import('../views/records/RecordsExport.vue'),
+        meta: { title: '导出记录' }
       },
       {
         path: 'issues',
         name: 'Issues',
+        redirect: '/issues/list',
+        meta: { title: '问题列表' }
+      },
+      {
+        path: 'issues/list',
+        name: 'IssuesList',
         component: () => import('../views/issues/Issues.vue'),
         meta: { title: '问题列表' }
       },
       {
+        path: 'issues/statistics',
+        name: 'IssuesStatistics',
+        component: () => import('../views/issues/IssuesStatistics.vue'),
+        meta: { title: '问题统计' }
+      },
+      {
         path: 'users',
         name: 'Users',
-        component: () => import('../views/users/Users.vue'),
+        redirect: '/users/list',
         meta: { title: '用户管理' }
+      },
+      {
+        path: 'users/list',
+        name: 'UsersList',
+        component: () => import('../views/users/Users.vue'),
+        meta: { title: '用户列表' }
       }
     ]
   },
@@ -60,4 +94,4 @@ router.beforeEach((to, from, next) => {
   }
 })
 
-export default router 
+export default router

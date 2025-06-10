@@ -11,6 +11,12 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 
 /**
  * 统计数据缓存Service实现类
@@ -90,27 +96,104 @@ public class StatisticsCacheServiceImpl extends ServiceImpl<StatisticsCacheMappe
     }
     
     @Override
-    public java.util.Map<String, Object> getDailyInspectionStatistics(java.time.LocalDate date) {
-        // TODO: 实现每日巡检统计
-        return new java.util.HashMap<>();
+    public Map<String, Object> getDailyInspectionStatistics(java.time.LocalDate date) {
+        // 从缓存获取数据
+        String cacheKey = "inspection_count_daily";
+        String cacheData = getCacheData(cacheKey);
+        
+        if (StringUtils.hasText(cacheData)) {
+            try {
+                return JSON.parseObject(cacheData, Map.class);
+            } catch (Exception e) {
+                log.error("解析每日巡检统计数据失败", e);
+            }
+        }
+        
+        // 缓存不存在或解析失败，返回空结果
+        return new HashMap<>();
     }
     
     @Override
-    public java.util.Map<String, Object> getWeeklyInspectionStatistics(java.time.LocalDate startDate, java.time.LocalDate endDate) {
-        // TODO: 实现每周巡检统计
-        return new java.util.HashMap<>();
+    public Map<String, Object> getWeeklyInspectionStatistics(java.time.LocalDate startDate, java.time.LocalDate endDate) {
+        // 从缓存获取数据
+        String cacheKey = "inspection_count_weekly";
+        String cacheData = getCacheData(cacheKey);
+        
+        if (StringUtils.hasText(cacheData)) {
+            try {
+                return JSON.parseObject(cacheData, Map.class);
+            } catch (Exception e) {
+                log.error("解析每周巡检统计数据失败", e);
+            }
+        }
+        
+        // 缓存不存在或解析失败，返回空结果
+        return new HashMap<>();
     }
     
     @Override
-    public java.util.Map<String, Object> getIssueStatistics() {
-        // TODO: 实现问题统计
-        return new java.util.HashMap<>();
+    public Map<String, Object> getIssueStatistics() {
+        // 从缓存获取数据
+        String cacheKey = "issue_statistics";
+        String cacheData = getCacheData(cacheKey);
+        
+        if (StringUtils.hasText(cacheData)) {
+            try {
+                return JSON.parseObject(cacheData, Map.class);
+            } catch (Exception e) {
+                log.error("解析问题统计数据失败", e);
+            }
+        }
+        
+        // 缓存不存在或解析失败，返回空结果
+        return new HashMap<>();
     }
     
     @Override
-    public java.util.Map<String, Object> getDashboardData() {
-        // TODO: 实现仪表盘数据
-        return new java.util.HashMap<>();
+    public Map<String, Object> getDashboardData() {
+        // 从缓存获取数据
+        String cacheKey = "dashboard_statistics";
+        String cacheData = getCacheData(cacheKey);
+        
+        if (StringUtils.hasText(cacheData)) {
+            try {
+                return JSON.parseObject(cacheData, Map.class);
+            } catch (Exception e) {
+                log.error("解析仪表盘数据失败", e);
+            }
+        }
+        
+        // 缓存不存在或解析失败，返回空结果
+        Map<String, Object> defaultData = new HashMap<>();
+        defaultData.put("tasks", new HashMap<String, Integer>() {{
+            put("total", 0);
+            put("pending", 0);
+            put("inProgress", 0);
+            put("completed", 0);
+        }});
+        defaultData.put("records", new HashMap<String, Integer>() {{
+            put("total", 0);
+            put("thisMonth", 0);
+            put("lastMonth", 0);
+        }});
+        defaultData.put("issues", new HashMap<String, Integer>() {{
+            put("total", 0);
+            put("open", 0);
+            put("processing", 0);
+            put("closed", 0);
+        }});
+        defaultData.put("areas", new HashMap<String, Integer>() {{
+            put("total", 0);
+            put("active", 0);
+            put("inactive", 0);
+        }});
+        defaultData.put("users", new HashMap<String, Integer>() {{
+            put("total", 0);
+            put("active", 0);
+            put("inactive", 0);
+        }});
+        
+        return defaultData;
     }
     
     @Override
@@ -145,5 +228,97 @@ public class StatisticsCacheServiceImpl extends ServiceImpl<StatisticsCacheMappe
         result &= refreshIssueStatistics();
         result &= refreshDashboardData();
         return result;
+    }
+    
+    /**
+     * 获取问题趋势数据
+     * 
+     * @param timeRange 时间范围，可选值：week, month, year
+     * @return 问题趋势数据
+     */
+    @Override
+    public Map<String, Object> getIssueTrend(String timeRange) {
+        // 从缓存获取数据
+        String cacheKey = "issues_trend_" + timeRange;
+        String cacheData = getCacheData(cacheKey);
+        
+        if (StringUtils.hasText(cacheData)) {
+            try {
+                return JSON.parseObject(cacheData, Map.class);
+            } catch (Exception e) {
+                log.error("解析问题趋势数据失败", e);
+            }
+        }
+        
+        // 缓存不存在或解析失败，返回默认数据
+        Map<String, Object> defaultData = new HashMap<>();
+        
+        // 根据时间范围返回不同的默认数据
+        if ("week".equals(timeRange)) {
+            defaultData.put("dates", new String[]{"周一", "周二", "周三", "周四", "周五", "周六", "周日"});
+            defaultData.put("counts", new Integer[]{0, 0, 0, 0, 0, 0, 0});
+        } else if ("month".equals(timeRange)) {
+            defaultData.put("dates", new String[]{"第1周", "第2周", "第3周", "第4周"});
+            defaultData.put("counts", new Integer[]{0, 0, 0, 0});
+        } else {
+            defaultData.put("dates", new String[]{"1月", "2月", "3月", "4月", "5月", "6月", "7月", "8月", "9月", "10月", "11月", "12月"});
+            defaultData.put("counts", new Integer[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0});
+        }
+        
+        Map<String, Object> types = new HashMap<>();
+        types.put("environment", new Integer[]{0, 0, 0, 0});
+        types.put("security", new Integer[]{0, 0, 0, 0});
+        types.put("device", new Integer[]{0, 0, 0, 0});
+        defaultData.put("types", types);
+        
+        return defaultData;
+    }
+    
+    /**
+     * 获取区域问题分布
+     * 
+     * @return 区域问题分布数据
+     */
+    @Override
+    public List<Map<String, Object>> getIssueByArea() {
+        // 从缓存获取数据
+        String cacheKey = "issues_by_area";
+        String cacheData = getCacheData(cacheKey);
+        
+        if (StringUtils.hasText(cacheData)) {
+            try {
+                // 使用TypeReference处理泛型转换
+                return JSON.parseObject(cacheData, new com.alibaba.fastjson.TypeReference<List<Map<String, Object>>>(){});
+            } catch (Exception e) {
+                log.error("解析区域问题分布数据失败", e);
+            }
+        }
+        
+        // 缓存不存在或解析失败，返回空结果
+        return new ArrayList<>();
+    }
+    
+    /**
+     * 获取问题处理人员排名
+     * 
+     * @return 处理人员排名数据
+     */
+    @Override
+    public List<Map<String, Object>> getIssueByHandler() {
+        // 从缓存获取数据
+        String cacheKey = "issues_by_handler";
+        String cacheData = getCacheData(cacheKey);
+        
+        if (StringUtils.hasText(cacheData)) {
+            try {
+                // 使用TypeReference处理泛型转换
+                return JSON.parseObject(cacheData, new com.alibaba.fastjson.TypeReference<List<Map<String, Object>>>(){});
+            } catch (Exception e) {
+                log.error("解析问题处理人员排名数据失败", e);
+            }
+        }
+        
+        // 缓存不存在或解析失败，返回空结果
+        return new ArrayList<>();
     }
 } 

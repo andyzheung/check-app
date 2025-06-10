@@ -92,26 +92,69 @@ export default defineComponent({
     const handleSubmit = async (values) => {
       loading.value = true
       try {
-        const data = await login({
+        // 清理所有cookie，防止请求头过大
+        document.cookie.split(';').forEach(cookie => {
+          const name = cookie.trim().split('=')[0]
+          document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`
+        })
+        
+        console.log('登录请求数据:', { username: values.username, password: values.password })
+        const response = await login({
           username: values.username,
           password: values.password
         })
         
-        localStorage.setItem('token', data.token)
-        if (values.remember) {
-          localStorage.setItem('username', values.username)
-        } else {
-          localStorage.removeItem('username')
+        console.log('登录响应:', response)
+        
+        // 处理不同格式的响应数据
+        let userData = response
+        // 如果响应是嵌套的数据结构
+        if (response && response.data && response.data.token) {
+          userData = response.data
         }
         
-        message.success('登录成功')
-        router.push('/')
+        // 确保返回数据中包含token
+        if (userData && userData.token) {
+          localStorage.setItem('token', userData.token)
+          
+          // 存储用户信息
+          if (userData.userId) localStorage.setItem('userId', userData.userId)
+          if (userData.username) localStorage.setItem('username', userData.username)
+          if (userData.realName) localStorage.setItem('realName', userData.realName || userData.username)
+          if (userData.role) localStorage.setItem('role', userData.role || 'user')
+          
+          // 记住账号
+          if (values.remember) {
+            localStorage.setItem('rememberedUsername', values.username)
+          } else {
+            localStorage.removeItem('rememberedUsername')
+          }
+          
+          message.success('登录成功')
+          router.push('/')
+        } else {
+          message.error('登录失败：未获取到有效Token')
+          console.error('登录响应缺少token:', response)
+        }
       } catch (error) {
-        console.error('Login failed:', error)
+        console.error('登录失败:', error)
+        message.error('登录失败：' + (error.message || '服务器错误'))
       } finally {
         loading.value = false
       }
     }
+    
+    // 检查是否有记住的用户名
+    const initRememberedUsername = () => {
+      const rememberedUsername = localStorage.getItem('rememberedUsername')
+      if (rememberedUsername) {
+        formState.username = rememberedUsername
+        formState.remember = true
+      }
+    }
+    
+    // 页面加载时初始化
+    initRememberedUsername()
     
     return {
       formState,

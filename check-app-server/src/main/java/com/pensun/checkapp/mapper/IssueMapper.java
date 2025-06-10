@@ -89,4 +89,14 @@ public interface IssueMapper extends BaseMapper<Issue> {
             "ORDER BY i.create_time DESC " +
             "LIMIT 10")
     List<Issue> selectWeeklyIssues(@Param("startTime") LocalDateTime startTime, @Param("endTime") LocalDateTime endTime);
+
+    /**
+     * 根据前缀查询最大序号
+     *
+     * @param prefix 前缀
+     * @return 最大序号
+     */
+    @Select("SELECT MAX(CONVERT(SUBSTRING(issue_no, LENGTH(#{prefix}) + 1), UNSIGNED)) " +
+            "FROM t_issue WHERE issue_no LIKE CONCAT(#{prefix}, '%')")
+    Integer selectMaxSeqByPrefix(@Param("prefix") String prefix);
 } 
