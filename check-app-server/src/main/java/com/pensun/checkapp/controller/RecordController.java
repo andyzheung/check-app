@@ -39,8 +39,24 @@ public class RecordController {
         java.time.LocalDate start = null, end = null;
         if (startDate != null && !startDate.isEmpty()) start = java.time.LocalDate.parse(startDate);
         if (endDate != null && !endDate.isEmpty()) end = java.time.LocalDate.parse(endDate);
-        com.pensun.checkapp.dto.PageResult<com.pensun.checkapp.dto.RecordDTO> pageResult = recordService.getRecordList(page, size, areaId, inspectorId, status, start, end);
-        return com.pensun.checkapp.common.Result.success(pageResult);
+        
+        try {
+            log.debug("获取巡检记录列表: page={}, size={}, areaId={}, inspectorId={}, status={}, startDate={}, endDate={}", 
+                page, size, areaId, inspectorId, status, startDate, endDate);
+            
+            com.pensun.checkapp.dto.PageResult<com.pensun.checkapp.dto.RecordDTO> pageResult = 
+                recordService.getRecordList(page, size, areaId, inspectorId, status, start, end);
+            
+            // 构造符合前端预期的格式
+            java.util.Map<String, Object> result = new java.util.HashMap<>();
+            result.put("list", pageResult.getList());
+            result.put("total", pageResult.getTotal());
+            
+            return com.pensun.checkapp.common.Result.success(result);
+        } catch (Exception e) {
+            log.error("获取巡检记录列表失败", e);
+            return Result.failed("获取巡检记录列表失败: " + e.getMessage());
+        }
     }
 
     @GetMapping("/{id}")

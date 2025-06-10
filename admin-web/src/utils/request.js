@@ -94,6 +94,18 @@ service.interceptors.response.use(
         
         return Promise.reject(new Error(res.message || '请求失败'))
       }
+      
+      // 特别处理records接口和issues接口的返回格式
+      if (response.config.url.includes('/records') || response.config.url.includes('/issues')) {
+        // 确保返回结构正确: { list: [...], total: number }
+        if (res.data && (res.data.records || res.data.list)) {
+          return {
+            list: res.data.records || res.data.list || [],
+            total: res.data.total || 0
+          };
+        }
+      }
+      
       return res.data || res
     }
     

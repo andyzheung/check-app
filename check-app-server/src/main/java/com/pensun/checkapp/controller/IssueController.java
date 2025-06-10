@@ -46,16 +46,45 @@ public class IssueController {
             @RequestParam(required = false) String status,
             @RequestParam(required = false) String type,
             @RequestParam(required = false) Long recordId,
+            @RequestParam(required = false) Long recorderId,
             @RequestParam(required = false) String startDate,
             @RequestParam(required = false) String endDate) {
-        log.info("获取问题列表: page={}, size={}, status={}, type={}, recordId={}, startDate={}, endDate={}", 
-                page, size, status, type, recordId, startDate, endDate);
+        log.info("获取问题列表: page={}, size={}, status={}, type={}, recordId={}, recorderId={}, startDate={}, endDate={}", 
+                page, size, status, type, recordId, recorderId, startDate, endDate);
         
-        java.time.LocalDate start = null, end = null;
-        if (startDate != null && !startDate.isEmpty()) start = java.time.LocalDate.parse(startDate);
-        if (endDate != null && !endDate.isEmpty()) end = java.time.LocalDate.parse(endDate);
-        
-        return issueService.getIssueList(page, size, status, type, recordId, start, end);
+        try {
+            java.time.LocalDate start = null, end = null;
+            if (startDate != null && !startDate.isEmpty()) {
+                try {
+                    start = java.time.LocalDate.parse(startDate);
+                } catch (Exception e) {
+                    log.warn("开始日期格式错误: {}", startDate);
+                }
+            }
+            if (endDate != null && !endDate.isEmpty()) {
+                try {
+                    end = java.time.LocalDate.parse(endDate);
+                } catch (Exception e) {
+                    log.warn("结束日期格式错误: {}", endDate);
+                }
+            }
+            
+            Result result = issueService.getIssueList(page, size, status, type, recordId, start, end);
+            
+            // 确保返回格式一致
+            if (result.getCode() == 200 && result.getData() instanceof Map) {
+                Map<String, Object> data = (Map<String, Object>) result.getData();
+                Map<String, Object> formattedResult = new java.util.HashMap<>();
+                formattedResult.put("list", data.getOrDefault("records", new java.util.ArrayList<>()));
+                formattedResult.put("total", data.getOrDefault("total", 0));
+                return Result.success(formattedResult);
+            }
+            
+            return result;
+        } catch (Exception e) {
+            log.error("获取问题列表失败", e);
+            return Result.failed("获取问题列表失败: " + e.getMessage());
+        }
     }
 
     /**

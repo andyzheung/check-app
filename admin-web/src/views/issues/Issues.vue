@@ -213,13 +213,27 @@ export default defineComponent({
     const getList = async () => {
       loading.value = true
       try {
-        const { list, total } = await getIssueList({
-          ...queryParams
-        })
-        issueList.value = list
-        pagination.total = total
+        // 确保日期格式正确
+        const params = {
+          ...queryParams,
+          startDate: queryParams.startTime,
+          endDate: queryParams.endTime,
+          page: queryParams.pageNum,
+          size: queryParams.pageSize
+        }
+        
+        // 移除后端不需要的参数
+        delete params.startTime
+        delete params.endTime
+        delete params.pageNum
+        delete params.pageSize
+        
+        const { list, total } = await getIssueList(params)
+        issueList.value = list || []
+        pagination.total = total || 0
         pagination.current = queryParams.pageNum
         pagination.pageSize = queryParams.pageSize
+        console.log('获取问题列表结果:', list, total)
       } catch (error) {
         console.error('Failed to get issue list:', error)
       } finally {
