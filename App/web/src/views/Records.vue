@@ -1,210 +1,129 @@
 <template>
   <div class="records-container">
-    <div class="records-header">
-      <h1>巡检记录</h1>
-      <div v-if="isAdmin" class="admin-tip">（管理员可查看所有记录）</div>
+    <div class="filter-card">
+      <div class="filter-row">
+        <input type="date" v-model="filters.startDate" class="date-input" />
+        <span class="separator">-</span>
+        <input type="date" v-model="filters.endDate" class="date-input" />
+      </div>
+      <div class="filter-row">
+        <select v-model="filters.areaId">
+          <option :value="null">全部区域</option>
+          <option v-for="area in areaList" :key="area.id" :value="area.id">{{ area.name }}</option>
+        </select>
+        <select v-model="filters.status">
+          <option :value="null">全部状态</option>
+          <option value="COMPLETED">正常</option>
+          <option value="EXCEPTION">异常</option>
+        </select>
+      </div>
+      <div class="filter-row">
+        <input type="text" v-model="filters.keyword" placeholder="搜索关键词" class="search-input" />
+        <button @click="applyFilters" class="search-button">
+          <span class="material-icons">search</span>
+        </button>
+      </div>
     </div>
-    <div class="records-filter">
-      <input type="date" class="filter-input" v-model="filters.startDate" placeholder="开始日期" />
-      <span style="margin: 0 6px;">-</span>
-      <input type="date" class="filter-input" v-model="filters.endDate" placeholder="结束日期" />
-      <select class="filter-input" v-model="filters.areaId">
-        <option value="">全部区域</option>
-        <option v-for="(area, index) in areas" :key="area?.id || index" :value="area?.id || ''">
-          {{ area?.areaName || area?.name || '未命名区域' }}
-        </option>
-      </select>
-      <select class="filter-input" v-model="filters.status">
-        <option value="">全部状态</option>
-        <option value="normal">正常</option>
-        <option value="abnormal">异常</option>
-      </select>
-      <input type="text" class="filter-input" v-model="filters.keyword" placeholder="搜索关键字" />
-      <button class="search-btn" @click="handleSearch"><span class="material-icons">search</span></button>
-    </div>
-    <div class="records-content">
-      <div v-if="records.length === 0" class="empty-records">
+
+    <div class="list-container">
+      <div v-if="loading" class="state-info">加载中...</div>
+      <div v-else-if="records.length === 0" class="state-info">
         暂无记录数据
       </div>
-      
-      <div v-for="(r, index) in records" :key="r?.id || index" class="record-card" @click="r?.id ? viewDetail(r.id) : null">
-        <div class="record-header">
-          <div>{{ r?.areaName || '未知区域' }}</div>
-          <div class="record-status" :class="{'status-abnormal': r?.status === 'abnormal', 'status-normal': r?.status === 'normal'}">
-            {{ r?.status === 'normal' ? '正常' : '异常' }}
+      <div v-else class="records-list">
+        <div v-for="record in records" :key="record.id" class="record-card" @click="viewRecord(record.id)">
+          <div class="record-info">
+            <div class="record-area">{{ record.areaName }}</div>
+            <div class="record-time">{{ formatTime(record.inspectionTime) }}</div>
           </div>
-          <div class="record-inspector">{{ r?.inspectorName || '未知巡检员' }}</div>
-        </div>
-        <div class="record-info">
-          <div class="record-time">{{ formatDateTime(r?.inspectionTime) }}</div>
-          <div class="record-id">{{ r?.recordNo || `记录${index+1}` }}</div>
+          <div class="record-status" :class="getStatusClass(record.status)">
+            {{ formatStatus(record.status) }}
+          </div>
         </div>
       </div>
-      <div class="pagination-wrapper" v-if="records.length > 0">
-        <van-pagination 
-          v-model="page" 
-          :total-items="total" 
-          :items-per-page="size"
-          :show-page-size="3"
-          force-ellipses
-          @change="handlePageChange"
-        >
-          <template #prev-text>
-            <van-icon name="arrow-left" />上一页
-          </template>
-          <template #next-text>
-            下一页<van-icon name="arrow" />
-          </template>
-          <template #page="{ text }">
-            {{ text }}
-          </template>
-        </van-pagination>
-        <div class="pagination-info">
-          共 {{ total }} 条记录，每页 {{ size }} 条
-        </div>
-      </div>
-    </div>
-    <div class="bottom-nav">
-      <router-link to="/home" class="nav-item" active-class="active">
-        <span style="font-size: 22px;">🏠</span>
-        <span>首页</span>
-      </router-link>
-      <router-link to="/scan" class="nav-item" active-class="active">
-        <span style="font-size: 22px;">📷</span>
-        <span>巡检</span>
-      </router-link>
-      <router-link to="/records" class="nav-item" active-class="active">
-        <span style="font-size: 22px;">📜</span>
-        <span>记录</span>
-      </router-link>
-      <router-link to="/profile" class="nav-item" active-class="active">
-        <span style="font-size: 22px;">👤</span>
-        <span>我的</span>
-      </router-link>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
-import { getRecordList, getAllAreas } from '@/api/inspection'
-import request from '@/utils/request'
+import { ref, reactive, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
+import request from '@/utils/request';
 
-const router = useRouter()
-const records = ref([])
-const areas = ref([])
-const total = ref(0)
-const page = ref(1)
-const size = ref(10)
-const filters = ref({
-  areaId: '',
-  status: '',
-  startDate: '',
-  endDate: '',
-  keyword: ''
-})
-const isAdmin = ref(false)
+const router = useRouter();
+const loading = ref(false);
+const records = ref([]);
+const areaList = ref([]);
+const filters = reactive({
+  startDate: null,
+  endDate: null,
+  areaId: null,
+  status: null,
+  keyword: '',
+});
 
-// 格式化日期时间
-function formatDateTime(dateTimeStr) {
-  if (!dateTimeStr) return '';
-  
-  try {
-    const date = new Date(dateTimeStr);
-    return date.toLocaleString('zh-CN', {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: false
-    });
-  } catch (err) {
-    console.error('日期格式化错误:', err);
-    return dateTimeStr;
-  }
-}
-
-async function fetchAreas() {
-  try {
-    const res = await getAllAreas()
-    if (res.code === 200 || res.code === 0) {
-      areas.value = res.data || []
-    }
-  } catch (err) {
-    console.error('获取区域列表失败:', err)
-  }
-}
-
-async function fetchUserInfo() {
-  try {
-    const res = await request.get('/users/current')
-    isAdmin.value = res.data?.role === 'admin'
-  } catch (err) {
-    console.error('获取用户信息失败:', err)
-  }
-}
-
-async function fetchRecords() {
+const fetchRecords = async () => {
+  loading.value = true;
   try {
     const params = {
-      page: page.value,
-      size: size.value,
-      ...filters.value
+      page: 1,
+      size: 100, // Fetch all for now
+      ...filters,
+    };
+    const res = await request.get('/records', { params });
+    if (res.data && res.data.records) {
+      records.value = res.data.records;
     }
-    
-    // 发送API请求
-    const response = await request.get('/records', { params });
-    
-    // 处理响应
-    if (response && (response.code === 200 || response.code === 0)) {
-      if (response.data && response.data.list && Array.isArray(response.data.list)) {
-        const recordList = response.data.list;
-        
-        // 更新数据
-        records.value = recordList;
-        total.value = response.data.total || recordList.length;
-      } else {
-        console.error('API响应中缺少list数组');
-        records.value = [];
-        total.value = 0;
-      }
-    } else {
-      console.error('API响应状态错误:', response?.code, response?.message);
-      records.value = [];
-      total.value = 0;
-    }
-  } catch (err) {
-    console.error('获取巡检记录失败:', err);
-    records.value = [];
-    total.value = 0;
+  } catch (error) {
+    console.error("Failed to fetch records:", error);
+  } finally {
+    loading.value = false;
   }
-}
+};
 
-function handleSearch() {
-  page.value = 1
-  fetchRecords()
-}
+const fetchAreas = async () => {
+  try {
+    const res = await request.get('/areas', { params: { size: 100 } });
+    if (res.data && res.data.records) {
+      areaList.value = res.data.records;
+    }
+  } catch (error) {
+    console.error("Failed to fetch areas:", error);
+  }
+};
 
-function handlePageChange() {
-  fetchRecords()
-}
+onMounted(() => {
+  fetchRecords();
+  fetchAreas();
+});
 
-function viewDetail(id) {
-  router.push({
-    path: '/record-detail',
-    query: { id }
-  })
-}
+const applyFilters = () => {
+  fetchRecords();
+};
 
-onMounted(async () => {
-  await Promise.all([
-    fetchUserInfo(),
-    fetchAreas()
-  ])
-  fetchRecords()
-})
+const viewRecord = (id) => {
+  router.push(`/record-detail/${id}`);
+};
+
+const formatTime = (time) => {
+  if (!time) return '';
+  return new Date(time).toLocaleString('zh-CN', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
+};
+
+const formatStatus = (status) => {
+  const statusMap = {
+    'COMPLETED': '正常',
+    'EXCEPTION': '异常'
+  };
+  return statusMap[status] || '未知';
+};
+
+const getStatusClass = (status) => {
+  return {
+    'status-completed': status === 'COMPLETED',
+    'status-exception': status === 'EXCEPTION',
+  };
+};
 </script>
 
 <style>

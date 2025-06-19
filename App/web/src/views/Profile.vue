@@ -1,68 +1,46 @@
 <template>
   <div class="profile-container">
-    <div class="profile-topbar">个人中心</div>
-    <div class="profile-content-wrapper">
-      <div class="profile-card">
-        <div class="profile-avatar">{{ userInfo.realName?.[0] || '?' }}</div>
-        <div class="profile-info-block">
-          <div class="profile-name">{{ userInfo.realName }}</div>
-          <div class="profile-meta">工号：{{ userInfo.username }}</div>
-          <div class="profile-meta">部门：{{ userInfo.department }}</div>
-        </div>
+    <div class="user-card">
+      <div class="avatar">{{ userInfo.realName?.[0] || 'A' }}</div>
+      <div class="username">{{ userInfo.realName || 'Administrator' }}</div>
+      <div class="details">
+        <span>工号: {{ userInfo.username || 'admin' }}</span>
+        <span>部门: {{ userInfo.department }}</span>
       </div>
-      <div class="menu-list">
-        <div class="menu-item disabled">
-          <div class="menu-item-left">
-            <span class="material-icons">person</span>
-            <span>个人信息</span>
-          </div>
-          <span class="material-icons">chevron_right</span>
-        </div>
-        <div class="menu-item" @click="goToNotifications">
-          <div class="menu-item-left">
-            <span class="material-icons">notifications</span>
-            <span>消息通知</span>
-            <span v-if="unreadCount > 0" class="badge">{{ unreadCount }}</span>
-          </div>
-          <span class="material-icons">chevron_right</span>
-        </div>
-        <div class="menu-item disabled">
-          <div class="menu-item-left">
-            <span class="material-icons">info</span>
-            <span>关于</span>
-          </div>
-          <span class="material-icons">chevron_right</span>
-        </div>
+    </div>
+
+    <div class="menu-list">
+      <div class="menu-item" @click="goTo('/personal-info')">
+        <span class="material-icons">person_outline</span>
+        <span>个人信息</span>
+        <span class="material-icons arrow">chevron_right</span>
       </div>
-      <div class="logout-button highlight" @click="handleLogout">退出登录</div>
+      <div class="menu-item" @click="goTo('/notifications')">
+        <span class="material-icons">notifications_none</span>
+        <span>消息通知</span>
+        <span class="badge" v-if="unreadCount > 0">{{ unreadCount }}</span>
+        <span class="material-icons arrow">chevron_right</span>
+      </div>
+      <div class="menu-item" @click="goTo('/about')">
+        <span class="material-icons">info_outline</span>
+        <span>关于</span>
+        <span class="material-icons arrow">chevron_right</span>
+      </div>
     </div>
-    <div class="bottom-nav">
-      <router-link to="/home" class="nav-item" active-class="active">
-        <span style="font-size: 22px;">🏠</span>
-        <span>首页</span>
-      </router-link>
-      <router-link to="/scan" class="nav-item" active-class="active">
-        <span style="font-size: 22px;">📷</span>
-        <span>巡检</span>
-      </router-link>
-      <router-link to="/records" class="nav-item" active-class="active">
-        <span style="font-size: 22px;">📜</span>
-        <span>记录</span>
-      </router-link>
-      <router-link to="/profile" class="nav-item" active-class="active">
-        <span style="font-size: 22px;">👤</span>
-        <span>我的</span>
-      </router-link>
-    </div>
+
+    <button class="logout-button" @click="logout">退出登录</button>
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { useUserStore } from '@/stores/user'
 import request from '@/utils/request'
 
 const router = useRouter()
+const userStore = useUserStore()
+
 const userInfo = ref({})
 const unreadCount = ref(0)
 
@@ -91,12 +69,12 @@ async function fetchUnreadCount() {
 }
 
 // 页面跳转
-function goToNotifications() {
-  router.push('/notifications')
+function goTo(path) {
+  router.push(path)
 }
 
 // 退出登录
-async function handleLogout() {
+async function logout() {
   try {
     await request.post('/auth/logout')
     localStorage.removeItem('token')

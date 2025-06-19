@@ -59,26 +59,6 @@
         </van-tab>
       </van-tabs>
     </div>
-    
-    <!-- 底部导航栏 -->
-    <div class="bottom-nav">
-      <router-link to="/home" class="nav-item" active-class="active">
-        <span style="font-size: 22px;">🏠</span>
-        <span>首页</span>
-      </router-link>
-      <router-link to="/scan" class="nav-item" active-class="active">
-        <span style="font-size: 22px;">📷</span>
-        <span>巡检</span>
-      </router-link>
-      <router-link to="/records" class="nav-item" active-class="active">
-        <span style="font-size: 22px;">📜</span>
-        <span>记录</span>
-      </router-link>
-      <router-link to="/profile" class="nav-item" active-class="active">
-        <span style="font-size: 22px;">👤</span>
-        <span>我的</span>
-      </router-link>
-    </div>
   </div>
 </template>
 
@@ -362,29 +342,5 @@ onMounted(() => {
   color: #999;
   font-size: 14px;
   cursor: pointer;
-}
-
-.bottom-nav {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background: #fff;
-  box-shadow: 0 -2px 12px rgba(0,0,0,0.06);
-  display: flex;
-  justify-content: space-around;
-  padding: 12px 0;
-}
-
-.nav-item {
-  text-decoration: none;
-  color: #666;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.nav-item.active {
-  color: var(--primary-color, #2196F3);
 }
 </style> 

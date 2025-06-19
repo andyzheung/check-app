@@ -64,7 +64,17 @@ async function doLogin() {
     } else {
       localStorage.removeItem('loginInfo')
     }
-    router.push('/scan')
+    
+    // 确保token已设置后再跳转
+    await new Promise(resolve => setTimeout(resolve, 100))
+    
+    // 获取redirect参数，如果有的话跳转到目标页面，否则跳转到首页
+    const redirect = router.currentRoute.value.query.redirect
+    if (redirect && redirect !== '/login') {
+      router.replace(redirect)
+    } else {
+      router.replace('/home')
+    }
   } else {
     errorMsg.value = res.message
   }

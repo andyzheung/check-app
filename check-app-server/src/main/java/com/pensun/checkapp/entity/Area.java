@@ -70,15 +70,15 @@ public class Area implements Serializable {
     private String areaType;
 
     /**
-     * 模块数量（数据中心专用）
+     * 模块数量（仅数据中心使用）
      */
-    @TableField("module_count")
+    @TableField(exist = false)
     private Integer moduleCount;
 
     /**
      * 区域配置（JSON格式）
      */
-    @TableField("config_json")
+    @TableField(exist = false)
     private String configJson;
 
     /**

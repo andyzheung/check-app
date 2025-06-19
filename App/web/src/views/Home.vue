@@ -57,30 +57,11 @@
         <div v-for="area in areas" :key="area.id" class="area-card" @click="scanArea(area)">
           <div class="area-info">
             <div class="area-name">{{ area.areaName }}</div>
-            <div class="area-type">{{ formatAreaType(area.areaType) }}</div>
+            <div class="area-code">{{ area.areaCode }}</div>
           </div>
+          <div class="area-type">{{ area.areaType }}</div>
         </div>
       </div>
-    </div>
-
-    <!-- 底部导航栏 -->
-    <div class="bottom-nav">
-      <router-link to="/home" class="nav-item" exact-active-class="active" replace>
-        <span style="font-size: 22px;">🏠</span>
-        <span>首页</span>
-      </router-link>
-      <router-link to="/scan" class="nav-item" active-class="active">
-        <span style="font-size: 22px;">📷</span>
-        <span>巡检</span>
-      </router-link>
-      <router-link to="/records" class="nav-item" active-class="active">
-        <span style="font-size: 22px;">📜</span>
-        <span>记录</span>
-      </router-link>
-      <router-link to="/profile" class="nav-item" active-class="active">
-        <span style="font-size: 22px;">👤</span>
-        <span>我的</span>
-      </router-link>
     </div>
   </div>
 </template>

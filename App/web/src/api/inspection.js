@@ -23,7 +23,7 @@ export function getAreaByCode(code) {
  * @returns {Promise<any>}
  */
 export function getTemplateByAreaId(areaId) {
-  return request.get(`/areas/${areaId}/templates`)
+  return request.get(`/templates/${areaId}`)
 }
 
 /**
