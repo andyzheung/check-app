@@ -19,11 +19,12 @@ spring:
     encoding:
       charset: UTF-8
       force: true
-  http:
-    encoding:
-      charset: UTF-8
-      force: true
-      enabled: true
+  # 以下配置已过时，使用server.servlet.encoding替代
+  # http:
+  #   encoding:
+  #     charset: UTF-8
+  #     force: true
+  #     enabled: true
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://localhost:3306/check_app?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true&useSSL=false
@@ -77,9 +78,10 @@ file:
 # 跨域配置
 cors:
   allowed-origins: "*"
+  allowed-origin-patterns: "*"
   allowed-methods: GET,POST,PUT,DELETE,OPTIONS
   allowed-headers: "*"
-  allow-credentials: true
+  allow-credentials: false
   max-age: 3600
 
 # 日志配置

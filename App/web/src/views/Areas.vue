@@ -142,9 +142,14 @@ function formatAreaType(type) {
     'power_room': '配电室',
     'network_room': '网络机房',
     'ups_room': 'UPS机房',
-    'monitor_room': '监控室',
+    'monitoring_room': '监控室',
+    'datacenter': '数据中心',
+    'weakroom': '弱电间',
     'A': '机房',
-    'B': '配电室'
+    'B': '办公区',
+    'C': '设备区',
+    'D': '数据中心',
+    'E': '弱电间'
   };
   return typeMap[type] || type || '未知类型';
 }

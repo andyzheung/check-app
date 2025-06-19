@@ -6,6 +6,7 @@ import router from '../router'
 const service = axios.create({
   baseURL: process.env.VUE_APP_API_BASE_URL || '/api/v1', // 直接使用v1版本API
   timeout: 15000, // 请求超时时间
+  withCredentials: false, // 禁用跨域请求携带凭证
   headers: {
     'Content-Type': 'application/json',
     'Accept': 'application/json'
@@ -38,6 +39,9 @@ service.interceptors.request.use(
   config => {
     // 清理cookie以防止请求头过大
     cleanupCookies();
+    
+    // 确保所有请求都禁用withCredentials
+    config.withCredentials = false;
     
     // 设置token认证
     const token = localStorage.getItem('token')

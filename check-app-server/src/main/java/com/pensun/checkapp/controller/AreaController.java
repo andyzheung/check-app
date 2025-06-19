@@ -3,14 +3,14 @@ package com.pensun.checkapp.controller;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.pensun.checkapp.common.Result;
 import com.pensun.checkapp.dto.AreaDTO;
+import com.pensun.checkapp.dto.ApiResult;
+import com.pensun.checkapp.entity.InspectionItemTemplate;
 import com.pensun.checkapp.service.AreaService;
+import com.pensun.checkapp.service.InspectionItemTemplateService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * 区域控制器
@@ -22,6 +22,7 @@ import java.util.stream.Collectors;
 public class AreaController {
     
     private final AreaService areaService;
+    private final InspectionItemTemplateService inspectionItemTemplateService;
     
     /**
      * 获取区域列表（分页）
@@ -72,4 +73,19 @@ public class AreaController {
     public Result<Boolean> verifyQRCode(@RequestBody String qrData) {
         return Result.success(areaService.verifyQRCode(qrData));
     }
+
+
+
+    // TODO: 以下方法将在后续Sprint中实现，需要先完善AreaService接口
+    /*
+    /**
+     * 获取区域的巡检项目配置
+     */
+    /*
+    @GetMapping("/{id}/inspection-items")
+    public ApiResult<List<InspectionItem>> getAreaInspectionItems(@PathVariable Long id) {
+        // 实现逻辑待完善
+        return ApiResult.success(inspectionItemService.getActiveByAreaType("datacenter"));
+    }
+    */
 } 

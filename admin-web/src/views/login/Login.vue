@@ -1,57 +1,38 @@
 <template>
   <div class="login-container">
-    <div class="login-card">
-      <div class="login-logo">巡检管理系统后台</div>
-      <div class="login-title">账号登录</div>
-      <div class="login-desc">请输入您的账号和密码</div>
-      
-      <a-form
-        class="login-form"
-        :model="formState"
-        :rules="rules"
-        @finish="handleSubmit"
-      >
+    <div class="login-form">
+      <div class="login-title">巡检App管理系统</div>
+      <div style="margin-bottom: 24px; text-align: center;">
+        <a-radio-group v-model:value="loginType" size="large">
+          <a-radio-button value="local">系统账号登录</a-radio-button>
+          <a-radio-button value="ad">AD域账号登录</a-radio-button>
+        </a-radio-group>
+      </div>
+      <div v-if="loginType === 'local'">
+        <a-form :model="localForm" :rules="localRules" ref="localFormRef">
         <a-form-item name="username">
-          <a-input
-            v-model:value="formState.username"
-            placeholder="请输入账号/邮箱"
-            size="large"
-          >
-            <template #prefix>
-              <user-outlined />
-            </template>
-          </a-input>
+            <a-input v-model:value="localForm.username" placeholder="用户名" />
         </a-form-item>
         <a-form-item name="password">
-          <a-input-password
-            v-model:value="formState.password"
-            placeholder="请输入密码"
-            size="large"
-          >
-            <template #prefix>
-              <lock-outlined />
-            </template>
-          </a-input-password>
+            <a-input-password v-model:value="localForm.password" placeholder="密码" />
+          </a-form-item>
+          <a-form-item>
+            <a-button type="primary" block @click="handleLocalLogin" :loading="localLoading">登录</a-button>
         </a-form-item>
-        <div class="login-options">
-          <a-checkbox v-model:checked="formState.remember">记住密码</a-checkbox>
-          <a class="forgot-link">忘记密码？</a>
+        </a-form>
         </div>
+      <div v-else>
+        <a-form :model="adForm" :rules="adRules" ref="adFormRef">
+          <a-form-item name="username">
+            <a-input v-model:value="adForm.username" placeholder="AD账号" />
+          </a-form-item>
+          <a-form-item name="password">
+            <a-input-password v-model:value="adForm.password" placeholder="密码" />
+          </a-form-item>
         <a-form-item>
-          <a-button
-            type="primary"
-            html-type="submit"
-            class="login-button"
-            size="large"
-            :loading="loading"
-          >
-            登录
-          </a-button>
+            <a-button type="primary" block @click="handleADLogin" :loading="adLoading">登录</a-button>
         </a-form-item>
       </a-form>
-      
-      <div class="login-footer">
-        © 2025 巡检管理系统后台
       </div>
     </div>
   </div>
@@ -59,176 +40,134 @@
 
 <script>
 import { defineComponent, reactive, ref } from 'vue'
-import { UserOutlined, LockOutlined } from '@ant-design/icons-vue'
-import { message } from 'ant-design-vue'
 import { useRouter } from 'vue-router'
-import { login } from '@/api/user'
+import { message } from 'ant-design-vue'
+import { login, adLogin } from '@/api/auth'
+import { useUserStore } from '@/stores/user'
 
 export default defineComponent({
   name: 'Login',
-  components: {
-    UserOutlined,
-    LockOutlined
-  },
   setup() {
     const router = useRouter()
-    const loading = ref(false)
+    const userStore = useUserStore()
     
-    const formState = reactive({
+    // 登录类型
+    const loginType = ref('local')
+    
+    // 加载状态
+    const localLoading = ref(false)
+    const adLoading = ref(false)
+    
+    // 本地登录表单
+    const localFormRef = ref(null)
+    const localForm = reactive({
       username: '',
-      password: '',
-      remember: true
+      password: ''
     })
     
-    const rules = {
-      username: [
-        { required: true, message: '请输入账号', trigger: 'blur' }
-      ],
-      password: [
-        { required: true, message: '请输入密码', trigger: 'blur' }
-      ]
+    // AD域登录表单
+    const adFormRef = ref(null)
+    const adForm = reactive({
+      username: '',
+      password: ''
+    })
+    
+    // 表单验证规则
+    const localRules = {
+      username: [{ required: true, message: '请输入用户名', trigger: 'blur' }],
+      password: [{ required: true, message: '请输入密码', trigger: 'blur' }]
     }
     
-    const handleSubmit = async (values) => {
-      loading.value = true
+    const adRules = {
+      username: [{ required: true, message: '请输入AD账号', trigger: 'blur' }],
+      password: [{ required: true, message: '请输入密码', trigger: 'blur' }]
+    }
+    
+    // 本地登录处理
+    const handleLocalLogin = async () => {
       try {
-        // 清理所有cookie，防止请求头过大
-        document.cookie.split(';').forEach(cookie => {
-          const name = cookie.trim().split('=')[0]
-          document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`
-        })
+        await localFormRef.value.validate()
         
-        console.log('登录请求数据:', { username: values.username, password: values.password })
-        const response = await login({
-          username: values.username,
-          password: values.password
-        })
+        localLoading.value = true
+        const result = await login(localForm)
+        localLoading.value = false
         
-        console.log('登录响应:', response)
-        
-        // 处理不同格式的响应数据
-        let userData = response
-        // 如果响应是嵌套的数据结构
-        if (response && response.data && response.data.token) {
-          userData = response.data
-        }
-        
-        // 确保返回数据中包含token
-        if (userData && userData.token) {
-          localStorage.setItem('token', userData.token)
-          
-          // 存储用户信息
-          if (userData.userId) localStorage.setItem('userId', userData.userId)
-          if (userData.username) localStorage.setItem('username', userData.username)
-          if (userData.realName) localStorage.setItem('realName', userData.realName || userData.username)
-          if (userData.role) localStorage.setItem('role', userData.role || 'user')
-          
-          // 记住账号
-          if (values.remember) {
-            localStorage.setItem('rememberedUsername', values.username)
-          } else {
-            localStorage.removeItem('rememberedUsername')
-          }
-          
+        if (result.code === 200) {
+          userStore.setToken(result.data.token)
+          userStore.setUser(result.data.user)
           message.success('登录成功')
           router.push('/')
         } else {
-          message.error('登录失败：未获取到有效Token')
-          console.error('登录响应缺少token:', response)
+          message.error(result.message || '登录失败')
         }
       } catch (error) {
-        console.error('登录失败:', error)
-        message.error('登录失败：' + (error.message || '服务器错误'))
-      } finally {
-        loading.value = false
+        console.error('登录验证失败:', error)
       }
     }
     
-    // 检查是否有记住的用户名
-    const initRememberedUsername = () => {
-      const rememberedUsername = localStorage.getItem('rememberedUsername')
-      if (rememberedUsername) {
-        formState.username = rememberedUsername
-        formState.remember = true
+    // AD域登录处理
+    const handleADLogin = async () => {
+      try {
+        await adFormRef.value.validate()
+        
+        adLoading.value = true
+        const result = await adLogin(adForm)
+        adLoading.value = false
+        
+        if (result.code === 200) {
+          userStore.setToken(result.data.token)
+          userStore.setUser(result.data.user)
+          message.success('登录成功')
+          router.push('/')
+        } else {
+          message.error(result.message || '登录失败')
+      }
+      } catch (error) {
+        console.error('AD登录验证失败:', error)
       }
     }
-    
-    // 页面加载时初始化
-    initRememberedUsername()
     
     return {
-      formState,
-      rules,
-      loading,
-      handleSubmit
+      loginType,
+      localForm,
+      adForm,
+      localRules,
+      adRules,
+      localFormRef,
+      adFormRef,
+      localLoading,
+      adLoading,
+      handleLocalLogin,
+      handleADLogin
     }
   }
 })
 </script>
 
-<style scoped>
+<style lang="less" scoped>
 .login-container {
-  height: 100vh;
   display: flex;
-  align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #6a82fb 0%, #fc5c7d 100%);
-}
-
-.login-card {
-  background: #fff;
-  border-radius: 12px;
-  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
-  padding: 40px 32px 32px 32px;
-  width: 360px;
-  display: flex;
-  flex-direction: column;
   align-items: center;
-}
-
-.login-logo {
-  font-size: 24px;
-  font-weight: bold;
-  margin-bottom: 8px;
-  color: #1890ff;
-}
-
-.login-title {
-  font-size: 20px;
-  font-weight: bold;
-  margin-bottom: 8px;
-  color: #2d3a4b;
-}
-
-.login-desc {
-  color: #888;
-  margin-bottom: 24px;
-  font-size: 14px;
+  height: 100vh;
+  background-color: #f0f2f5;
+  // background-image: url('@/assets/images/login-bg.jpg');
+  background-size: cover;
+  background-position: center;
 }
 
 .login-form {
-  width: 100%;
+  width: 380px;
+  padding: 30px;
+  background-color: #fff;
+  border-radius: 4px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
-.login-options {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 24px;
-}
-
-.forgot-link {
-  color: #1890ff;
-  cursor: pointer;
-}
-
-.login-button {
-  width: 100%;
-}
-
-.login-footer {
-  margin-top: 24px;
+.login-title {
+  font-size: 24px;
+  color: #333;
   text-align: center;
-  color: #999;
-  font-size: 14px;
+  margin-bottom: 30px;
 }
 </style> 

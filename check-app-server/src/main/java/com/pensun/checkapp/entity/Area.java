@@ -64,6 +64,24 @@ public class Area implements Serializable {
     private String qrCodeUrl;
 
     /**
+     * 区域类型：A-机房,B-办公区,C-设备区,D-数据中心,E-弱电间
+     */
+    @TableField("area_type")
+    private String areaType;
+
+    /**
+     * 模块数量（数据中心专用）
+     */
+    @TableField("module_count")
+    private Integer moduleCount;
+
+    /**
+     * 区域配置（JSON格式）
+     */
+    @TableField("config_json")
+    private String configJson;
+
+    /**
      * 创建时间
      */
     @TableField(value = "create_time", fill = FieldFill.INSERT)

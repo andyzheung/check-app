@@ -3,43 +3,116 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>主页 - 巡检App</title>
+    <title>首页 - 巡检App</title>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link href="css/common.css" rel="stylesheet">
     <link href="css/main.css" rel="stylesheet">
 </head>
 <body>
-    <div class="main-container">
-        <div class="content-area">
-            <div class="card task-card">
-                <div class="card-title">今日巡检任务</div>
-                <div class="card-desc">待完成任务：3</div>
-                <div class="card-desc">已完成任务：2</div>
+    <div class="home-container">
+        <!-- 顶部用户信息 -->
+        <div class="user-header">
+            <div class="user-info">
+                <div class="avatar">张</div>
+                <div class="welcome">
+                    <div class="greeting">上午好，张三</div>
+                    <div class="department">IT部门</div>
+                </div>
             </div>
-            <div class="card area-card">
-                <div class="card-title">巡检区域</div>
-                <div class="card-desc">A区机房</div>
-                <div class="card-desc">B区机房</div>
-            </div>
-            <div class="scan-btn-section">
-                <button class="scan-round-btn" onclick="window.location.href='scan.html'">
-                    <span class="material-icons">photo_camera</span>
-                </button>
-                <div class="scan-btn-label">扫码开始巡检</div>
+            <div class="notification-icon">
+                <span class="material-icons">notifications</span>
+                <span class="badge">3</span>
             </div>
         </div>
+
+        <!-- 任务统计 -->
+        <div class="stats-card">
+            <div class="stats-item">
+                <div class="stats-value">5</div>
+                <div class="stats-label">今日任务</div>
+            </div>
+            <div class="stats-item">
+                <div class="stats-value">2</div>
+                <div class="stats-label">已完成</div>
+            </div>
+            <div class="stats-item">
+                <div class="stats-value">3</div>
+                <div class="stats-label">待完成</div>
+            </div>
+        </div>
+
+        <!-- 待完成任务 -->
+        <div class="task-section">
+            <div class="section-header">
+                <div class="section-title">待完成任务</div>
+                <a class="view-all" href="javascript:void(0)">查看全部</a>
+            </div>
+            <div class="task-list">
+                <div class="task-card" onclick="window.location.href='scan.html'">
+                    <div class="task-info">
+                        <div class="task-name">A区数据中心</div>
+                        <div class="task-time">14:30</div>
+                    </div>
+                </div>
+                <div class="task-card" onclick="window.location.href='scan.html'">
+                    <div class="task-info">
+                        <div class="task-name">C区弱电间</div>
+                        <div class="task-time">15:00</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 巡检区域 -->
+        <div class="area-section">
+            <div class="section-header">
+                <div class="section-title">巡检区域</div>
+                <a class="view-all" href="javascript:void(0)">查看全部</a>
+            </div>
+            <div class="area-list">
+                <div class="area-card" onclick="window.location.href='scan.html'">
+                    <div class="area-info">
+                        <div class="area-name">A区数据中心</div>
+                        <div class="area-type">数据中心</div>
+                    </div>
+                </div>
+                <div class="area-card" onclick="window.location.href='scan.html'">
+                    <div class="area-info">
+                        <div class="area-name">B区数据中心</div>
+                        <div class="area-type">数据中心</div>
+                    </div>
+                </div>
+                <div class="area-card" onclick="window.location.href='scan.html'">
+                    <div class="area-info">
+                        <div class="area-name">C区弱电间</div>
+                        <div class="area-type">弱电间</div>
+                    </div>
+                </div>
+                <div class="area-card" onclick="window.location.href='scan.html'">
+                    <div class="area-info">
+                        <div class="area-name">D区弱电间</div>
+                        <div class="area-type">弱电间</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- 底部导航 -->
         <div class="bottom-nav">
             <a href="main.html" class="nav-item active">
-                <span class="material-icons">qr_code_scanner</span>
+                <span style="font-size: 22px;">🏠</span>
+                <span>首页</span>
+            </a>
+            <a href="scan.html" class="nav-item">
+                <span style="font-size: 22px;">📷</span>
                 <span>巡检</span>
             </a>
             <a href="records.html" class="nav-item">
-                <span class="material-icons">history</span>
+                <span style="font-size: 22px;">📜</span>
                 <span>记录</span>
             </a>
             <a href="profile.html" class="nav-item">
-                <span class="material-icons">person</span>
+                <span style="font-size: 22px;">👤</span>
                 <span>我的</span>
             </a>
         </div>
