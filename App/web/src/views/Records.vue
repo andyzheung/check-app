@@ -53,8 +53,10 @@
 import { ref, reactive, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import request from '@/utils/request';
+import { useUserStore } from '@/stores/user';
 
 const router = useRouter();
+const userStore = useUserStore();
 const loading = ref(false);
 const records = ref([]);
 const areaList = ref([]);
@@ -74,8 +76,18 @@ const fetchRecords = async () => {
       size: 100, // Fetch all for now
       ...filters,
     };
+    
+    // 如果不是管理员，只查看自己的记录
+    const userInfo = userStore.userInfo;
+    if (userInfo && userInfo.role !== 'admin') {
+      params.inspectorId = userInfo.userId || userInfo.id;
+    }
+    
     const res = await request.get('/records', { params });
-    if (res.data && res.data.records) {
+    if (res.data && res.data.list) {
+      records.value = res.data.list;
+    } else if (res.data && res.data.records) {
+      // 兼容旧的API格式
       records.value = res.data.records;
     }
   } catch (error) {
@@ -117,15 +129,17 @@ const formatTime = (time) => {
 const formatStatus = (status) => {
   const statusMap = {
     'COMPLETED': '正常',
-    'EXCEPTION': '异常'
+    'EXCEPTION': '异常',
+    'normal': '正常',
+    'abnormal': '异常'
   };
   return statusMap[status] || '未知';
 };
 
 const getStatusClass = (status) => {
   return {
-    'status-completed': status === 'COMPLETED',
-    'status-exception': status === 'EXCEPTION',
+    'status-completed': status === 'COMPLETED' || status === 'normal',
+    'status-exception': status === 'EXCEPTION' || status === 'abnormal',
   };
 };
 </script>
