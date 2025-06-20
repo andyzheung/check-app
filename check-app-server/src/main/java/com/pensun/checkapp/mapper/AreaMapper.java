@@ -15,6 +15,14 @@ import java.util.List;
 public interface AreaMapper extends BaseMapper<Area> {
 
     /**
+     * 根据区域编码查询区域信息
+     * @param areaCode 区域编码
+     * @return 区域实体
+     */
+    @Select("SELECT * FROM t_area WHERE area_code = #{areaCode} AND deleted = 0")
+    Area selectByAreaCode(@Param("areaCode") String areaCode);
+
+    /**
      * 根据区域ID查询巡检项名称列表
      *
      * @param areaId 区域ID

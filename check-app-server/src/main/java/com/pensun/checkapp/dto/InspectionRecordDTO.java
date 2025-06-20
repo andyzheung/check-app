@@ -85,4 +85,29 @@ public class InspectionRecordDTO {
      * 创建时间
      */
     private LocalDateTime createTime;
+    
+    /**
+     * 巡检日期
+     */
+    private String inspectionDate;
+    
+    /**
+     * 巡检项总数
+     */
+    private Integer totalItems;
+    
+    /**
+     * 正常巡检项数
+     */
+    private Integer normalItems;
+    
+    /**
+     * 异常巡检项数
+     */
+    private Integer abnormalItems;
+    
+    /**
+     * 巡检记录详情列表
+     */
+    private List<InspectionRecordDetailDTO> details;
 } 

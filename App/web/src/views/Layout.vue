@@ -36,6 +36,7 @@ const showBottomNav = computed(() => route.meta.showBottomNav !== false);
 .app-content {
   flex: 1;
   overflow-y: auto;
+  padding-top: 56px; /* Header height */
   padding-bottom: 60px; /* Adjust if bottom nav is present */
 }
 </style> 

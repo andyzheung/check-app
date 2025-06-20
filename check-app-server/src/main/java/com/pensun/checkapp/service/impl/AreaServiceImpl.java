@@ -7,9 +7,11 @@ import com.pensun.checkapp.common.Result;
 import com.pensun.checkapp.dto.AreaDTO;
 import com.pensun.checkapp.entity.Area;
 import com.pensun.checkapp.entity.AreaType;
+import com.pensun.checkapp.entity.InspectionItemTemplate;
 import com.pensun.checkapp.mapper.AreaMapper;
 import com.pensun.checkapp.mapper.AreaTypeMapper;
 import com.pensun.checkapp.service.AreaService;
+import com.pensun.checkapp.service.InspectionItemTemplateService;
 import com.pensun.checkapp.utils.QRCodeUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,8 +33,9 @@ public class AreaServiceImpl extends ServiceImpl<AreaMapper, Area> implements Ar
     private final AreaMapper areaMapper;
     private final AreaTypeMapper areaTypeMapper;
     private final QRCodeUtils qrCodeUtils;
+    private final InspectionItemTemplateService inspectionItemTemplateService;
     
-    private static final Pattern AREA_CODE_PATTERN = Pattern.compile("^AREA[A-C]\\d{3}$");
+    // private static final Pattern AREA_CODE_PATTERN = Pattern.compile("^AREA[A-C]\\\\d{3}$");
 
     @Override
     public List<AreaDTO> getAllAreas() {
@@ -66,17 +69,12 @@ public class AreaServiceImpl extends ServiceImpl<AreaMapper, Area> implements Ar
 
     @Override
     public AreaDTO getAreaByCode(String areaCode) {
-        // 验证区域编码格式
-        if (!AREA_CODE_PATTERN.matcher(areaCode).matches()) {
-            throw new RuntimeException("区域编码格式不正确，应为AREA[A-C]加3位数字，例如：AREAA001");
-        }
-        
         try {
             log.debug("开始查询区域信息，区域编码：{}", areaCode);
             
-            // 查询区域信息
+            // 1. 查询区域信息
             LambdaQueryWrapper<Area> queryWrapper = new LambdaQueryWrapper<>();
-            queryWrapper.eq(Area::getAreaCode, areaCode.toUpperCase()) // 转换为大写
+            queryWrapper.eq(Area::getAreaCode, areaCode.toUpperCase())
                     .eq(Area::getDeleted, 0);
             
             Area area = areaMapper.selectOne(queryWrapper);
@@ -88,19 +86,21 @@ public class AreaServiceImpl extends ServiceImpl<AreaMapper, Area> implements Ar
             
             log.debug("查询到区域信息：{}", area);
             
-            // 转换为DTO
+            // 2. 转换为DTO
             AreaDTO areaDTO = new AreaDTO();
             BeanUtils.copyProperties(area, areaDTO);
             
-            // 查询区域类型名称
+            // 3. 查询并设置区域类型名称
             if (area.getAreaType() != null) {
-                LambdaQueryWrapper<AreaType> typeQuery = new LambdaQueryWrapper<>();
-                typeQuery.eq(AreaType::getTypeCode, area.getAreaType());
-                AreaType areaType = areaTypeMapper.selectOne(typeQuery);
+                AreaType areaType = areaTypeMapper.selectOne(new LambdaQueryWrapper<AreaType>().eq(AreaType::getTypeCode, area.getAreaType()));
                 if (areaType != null) {
                     areaDTO.setAreaTypeName(areaType.getTypeName());
                 }
             }
+
+            // 4. 查询并设置巡检项目模板 (核心改造点)
+            List<InspectionItemTemplate> inspectionItems = inspectionItemTemplateService.getTemplatesByAreaType(area.getAreaType());
+            areaDTO.setInspectionItems(inspectionItems);
             
             return areaDTO;
         } catch (Exception e) {

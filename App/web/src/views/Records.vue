@@ -1,30 +1,34 @@
 <template>
   <div class="records-container">
-    <div class="filter-card">
+    <!-- 筛选区域 -->
+    <div class="filter-section">
       <div class="filter-row">
         <input type="date" v-model="filters.startDate" class="date-input" />
         <span class="separator">-</span>
         <input type="date" v-model="filters.endDate" class="date-input" />
       </div>
       <div class="filter-row">
-        <select v-model="filters.areaId">
+        <select v-model="filters.areaId" class="filter-select">
           <option :value="null">全部区域</option>
           <option v-for="area in areaList" :key="area.id" :value="area.id">{{ area.name }}</option>
         </select>
-        <select v-model="filters.status">
+        <select v-model="filters.status" class="filter-select">
           <option :value="null">全部状态</option>
           <option value="COMPLETED">正常</option>
           <option value="EXCEPTION">异常</option>
         </select>
       </div>
       <div class="filter-row">
-        <input type="text" v-model="filters.keyword" placeholder="搜索关键词" class="search-input" />
-        <button @click="applyFilters" class="search-button">
-          <span class="material-icons">search</span>
-        </button>
+        <div class="search-container">
+          <input type="text" v-model="filters.keyword" placeholder="搜索关键词" class="search-input" />
+          <button @click="applyFilters" class="search-button">
+            <span class="material-icons">search</span>
+          </button>
+        </div>
       </div>
     </div>
 
+    <!-- 记录列表 -->
     <div class="list-container">
       <div v-if="loading" class="state-info">加载中...</div>
       <div v-else-if="records.length === 0" class="state-info">
@@ -32,13 +36,13 @@
       </div>
       <div v-else class="records-list">
         <div v-for="record in records" :key="record.id" class="record-card" @click="viewRecord(record.id)">
-          <div class="record-info">
-            <div class="record-area">{{ record.areaName }}</div>
-            <div class="record-time">{{ formatTime(record.inspectionTime) }}</div>
+          <div class="record-header">
+            <h3 class="record-area">{{ record.areaName }}</h3>
+            <div class="record-status" :class="getStatusClass(record.status)">
+              {{ formatStatus(record.status) }}
+            </div>
           </div>
-          <div class="record-status" :class="getStatusClass(record.status)">
-            {{ formatStatus(record.status) }}
-          </div>
+          <div class="record-time">{{ formatTime(record.inspectionTime) }}</div>
         </div>
       </div>
     </div>
@@ -126,92 +130,152 @@ const getStatusClass = (status) => {
 };
 </script>
 
-<style>
-@import url('@/assets/css/common.css');
-@import url('@/assets/css/records.css');
-
-.record-status {
-  display: inline-block;
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-weight: 500;
-  white-space: nowrap;
+<style scoped>
+.records-container {
+  background: #f5f5f5;
 }
 
-.status-normal {
-  color: #4CAF50;
+/* 筛选区域 */
+.filter-section {
+  background: white;
+  margin: 16px 16px 16px;
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
 }
 
-.status-abnormal {
-  background: #FFEBEE;
-  color: #F44336;
-  display: inline-block;
-  padding: 2px 8px;
-  border-radius: 4px;
-  width: fit-content;
-}
-.pagination-wrapper {
-  margin: 20px 0;
-  padding: 0 16px;
+.filter-row {
   display: flex;
-  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 12px;
   align-items: center;
-  gap: 10px;
 }
-.pagination-info {
+
+.filter-row:last-child {
+  margin-bottom: 0;
+}
+
+.date-input, .filter-select {
+  flex: 1;
+  padding: 10px 12px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 14px;
+  background: white;
+}
+
+.separator {
   color: #666;
+  font-weight: 500;
+}
+
+.search-container {
+  display: flex;
+  flex: 1;
+  gap: 8px;
+}
+
+.search-input {
+  flex: 1;
+  padding: 10px 12px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
   font-size: 14px;
 }
-:deep(.van-pagination) {
-  --van-pagination-height: 40px;
-  --van-pagination-item-width: 40px;
-  --van-pagination-font-size: 16px;
-}
-:deep(.van-pagination__item) {
-  margin: 0 4px;
-}
-:deep(.van-pagination__item--active) {
-  background-color: #1989fa;
+
+.search-button {
+  padding: 10px 16px;
+  background: #1890ff;
   color: white;
-}
-:deep(.van-pagination__prev),
-:deep(.van-pagination__next) {
-  padding: 0 12px;
-  min-width: 80px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 4px;
-}
-.record-card {
-  background: #fff;
-  border-radius: 16px;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
-  padding: 16px;
-  display: flex;
-  flex-direction: column;
-  cursor: pointer;
-  transition: transform 0.2s;
 }
 
-.record-card:active {
-  transform: scale(0.98);
+.search-button:hover {
+  background: #40a9ff;
 }
 
-.empty-records {
+/* 列表容器 */
+.list-container {
+  padding: 0 16px 80px;
+}
+
+.state-info {
   text-align: center;
   padding: 40px 0;
   color: #999;
   font-size: 16px;
-  background: #fff;
-  border-radius: 16px;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
-  margin: 0 16px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
 }
 
-.record-id {
+.records-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* 记录卡片 */
+.record-card {
+  background: white;
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.record-card:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  transform: translateY(-1px);
+}
+
+.record-card:active {
+  transform: translateY(0);
+}
+
+.record-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.record-area {
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+  margin: 0;
+}
+
+.record-time {
   font-size: 14px;
-  color: #888;
-  margin-left: 15px;
+  color: #666;
+}
+
+/* 状态样式 */
+.record-status {
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.status-completed {
+  background: #f6ffed;
+  color: #52c41a;
+  border: 1px solid #b7eb8f;
+}
+
+.status-exception {
+  background: #fff2f0;
+  color: #ff4d4f;
+  border: 1px solid #ffccc7;
 }
 </style> 

@@ -9,7 +9,7 @@ import request from '@/utils/request'
  */
 export function login(data) {
   return request({
-    url: '/api/v1/auth/login',
+    url: '/auth/login',
     method: 'post',
     data
   })
@@ -24,7 +24,7 @@ export function login(data) {
  */
 export function adLogin(data) {
   return request({
-    url: '/api/v1/auth/ad-login',
+    url: '/auth/ad-login',
     method: 'post',
     data
   })
@@ -36,7 +36,7 @@ export function adLogin(data) {
  */
 export function logout() {
   return request({
-    url: '/api/v1/auth/logout',
+    url: '/auth/logout',
     method: 'post'
   })
 }
@@ -47,7 +47,7 @@ export function logout() {
  */
 export function getUserInfo() {
   return request({
-    url: '/api/v1/auth/user-info',
+    url: '/auth/user-info',
     method: 'get'
   })
 }
@@ -58,7 +58,7 @@ export function getUserInfo() {
  */
 export function refreshToken() {
   return request({
-    url: '/api/v1/auth/refresh-token',
+    url: '/auth/refresh-token',
     method: 'post'
   })
 } 

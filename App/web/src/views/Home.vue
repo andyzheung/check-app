@@ -31,35 +31,42 @@
       </div>
     </div>
 
-    <!-- 任务列表 -->
-    <div class="task-section">
+    <!-- 待完成任务 -->
+    <div class="section-card">
       <div class="section-header">
         <div class="section-title">待完成任务</div>
         <a class="view-all" @click="viewAllTasks">查看全部</a>
       </div>
       <div class="task-list">
-        <div v-for="task in pendingTasks" :key="task.id" class="task-card" @click="startInspection(task)">
-          <div class="task-info">
-            <div class="task-name">{{ task.areaName }}</div>
-            <div class="task-time">{{ formatTime(task.startTime) }}</div>
+        <div v-if="pendingTasks.length === 0" class="empty-state">
+          暂无待完成任务
+        </div>
+        <div v-else v-for="task in pendingTasks" :key="task.id" class="list-item" @click="startInspection(task)">
+          <div class="item-header">
+            <h3 class="item-title">{{ task.areaName }}</h3>
+            <div class="item-status pending">待完成</div>
           </div>
+          <div class="item-time">{{ formatTime(task.startTime) }}</div>
         </div>
       </div>
     </div>
 
     <!-- 巡检区域 -->
-    <div class="area-section">
+    <div class="section-card">
       <div class="section-header">
         <div class="section-title">巡检区域</div>
         <a class="view-all" @click="viewAllAreas">查看全部</a>
       </div>
       <div class="area-list">
-        <div v-for="area in areas" :key="area.id" class="area-card" @click="scanArea(area)">
-          <div class="area-info">
-            <div class="area-name">{{ area.areaName }}</div>
-            <div class="area-code">{{ area.areaCode }}</div>
+        <div v-if="areas.length === 0" class="empty-state">
+          暂无巡检区域
+        </div>
+        <div v-else v-for="area in areas" :key="area.id" class="list-item" @click="scanArea(area)">
+          <div class="item-header">
+            <h3 class="item-title">{{ area.areaName }}</h3>
+            <div class="item-badge">{{ area.areaType }}</div>
           </div>
-          <div class="area-type">{{ area.areaType }}</div>
+          <div class="item-code">{{ area.areaCode }}</div>
         </div>
       </div>
     </div>
@@ -322,6 +329,221 @@ async function testApiConnection() {
 </script>
 
 <style scoped>
-@import url('@/assets/css/common.css');
-@import url('@/assets/css/home.css');
+.home-container {
+  background: #f5f5f5;
+  padding-bottom: 80px;
+}
+
+/* 用户信息卡片 */
+.user-header {
+  background: white;
+  margin: 16px 16px 16px;
+  border-radius: 12px;
+  padding: 20px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: #1890ff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  font-weight: 600;
+  color: white;
+}
+
+.welcome {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.greeting {
+  font-size: 18px;
+  font-weight: 600;
+  color: #333;
+}
+
+.department {
+  font-size: 14px;
+  color: #666;
+}
+
+.notification-icon {
+  position: relative;
+  padding: 8px;
+  cursor: pointer;
+  border-radius: 50%;
+  transition: background-color 0.2s;
+  color: #666;
+}
+
+.notification-icon:hover {
+  background: #f5f5f5;
+}
+
+.badge {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  background: #ff4d4f;
+  color: white;
+  border-radius: 50%;
+  width: 16px;
+  height: 16px;
+  font-size: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+}
+
+/* 统计卡片 */
+.stats-card {
+  background: white;
+  margin: 0 16px 16px;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+  display: flex;
+  justify-content: space-around;
+}
+
+.stats-item {
+  text-align: center;
+  flex: 1;
+}
+
+.stats-value {
+  font-size: 24px;
+  font-weight: 600;
+  color: #1890ff;
+  margin-bottom: 4px;
+}
+
+.stats-label {
+  font-size: 14px;
+  color: #666;
+}
+
+/* 区域卡片 */
+.section-card {
+  background: white;
+  margin: 0 16px 16px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 16px 12px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.section-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+}
+
+.view-all {
+  color: #1890ff;
+  font-size: 14px;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.view-all:hover {
+  color: #40a9ff;
+}
+
+/* 列表项 */
+.task-list, .area-list {
+  padding: 0;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 40px 16px;
+  color: #999;
+  font-size: 14px;
+}
+
+.list-item {
+  padding: 16px;
+  border-bottom: 1px solid #f0f0f0;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.list-item:last-child {
+  border-bottom: none;
+}
+
+.list-item:hover {
+  background: #f9f9f9;
+}
+
+.list-item:active {
+  background: #f0f0f0;
+}
+
+.item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.item-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+  margin: 0;
+}
+
+.item-time, .item-code {
+  font-size: 14px;
+  color: #666;
+}
+
+/* 状态和标签 */
+.item-status {
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.item-status.pending {
+  background: #fff7e6;
+  color: #fa8c16;
+  border: 1px solid #ffd591;
+}
+
+.item-badge {
+  background: #f0f0f0;
+  color: #666;
+  padding: 4px 8px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 500;
+}
 </style> 

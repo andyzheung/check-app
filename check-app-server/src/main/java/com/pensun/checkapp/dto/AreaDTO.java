@@ -3,12 +3,16 @@ package com.pensun.checkapp.dto;
 import lombok.Data;
 import java.time.LocalDateTime;
 import java.util.List;
+import com.pensun.checkapp.entity.Area;
+import com.pensun.checkapp.entity.InspectionItemTemplate;
+import lombok.EqualsAndHashCode;
 
 /**
  * 区域DTO
  */
 @Data
-public class AreaDTO {
+@EqualsAndHashCode(callSuper = true)
+public class AreaDTO extends Area {
     /**
      * 区域ID
      */
@@ -63,6 +67,8 @@ public class AreaDTO {
      * 更新时间
      */
     private LocalDateTime updateTime;
+    
+    private List<InspectionItemTemplate> inspectionItems;
     
     @Data
     public static class TaskDTO {

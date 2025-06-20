@@ -25,7 +25,7 @@ public class Area implements Serializable {
      * 区域编码
      */
     @TableField("code")
-    private String code;
+    private String areaCode;
 
     /**
      * 区域名称
@@ -115,15 +115,6 @@ public class Area implements Serializable {
      * @return 区域类型
      */
     public String getAreaType() {
-        return this.type;
-    }
-    
-    /**
-     * 获取区域编码
-     * 
-     * @return 区域编码
-     */
-    public String getAreaCode() {
-        return this.code;
+        return this.areaType;
     }
 } 

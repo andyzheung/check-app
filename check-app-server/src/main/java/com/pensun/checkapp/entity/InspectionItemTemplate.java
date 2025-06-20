@@ -75,7 +75,7 @@ public class InspectionItemTemplate implements Serializable {
     /**
      * 验证规则（JSON格式）
      */
-    @TableField("validation_rules")
+    @TableField(exist = false)
     private String validationRules;
 
     /**

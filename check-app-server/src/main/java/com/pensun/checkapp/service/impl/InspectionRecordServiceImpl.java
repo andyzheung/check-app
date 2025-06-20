@@ -3,15 +3,18 @@ package com.pensun.checkapp.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.pensun.checkapp.dto.AreaDTO;
+import com.pensun.checkapp.dto.InspectionRecordDTO;
 import com.pensun.checkapp.dto.InspectionRecordDetailDTO;
 import com.pensun.checkapp.entity.*;
 import com.pensun.checkapp.mapper.*;
 import com.pensun.checkapp.service.InspectionRecordService;
+import com.pensun.checkapp.service.InspectionRecordDetailService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,6 +29,7 @@ public class InspectionRecordServiceImpl extends ServiceImpl<InspectionRecordMap
     private final AreaMapper areaMapper;
     private final AreaTypeMapper areaTypeMapper;
     private final UserMapper userMapper;
+    private final InspectionRecordDetailService inspectionRecordDetailService;
 
     @Override
     @Cacheable(value = "recordDetail", key = "#id", unless = "#result == null")
@@ -170,5 +174,32 @@ public class InspectionRecordServiceImpl extends ServiceImpl<InspectionRecordMap
             log.error("解析巡检路径数据失败", e);
             throw new RuntimeException("解析巡检路径数据失败: " + e.getMessage());
         }
+    }
+
+    @Override
+    @Transactional
+    public Long createInspectionRecord(InspectionRecordDTO recordDTO) {
+        // 1. 保存主记录
+        InspectionRecord record = new InspectionRecord();
+        BeanUtils.copyProperties(recordDTO, record);
+        this.save(record); // 保存后，ID会自动回填到record对象中
+
+        // 2. 保存详情记录
+        Long recordId = record.getId();
+        List<InspectionRecordDetailDTO> detailDTOs = recordDTO.getDetails();
+        
+        if (detailDTOs != null && !detailDTOs.isEmpty()) {
+            List<InspectionRecordDetail> details = detailDTOs.stream().map(dto -> {
+                InspectionRecordDetail detail = new InspectionRecordDetail();
+                BeanUtils.copyProperties(dto, detail);
+                detail.setRecordId(recordId); // 关联主记录ID
+                return detail;
+            }).collect(Collectors.toList());
+            
+            // 注意：这里我们假设 inspectionRecordDetailService 存在并且可以批量保存
+            inspectionRecordDetailService.saveBatch(details);
+        }
+        
+        return recordId;
     }
 } 

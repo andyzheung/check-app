@@ -37,7 +37,7 @@ public class TemplateServiceImpl extends ServiceImpl<InspectionTemplateMapper, I
         
         // 如果是新的数据中心或弱电间类型，使用新的模板系统
         if ("D".equals(areaType) || "E".equals(areaType)) {
-            List<InspectionItemTemplate> templates = inspectionItemTemplateService.getActiveByAreaType(areaType);
+            List<InspectionItemTemplate> templates = inspectionItemTemplateService.getTemplatesByAreaType(areaType);
             
             // 将新模板转换为旧的DTO格式，保持接口兼容
             List<TemplateDTO.InspectionItemDTO> items = templates.stream()

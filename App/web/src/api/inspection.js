@@ -1,4 +1,4 @@
-import request from '../utils/request'
+import request from '@/utils/request'
 
 /**
  * 获取所有巡检区域
@@ -13,8 +13,11 @@ export function getAllAreas() {
  * @param {string} code - 区域编号
  * @returns {Promise<any>}
  */
-export function getAreaByCode(code) {
-  return request.get(`/areas/code/${code}`)
+export function getAreaByCode(areaCode) {
+  return request({
+    url: `/areas/code/${areaCode}`,
+    method: 'get'
+  })
 }
 
 /**
@@ -38,7 +41,11 @@ export function getTemplateByAreaId(areaId) {
  * @returns {Promise<any>}
  */
 export function createRecord(data) {
-  return request.post('/records', data)
+  return request({
+    url: '/records',
+    method: 'post',
+    data
+  })
 }
 
 /**
@@ -163,5 +170,18 @@ export function getRecordRoute(id) {
   return request({
     url: `/records/${id}/route`,
     method: 'get'
+  });
+}
+
+/**
+ * 获取巡检记录列表
+ * @param {Object} params - 查询参数
+ * @returns {Promise<any>}
+ */
+export function getRecords(params) {
+  return request({
+    url: '/records',
+    method: 'get',
+    params
   });
 } 
