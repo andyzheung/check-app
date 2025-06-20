@@ -230,18 +230,29 @@ onMounted(() => {
 
 .info-item {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.info-item:last-child {
+  border-bottom: none;
 }
 
 .info-label {
   color: #666;
-  width: 80px;
+  width: 120px;
   flex-shrink: 0;
+  font-size: 14px;
 }
 
 .info-value {
   color: #333;
   flex: 1;
+  text-align: right;
+  font-size: 14px;
+  font-weight: 500;
 }
 
 .info-value.active {
