@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>数据中心巡检 - 巡检管理系统</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="css/common.css" rel="stylesheet">
+    <link href="css/inspection-form.css" rel="stylesheet">
+</head>
+<body>
+    <div class="form-container">
+        <div class="form-header">
+            <a href="scan.html" class="back-button">
+                <span class="material-icons">arrow_back</span>
+            </a>
+            <h1>
+                <span class="material-icons">dns</span>
+                数据中心巡检 - A区数据中心
+            </h1>
+        </div>
+        <div class="form-content">
+            <!-- 安全检查 -->
+            <div class="form-section">
+                <div class="form-title">安全检查</div>
+                <div class="form-item">
+                    <span>机房范围内是否有声光报警</span>
+                    <div class="radio-group">
+                        <label class="radio-option">
+                            <input type="radio" name="sound_light_alarm" value="true">
+                            <span>是</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="sound_light_alarm" value="false">
+                            <span>否</span>
+                        </label>
+                    </div>
+                </div>
+                <div class="form-item">
+                    <span>机房内是否有纸箱、泡沫等火载量</span>
+                    <div class="radio-group">
+                        <label class="radio-option">
+                            <input type="radio" name="fire_load_check" value="true">
+                            <span>是</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="fire_load_check" value="false">
+                            <span>否</span>
+                        </label>
+                    </div>
+                </div>
+                <div class="form-item">
+                    <span>机房内是否有漏水</span>
+                    <div class="radio-group">
+                        <label class="radio-option">
+                            <input type="radio" name="room_leakage" value="true">
+                            <span>是</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="room_leakage" value="false">
+                            <span>否</span>
+                        </label>
+                    </div>
+                </div>
+                <div class="form-item">
+                    <span>天花是否有漏水</span>
+                    <div class="radio-group">
+                        <label class="radio-option">
+                            <input type="radio" name="ceiling_leakage" value="true">
+                            <span>是</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="ceiling_leakage" value="false">
+                            <span>否</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 环境检查 -->
+            <div class="form-section">
+                <div class="form-title">环境检查</div>
+                <div class="form-item">
+                    <span>机房环境温度 (°C)</span>
+                    <div class="input-group">
+                        <input type="number" name="room_temperature" placeholder="请输入温度值" step="0.1">
+                    </div>
+                </div>
+            </div>
+
+            <!-- 模块检查 -->
+            <div class="form-section">
+                <div class="form-title">模块检查</div>
+                <div class="module-selector">
+                    <label>模块数量：</label>
+                    <select name="module_count" id="moduleCount" onchange="generateModuleItems()">
+                        <option value="2">2个模块</option>
+                        <option value="4" selected>4个模块</option>
+                        <option value="6">6个模块</option>
+                        <option value="8">8个模块</option>
+                    </select>
+                </div>
+                
+                <div id="moduleItems">
+                    <!-- 模块1 -->
+                    <div class="module-group">
+                        <div class="module-header">模块1</div>
+                        <div class="form-item">
+                            <span>回风温度 (°C)</span>
+                            <div class="input-group">
+                                <input type="number" name="module1_return_air_temp" placeholder="请输入温度值" step="0.1">
+                            </div>
+                        </div>
+                        <div class="form-item">
+                            <span>供电是否正常</span>
+                            <div class="radio-group">
+                                <label class="radio-option">
+                                    <input type="radio" name="module1_power_status" value="true">
+                                    <span>是</span>
+                                </label>
+                                <label class="radio-option">
+                                    <input type="radio" name="module1_power_status" value="false">
+                                    <span>否</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 模块2 -->
+                    <div class="module-group">
+                        <div class="module-header">模块2</div>
+                        <div class="form-item">
+                            <span>回风温度 (°C)</span>
+                            <div class="input-group">
+                                <input type="number" name="module2_return_air_temp" placeholder="请输入温度值" step="0.1">
+                            </div>
+                        </div>
+                        <div class="form-item">
+                            <span>供电是否正常</span>
+                            <div class="radio-group">
+                                <label class="radio-option">
+                                    <input type="radio" name="module2_power_status" value="true">
+                                    <span>是</span>
+                                </label>
+                                <label class="radio-option">
+                                    <input type="radio" name="module2_power_status" value="false">
+                                    <span>否</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 模块3 -->
+                    <div class="module-group">
+                        <div class="module-header">模块3</div>
+                        <div class="form-item">
+                            <span>回风温度 (°C)</span>
+                            <div class="input-group">
+                                <input type="number" name="module3_return_air_temp" placeholder="请输入温度值" step="0.1">
+                            </div>
+                        </div>
+                        <div class="form-item">
+                            <span>供电是否正常</span>
+                            <div class="radio-group">
+                                <label class="radio-option">
+                                    <input type="radio" name="module3_power_status" value="true">
+                                    <span>是</span>
+                                </label>
+                                <label class="radio-option">
+                                    <input type="radio" name="module3_power_status" value="false">
+                                    <span>否</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 模块4 -->
+                    <div class="module-group">
+                        <div class="module-header">模块4</div>
+                        <div class="form-item">
+                            <span>回风温度 (°C)</span>
+                            <div class="input-group">
+                                <input type="number" name="module4_return_air_temp" placeholder="请输入温度值" step="0.1">
+                            </div>
+                        </div>
+                        <div class="form-item">
+                            <span>供电是否正常</span>
+                            <div class="radio-group">
+                                <label class="radio-option">
+                                    <input type="radio" name="module4_power_status" value="true">
+                                    <span>是</span>
+                                </label>
+                                <label class="radio-option">
+                                    <input type="radio" name="module4_power_status" value="false">
+                                    <span>否</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 备注信息 -->
+            <div class="form-section">
+                <div class="form-title">备注信息</div>
+                <div class="form-item">
+                    <textarea class="remarks-input" name="remark" placeholder="请输入备注信息（可选）"></textarea>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button class="submit-button" onclick="submitDatacenterForm()">提交</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function generateModuleItems() {
+            const moduleCount = document.getElementById('moduleCount').value;
+            const moduleItems = document.getElementById('moduleItems');
+            moduleItems.innerHTML = '';
+            
+            for (let i = 1; i <= moduleCount; i++) {
+                const moduleGroup = document.createElement('div');
+                moduleGroup.className = 'module-group';
+                moduleGroup.innerHTML = `
+                    <div class="module-header">模块${i}</div>
+                    <div class="form-item">
+                        <span>回风温度 (°C)</span>
+                        <div class="input-group">
+                            <input type="number" name="module${i}_return_air_temp" placeholder="请输入温度值" step="0.1">
+                        </div>
+                    </div>
+                    <div class="form-item">
+                        <span>供电是否正常</span>
+                        <div class="radio-group">
+                            <label class="radio-option">
+                                <input type="radio" name="module${i}_power_status" value="true">
+                                <span>是</span>
+                            </label>
+                            <label class="radio-option">
+                                <input type="radio" name="module${i}_power_status" value="false">
+                                <span>否</span>
+                            </label>
+                        </div>
+                    </div>
+                `;
+                moduleItems.appendChild(moduleGroup);
+            }
+        }
+
+        function submitDatacenterForm() {
+            // 这里添加表单提交逻辑
+            alert('数据中心巡检表单提交成功！');
+            window.location.href = 'records.html';
+        }
+    </script>
+</body>
+</html> 

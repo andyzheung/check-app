@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>弱电间巡检 - 巡检管理系统</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="css/common.css" rel="stylesheet">
+    <link href="css/inspection-form.css" rel="stylesheet">
+</head>
+<body>
+    <div class="form-container">
+        <div class="form-header">
+            <a href="scan.html" class="back-button">
+                <span class="material-icons">arrow_back</span>
+            </a>
+            <h1>
+                <span class="material-icons">router</span>
+                弱电间巡检 - C区弱电间
+            </h1>
+        </div>
+        <div class="form-content">
+            <!-- 漏水检查 -->
+            <div class="form-section">
+                <div class="form-title">漏水检查</div>
+                <div class="form-item">
+                    <span>机房地面是否漏水</span>
+                    <div class="radio-group">
+                        <label class="radio-option">
+                            <input type="radio" name="floor_leakage" value="true">
+                            <span>是</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="floor_leakage" value="false">
+                            <span>否</span>
+                        </label>
+                    </div>
+                </div>
+                <div class="form-item">
+                    <span>墙壁是否漏水</span>
+                    <div class="radio-group">
+                        <label class="radio-option">
+                            <input type="radio" name="wall_leakage" value="true">
+                            <span>是</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="wall_leakage" value="false">
+                            <span>否</span>
+                        </label>
+                    </div>
+                </div>
+                <div class="form-item">
+                    <span>天花是否漏水</span>
+                    <div class="radio-group">
+                        <label class="radio-option">
+                            <input type="radio" name="ceiling_leakage" value="true">
+                            <span>是</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="ceiling_leakage" value="false">
+                            <span>否</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 安全检查 -->
+            <div class="form-section">
+                <div class="form-title">安全检查</div>
+                <div class="form-item">
+                    <span>机房是否有垃圾纸箱等可燃物</span>
+                    <div class="radio-group">
+                        <label class="radio-option">
+                            <input type="radio" name="combustible_check" value="true">
+                            <span>是</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="combustible_check" value="false">
+                            <span>否</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 环境检查 -->
+            <div class="form-section">
+                <div class="form-title">环境检查</div>
+                <div class="form-item">
+                    <span>机房环境温度 (°C)</span>
+                    <div class="input-group">
+                        <input type="number" name="room_temperature" placeholder="请输入温度值" step="0.1">
+                    </div>
+                </div>
+            </div>
+
+            <!-- 供电检查 -->
+            <div class="form-section">
+                <div class="form-title">供电检查</div>
+                <div class="form-item">
+                    <span>市电供电是否正常</span>
+                    <div class="radio-group">
+                        <label class="radio-option">
+                            <input type="radio" name="mains_power" value="true">
+                            <span>是</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="mains_power" value="false">
+                            <span>否</span>
+                        </label>
+                    </div>
+                </div>
+                <div class="form-item">
+                    <span>UPS供电是否正常</span>
+                    <div class="radio-group">
+                        <label class="radio-option">
+                            <input type="radio" name="ups_power" value="true">
+                            <span>是</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="ups_power" value="false">
+                            <span>否</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 设备检查 -->
+            <div class="form-section">
+                <div class="form-title">设备检查</div>
+                <div class="form-item">
+                    <span>网络机柜是否正常上锁</span>
+                    <div class="radio-group">
+                        <label class="radio-option">
+                            <input type="radio" name="cabinet_lock" value="true">
+                            <span>是</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="cabinet_lock" value="false">
+                            <span>否</span>
+                        </label>
+                    </div>
+                </div>
+                <div class="form-item">
+                    <span>机房门禁是否正常</span>
+                    <div class="radio-group">
+                        <label class="radio-option">
+                            <input type="radio" name="access_control" value="true">
+                            <span>是</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="access_control" value="false">
+                            <span>否</span>
+                        </label>
+                    </div>
+                </div>
+                <div class="form-item">
+                    <span>机房设备运行是否有异响</span>
+                    <div class="radio-group">
+                        <label class="radio-option">
+                            <input type="radio" name="equipment_noise" value="true">
+                            <span>是</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="equipment_noise" value="false">
+                            <span>否</span>
+                        </label>
+                    </div>
+                </div>
+                <div class="form-item">
+                    <span>机房照明是否正常</span>
+                    <div class="radio-group">
+                        <label class="radio-option">
+                            <input type="radio" name="lighting_check" value="true">
+                            <span>是</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="lighting_check" value="false">
+                            <span>否</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 备注信息 -->
+            <div class="form-section">
+                <div class="form-title">备注信息</div>
+                <div class="form-item">
+                    <textarea class="remarks-input" name="remark" placeholder="请输入备注信息（可选）"></textarea>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button class="submit-button" onclick="submitWeakroomForm()">提交</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function submitWeakroomForm() {
+            // 这里添加表单提交逻辑
+            alert('弱电间巡检表单提交成功！');
+            window.location.href = 'records.html';
+        }
+    </script>
+</body>
+</html> 
