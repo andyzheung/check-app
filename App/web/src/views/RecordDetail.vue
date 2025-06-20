@@ -144,15 +144,19 @@ function formatDateTime(dateTime) {
 async function loadRecordDetail() {
   try {
     const id = route.query.id
+    console.log('获取记录详情，ID:', id, 'route.query:', route.query)
     if (!id) {
       throw new Error('缺少记录ID')
     }
+    console.log('调用API获取记录详情...')
     const res = await getRecordDetail(id)
+    console.log('API响应:', res)
     if (res.code === 200 || res.code === 0) {
       if (!res.data) {
         throw new Error('未找到记录')
       }
       recordDetail.value = res.data
+      console.log('记录详情设置成功:', recordDetail.value)
     } else {
       throw new Error(res.message || '获取记录详情失败')
     }

@@ -118,7 +118,7 @@ const applyFilters = () => {
 };
 
 const viewRecord = (id) => {
-  router.push(`/record-detail/${id}`);
+  router.push({ path: '/record-detail', query: { id } });
 };
 
 const formatTime = (time) => {
