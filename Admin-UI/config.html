@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>系统配置 - 巡检管理系统后台</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ant-design-vue@3.2.20/dist/antd.min.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: #f0f2f5;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+        }
+        .nav {
+            background: #fff;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            padding: 0 32px;
+            display: flex;
+            align-items: center;
+            height: 56px;
+            justify-content: space-between;
+        }
+        .nav .logo {
+            font-weight: bold;
+            color: #1890ff;
+            font-size: 22px;
+        }
+        .nav .menu {
+            display: flex;
+            gap: 32px;
+            font-size: 16px;
+        }
+        .nav .menu a {
+            color: #666;
+            text-decoration: none;
+            padding: 8px 0;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s;
+        }
+        .nav .menu a:hover, .nav .menu a.active {
+            color: #1890ff;
+            border-bottom-color: #1890ff;
+        }
+        .nav .user {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .config-container {
+            max-width: 1300px;
+            margin: 32px auto 0 auto;
+            padding: 0 16px;
+        }
+        .config-tabs {
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(31, 38, 135, 0.08);
+            margin-bottom: 24px;
+        }
+        .tab-header {
+            display: flex;
+            border-bottom: 1px solid #f0f0f0;
+            padding: 0 16px;
+        }
+        .tab-item {
+            padding: 16px 24px;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            color: #666;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        .tab-item:hover, .tab-item.active {
+            color: #1890ff;
+            border-bottom-color: #1890ff;
+        }
+        .tab-content {
+            padding: 24px;
+            min-height: 400px;
+        }
+        .config-section {
+            margin-bottom: 32px;
+        }
+        .section-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 16px;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .section-title::before {
+            content: '';
+            width: 4px;
+            height: 18px;
+            background: #1890ff;
+            border-radius: 2px;
+        }
+        .area-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 16px;
+            margin-top: 16px;
+        }
+        .area-card {
+            background: white;
+            border: 1px solid #e8e8e8;
+            border-radius: 8px;
+            padding: 16px;
+            transition: all 0.2s;
+        }
+        .area-card:hover {
+            border-color: #1890ff;
+            box-shadow: 0 2px 8px rgba(24, 144, 255, 0.1);
+        }
+        .area-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        .area-name {
+            font-weight: bold;
+            font-size: 16px;
+            color: #333;
+        }
+        .area-type {
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        .type-datacenter {
+            background: #e6f7ff;
+            color: #1890ff;
+        }
+        .type-weakroom {
+            background: #f6ffed;
+            color: #52c41a;
+        }
+        .area-info {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 8px;
+        }
+        .area-actions {
+            display: flex;
+            gap: 8px;
+            justify-content: flex-end;
+        }
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+        .btn-primary {
+            background: #1890ff;
+            color: white;
+        }
+        .btn-primary:hover {
+            background: #40a9ff;
+        }
+        .btn-secondary {
+            background: #f5f5f5;
+            color: #666;
+            border: 1px solid #d9d9d9;
+        }
+        .btn-secondary:hover {
+            background: #e6f7ff;
+            border-color: #91d5ff;
+            color: #1890ff;
+        }
+        .form-input, .form-select {
+            padding: 8px 12px;
+            border: 1px solid #d9d9d9;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+        .form-select {
+            background: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="nav">
+        <div class="logo">巡检管理系统后台</div>
+        <div class="menu">
+            <a href="dashboard.html">仪表盘</a>
+            <a href="records.html">巡检记录</a>
+            <a href="schedule.html">巡检排班</a>
+            <a href="issues.html">问题列表</a>
+            <a href="users.html">用户管理</a>
+            <a href="config.html" class="active">系统配置</a>
+        </div>
+        <div class="user">
+            <span>管理员</span>
+            <a href="login.html">退出</a>
+        </div>
+    </div>
+
+    <div class="config-container">
+        <div class="config-tabs">
+            <div class="tab-header">
+                <div class="tab-item active" onclick="showTab('area')">区域配置</div>
+                <div class="tab-item" onclick="showTab('system')">系统参数</div>
+                <div class="tab-item" onclick="showTab('ad')">AD配置</div>
+            </div>
+            
+            <div class="tab-content" id="area-tab">
+                <div class="config-section">
+                    <div class="section-title">区域管理</div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                        <div style="display: flex; gap: 12px; align-items: center;">
+                            <select class="form-select" style="width: 150px;">
+                                <option value="">全部类型</option>
+                                <option value="D">数据中心</option>
+                                <option value="E">弱电间</option>
+                            </select>
+                            <input type="text" class="form-input" placeholder="搜索区域名称" style="width: 200px;">
+                            <button class="btn btn-primary">搜索</button>
+                        </div>
+                        <button class="btn btn-primary">+ 新增区域</button>
+                    </div>
+                    
+                    <div class="area-list">
+                        <div class="area-card">
+                            <div class="area-header">
+                                <div class="area-name">数据中心1</div>
+                                <div class="area-type type-datacenter">数据中心</div>
+                            </div>
+                            <div class="area-info">编码: DC001</div>
+                            <div class="area-info">模块数量: 10个</div>
+                            <div class="area-info">状态: 启用</div>
+                            <div class="area-actions">
+                                <button class="btn btn-secondary">配置模块</button>
+                                <button class="btn btn-secondary">编辑</button>
+                            </div>
+                        </div>
+                        
+                        <div class="area-card">
+                            <div class="area-header">
+                                <div class="area-name">数据中心2</div>
+                                <div class="area-type type-datacenter">数据中心</div>
+                            </div>
+                            <div class="area-info">编码: DC002</div>
+                            <div class="area-info">模块数量: 8个</div>
+                            <div class="area-info">状态: 启用</div>
+                            <div class="area-actions">
+                                <button class="btn btn-secondary">配置模块</button>
+                                <button class="btn btn-secondary">编辑</button>
+                            </div>
+                        </div>
+                        
+                        <div class="area-card">
+                            <div class="area-header">
+                                <div class="area-name">弱电间A</div>
+                                <div class="area-type type-weakroom">弱电间</div>
+                            </div>
+                            <div class="area-info">编码: WR001</div>
+                            <div class="area-info">模块数量: -</div>
+                            <div class="area-info">状态: 启用</div>
+                            <div class="area-actions">
+                                <button class="btn btn-secondary">编辑</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.style.display = 'none';
+            });
+            
+            document.querySelectorAll('.tab-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            document.getElementById(tabName + '-tab').style.display = 'block';
+            event.target.classList.add('active');
+        }
+    </script>
+</body>
+</html> 

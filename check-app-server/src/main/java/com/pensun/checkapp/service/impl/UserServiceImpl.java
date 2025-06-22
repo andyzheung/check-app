@@ -72,7 +72,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         }
 
         // 1. 调用AD域（LDAP）校验账号密码
-        boolean adSuccess = adService.authenticate(loginDTO.getUsername(), loginDTO.getPassword());
+        boolean adSuccess = adService.validateUser(loginDTO.getUsername(), loginDTO.getPassword());
         log.info("AD校验结果: {}", adSuccess);
         if (!adSuccess) {
             log.warn("AD校验失败");

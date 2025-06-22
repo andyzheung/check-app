@@ -84,33 +84,27 @@
         <!-- 模块检查 -->
         <div class="form-section">
           <div class="form-title">模块检查</div>
-          <div class="module-selector">
-            <label>模块数量：</label>
-            <select v-model="moduleCount" @change="generateModuleItems">
-              <option :value="2">2个模块</option>
-              <option :value="4">4个模块</option>
-              <option :value="6">6个模块</option>
-              <option :value="8">8个模块</option>
-            </select>
+          <div v-if="areaInfo.modules && areaInfo.modules.length > 0" class="module-info">
+            <span class="module-count-info">当前数据中心共有 {{ areaInfo.modules.length }} 个模块</span>
           </div>
           
-          <div class="module-group" v-for="n in parseInt(moduleCount)" :key="n">
-            <div class="module-header">模块{{ n }}</div>
+          <div class="module-group" v-for="(module, index) in areaInfo.modules" :key="module.id">
+            <div class="module-header">{{ module.name || `模块${index + 1}` }}</div>
             <div class="form-item">
               <span>回风温度 (°C)</span>
               <div class="input-group">
-                <input type="number" v-model="moduleData[n-1].returnTemp" placeholder="请输入温度值" step="0.1">
+                <input type="number" v-model="moduleData[index].returnTemp" placeholder="请输入温度值" step="0.1">
               </div>
             </div>
             <div class="form-item">
               <span>供电是否正常</span>
               <div class="radio-group">
                 <label class="radio-option">
-                  <input type="radio" :name="'module' + n + '_power'" :value="true" v-model="moduleData[n-1].powerStatus">
+                  <input type="radio" :name="'module' + module.id + '_power'" :value="true" v-model="moduleData[index].powerStatus">
                   <span>是</span>
                 </label>
                 <label class="radio-option">
-                  <input type="radio" :name="'module' + n + '_power'" :value="false" v-model="moduleData[n-1].powerStatus">
+                  <input type="radio" :name="'module' + module.id + '_power'" :value="false" v-model="moduleData[index].powerStatus">
                   <span>否</span>
                 </label>
               </div>
@@ -317,7 +311,6 @@ const areaInfo = ref(null)
 const inspectionItems = ref([])
 const remark = ref('')
 const isSubmitting = ref(false)
-const moduleCount = ref(4)
 const moduleData = ref([])
 
 // 数据中心检查项目变量
@@ -353,20 +346,14 @@ const getAreaTitle = () => {
   return `${typeText} - ${areaInfo.value.areaName}`
 }
 
-const generateModuleItems = () => {
-  const count = parseInt(moduleCount.value)
-  const oldData = [...moduleData.value] // 保存旧数据
-  
-  moduleData.value = Array.from({ length: count }, (_, index) => {
-    // 如果旧数据中有对应索引的数据，则保留
-    if (oldData[index]) {
-      return { ...oldData[index] }
-    }
-    return {
+const initializeModuleData = () => {
+  if (areaInfo.value && areaInfo.value.modules) {
+    const moduleCount = areaInfo.value.modules.length
+    moduleData.value = Array.from({ length: moduleCount }, () => ({
       returnTemp: null,
       powerStatus: null
-    }
-  })
+    }))
+  }
 }
 
 // 获取区域信息并直接处理巡检项
@@ -397,7 +384,7 @@ async function loadAreaInfo() {
         
         // 如果是数据中心，初始化模块数据
         if (areaInfo.value.areaType === 'D') {
-          generateModuleItems();
+          initializeModuleData();
         }
       }
     } else {

@@ -84,6 +84,24 @@ public class User {
     private LocalDateTime updateTime;
 
     /**
+     * AD域账号
+     */
+    @TableField("ad_username")
+    private String adUsername;
+
+    /**
+     * 是否AD用户：0-本地用户，1-AD用户
+     */
+    @TableField("is_ad_user")
+    private Boolean isAdUser;
+
+    /**
+     * AD同步时间
+     */
+    @TableField("ad_sync_time")
+    private LocalDateTime adSyncTime;
+
+    /**
      * 是否删除：0-未删除，1-已删除
      */
     @TableLogic

@@ -69,6 +69,36 @@ const routes = [
         name: 'UsersList',
         component: () => import('../views/users/Users.vue'),
         meta: { title: '用户列表' }
+      },
+      {
+        path: 'users/permissions',
+        name: 'UserPermissions',
+        component: () => import('../views/users/UserPermission.vue'),
+        meta: { title: '用户权限管理' }
+      },
+      {
+        path: 'areas',
+        name: 'Areas',
+        redirect: '/areas/config',
+        meta: { title: '区域管理' }
+      },
+      {
+        path: 'areas/config',
+        name: 'AreaConfig',
+        component: () => import('../views/areas/AreaConfig.vue'),
+        meta: { title: '区域配置' }
+      },
+      {
+        path: 'schedule',
+        name: 'Schedule',
+        redirect: '/schedule/tasks',
+        meta: { title: '巡检排班' }
+      },
+      {
+        path: 'schedule/tasks',
+        name: 'TaskSchedule',
+        component: () => import('../views/schedule/TaskSchedule.vue'),
+        meta: { title: '任务排班' }
       }
     ]
   },

@@ -221,6 +221,29 @@ public class IssueController {
     @GetMapping("/weekly")
     public Result<List<IssueDTO>> getWeeklyIssues() {
         log.info("获取本周问题列表");
-        return issueService.getWeeklyIssues();
+        
+        try {
+            // 获取本周开始和结束日期
+            LocalDate now = LocalDate.now();
+            LocalDate startOfWeek = now.with(java.time.DayOfWeek.MONDAY);
+            LocalDate endOfWeek = now.with(java.time.DayOfWeek.SUNDAY);
+            
+            // 调用现有的问题列表接口，传入本周日期范围
+            Result<Map<String, Object>> result = getIssueList(
+                1, 10, null, null, null, null,
+                startOfWeek.toString(), endOfWeek.toString()
+            );
+            
+            if (result.getCode() == 200 && result.getData() instanceof Map) {
+                Map<String, Object> data = (Map<String, Object>) result.getData();
+                List<IssueDTO> issues = (List<IssueDTO>) data.getOrDefault("list", new java.util.ArrayList<>());
+                return Result.success(issues);
+            }
+            
+            return Result.success(new java.util.ArrayList<>());
+        } catch (Exception e) {
+            log.error("获取本周问题列表失败", e);
+            return Result.failed("获取本周问题列表失败: " + e.getMessage());
+        }
     }
 } 

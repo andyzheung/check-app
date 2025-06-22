@@ -160,15 +160,69 @@ public class StatisticsController {
     }
     
     /**
-     * 获取问题处理人员排名
+     * 获取巡检人员排名
      * [ADMIN]
      *
-     * @return 处理人员排名数据
+     * @return 巡检人员排名数据
+     */
+    @GetMapping("/inspectors/ranking")
+    public Result<List<Map<String, Object>>> getInspectorRanking() {
+        log.info("获取巡检人员排名");
+        
+        // 模拟数据，后续可以从数据库统计
+        List<Map<String, Object>> ranking = new java.util.ArrayList<>();
+        
+        Map<String, Object> inspector1 = new java.util.HashMap<>();
+        inspector1.put("name", "张三");
+        inspector1.put("inspectionCount", 45);
+        inspector1.put("completionRate", 98.5);
+        inspector1.put("avgTime", 25.3);
+        ranking.add(inspector1);
+        
+        Map<String, Object> inspector2 = new java.util.HashMap<>();
+        inspector2.put("name", "李四");
+        inspector2.put("inspectionCount", 42);
+        inspector2.put("completionRate", 96.8);
+        inspector2.put("avgTime", 28.1);
+        ranking.add(inspector2);
+        
+        Map<String, Object> inspector3 = new java.util.HashMap<>();
+        inspector3.put("name", "王五");
+        inspector3.put("inspectionCount", 38);
+        inspector3.put("completionRate", 94.2);
+        inspector3.put("avgTime", 31.5);
+        ranking.add(inspector3);
+        
+        return Result.success(ranking);
+    }
+    
+    /**
+     * 获取问题处理人员统计
+     * [ADMIN]
+     *
+     * @return 问题处理人员统计数据
      */
     @GetMapping("/issues/by-handler")
     public Result<List<Map<String, Object>>> getIssueByHandler() {
-        log.info("获取问题处理人员排名");
-        List<Map<String, Object>> handlerData = statisticsCacheService.getIssueByHandler();
-        return Result.success(handlerData);
+        log.info("获取问题处理人员统计");
+        
+        // 模拟数据，后续可以从数据库统计
+        List<Map<String, Object>> handlerStats = new java.util.ArrayList<>();
+        
+        Map<String, Object> handler1 = new java.util.HashMap<>();
+        handler1.put("name", "张三");
+        handler1.put("processedCount", 12);
+        handler1.put("resolvedCount", 10);
+        handler1.put("avgProcessTime", 2.5);
+        handlerStats.add(handler1);
+        
+        Map<String, Object> handler2 = new java.util.HashMap<>();
+        handler2.put("name", "李四");
+        handler2.put("processedCount", 8);
+        handler2.put("resolvedCount", 7);
+        handler2.put("avgProcessTime", 3.2);
+        handlerStats.add(handler2);
+        
+        return Result.success(handlerStats);
     }
 } 

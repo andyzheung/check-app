@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.pensun.checkapp.common.Result;
 import com.pensun.checkapp.dto.AreaDTO;
+import com.pensun.checkapp.dto.AreaConfigDTO;
 import com.pensun.checkapp.entity.Area;
 import com.pensun.checkapp.entity.AreaType;
 import com.pensun.checkapp.entity.InspectionItemTemplate;
@@ -102,6 +103,29 @@ public class AreaServiceImpl extends ServiceImpl<AreaMapper, Area> implements Ar
             List<InspectionItemTemplate> inspectionItems = inspectionItemTemplateService.getTemplatesByAreaType(area.getAreaType());
             areaDTO.setInspectionItems(inspectionItems);
             
+            // 5. 处理数据中心模块配置 (关键修复)
+            if ("D".equals(area.getAreaType()) && area.getConfigJson() != null) {
+                try {
+                    // 解析JSON配置，提取模块信息
+                    com.alibaba.fastjson.JSONObject config = com.alibaba.fastjson.JSON.parseObject(area.getConfigJson());
+                    if (config.containsKey("modules")) {
+                        com.alibaba.fastjson.JSONArray modulesArray = config.getJSONArray("modules");
+                        List<AreaDTO.ModuleDTO> modules = new ArrayList<>();
+                        for (int i = 0; i < modulesArray.size(); i++) {
+                            com.alibaba.fastjson.JSONObject moduleObj = modulesArray.getJSONObject(i);
+                            AreaDTO.ModuleDTO moduleDTO = new AreaDTO.ModuleDTO();
+                            moduleDTO.setId(moduleObj.getLong("id"));
+                            moduleDTO.setName(moduleObj.getString("name"));
+                            moduleDTO.setType(moduleObj.getString("type"));
+                            modules.add(moduleDTO);
+                        }
+                        areaDTO.setModules(modules);
+                    }
+                } catch (Exception e) {
+                    log.error("解析区域模块配置失败: {}", e.getMessage());
+                }
+            }
+            
             return areaDTO;
         } catch (Exception e) {
             log.error("查询区域信息失败", e);
@@ -195,5 +219,26 @@ public class AreaServiceImpl extends ServiceImpl<AreaMapper, Area> implements Ar
         
         log.info("返回区域列表（分页） - 总数: {}, 当前页数量: {}", total, pagedAreas.size());
         return Result.success(pageResult);
+    }
+    
+    @Override
+    public void updateAreaConfig(Long id, AreaConfigDTO configDTO) {
+        log.info("更新区域配置 - ID: {}, 配置: {}", id, configDTO);
+        
+        Area area = areaMapper.selectById(id);
+        if (area == null || area.getDeleted() == 1) {
+            throw new RuntimeException("区域不存在");
+        }
+        
+        // 更新模块数量和配置JSON
+        area.setModuleCount(configDTO.getModuleCount());
+        area.setConfigJson(configDTO.getConfigJson());
+        
+        int result = areaMapper.updateById(area);
+        if (result <= 0) {
+            throw new RuntimeException("更新区域配置失败");
+        }
+        
+        log.info("区域配置更新成功 - ID: {}", id);
     }
 } 

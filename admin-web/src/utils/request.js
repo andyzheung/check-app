@@ -4,7 +4,7 @@ import router from '../router'
 
 // 创建axios实例
 const service = axios.create({
-  baseURL: process.env.VUE_APP_API_BASE_URL || '/api/v1', // 直接使用v1版本API
+  baseURL: process.env.VUE_APP_API_BASE_URL || '', // 使用空字符串，API路径已包含完整路径
   timeout: 15000, // 请求超时时间
   withCredentials: false, // 禁用跨域请求携带凭证
   headers: {
@@ -77,11 +77,8 @@ service.interceptors.response.use(
     
     // 如果是登录接口的响应，确保响应处理正确
     if (response.config.url.includes('/auth/login')) {
-      if (res.data && res.data.token) {
-        return res.data;
-      }
-      if (res.token) {
-        return res;
+      if (res.code === 200) {
+        return res; // 直接返回整个响应对象
       }
     }
     

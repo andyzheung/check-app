@@ -3,16 +3,14 @@ package com.pensun.checkapp.dto;
 import lombok.Data;
 import java.time.LocalDateTime;
 import java.util.List;
-import com.pensun.checkapp.entity.Area;
 import com.pensun.checkapp.entity.InspectionItemTemplate;
-import lombok.EqualsAndHashCode;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * 区域DTO
  */
 @Data
-@EqualsAndHashCode(callSuper = true)
-public class AreaDTO extends Area {
+public class AreaDTO {
     /**
      * 区域ID
      */
@@ -54,9 +52,34 @@ public class AreaDTO extends Area {
     private String description;
     
     /**
+     * 地址
+     */
+    private String address;
+    
+    /**
+     * 模块数量（仅数据中心使用）
+     */
+    private Integer moduleCount;
+    
+    /**
+     * 区域配置（JSON格式）
+     */
+    private String configJson;
+    
+    /**
+     * 模块列表（解析后的配置）
+     */
+    private List<ModuleDTO> modules;
+    
+    /**
      * 关联的巡检任务
      */
     private List<TaskDTO> tasks;
+    
+    /**
+     * 巡检项目模板
+     */
+    private List<InspectionItemTemplate> inspectionItems;
     
     /**
      * 创建时间
@@ -68,12 +91,17 @@ public class AreaDTO extends Area {
      */
     private LocalDateTime updateTime;
     
-    private List<InspectionItemTemplate> inspectionItems;
-    
     @Data
     public static class TaskDTO {
         private Long taskId;
         private String taskName;
         private Integer priority;
+    }
+    
+    @Data
+    public static class ModuleDTO {
+        private Long id;
+        private String name;
+        private String type;
     }
 } 

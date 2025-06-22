@@ -3,6 +3,7 @@ package com.pensun.checkapp.controller;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.pensun.checkapp.common.Result;
 import com.pensun.checkapp.dto.AreaDTO;
+import com.pensun.checkapp.dto.AreaConfigDTO;
 import com.pensun.checkapp.dto.ApiResult;
 import com.pensun.checkapp.entity.InspectionItemTemplate;
 import com.pensun.checkapp.service.AreaService;
@@ -72,6 +73,16 @@ public class AreaController {
     @PostMapping("/verify")
     public Result<Boolean> verifyQRCode(@RequestBody String qrData) {
         return Result.success(areaService.verifyQRCode(qrData));
+    }
+    
+    /**
+     * 更新区域配置
+     */
+    @PutMapping("/{id}/config")
+    public Result<Void> updateAreaConfig(@PathVariable Long id, @RequestBody AreaConfigDTO configDTO) {
+        log.info("更新区域配置: id={}, config={}", id, configDTO);
+        areaService.updateAreaConfig(id, configDTO);
+        return Result.success();
     }
 
 

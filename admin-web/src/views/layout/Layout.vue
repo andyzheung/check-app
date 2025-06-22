@@ -1,8 +1,17 @@
 <template>
-  <a-layout class="layout">
-    <a-layout-header class="header">
+  <div class="layout">
+    <!-- 顶部导航 -->
+    <div class="nav">
       <div class="logo">巡检管理系统后台</div>
-      <div class="header-right">
+      <div class="menu">
+        <a @click="handleMenuClick('dashboard')" :class="{ active: selectedKey === 'dashboard' }">仪表盘</a>
+        <a @click="handleMenuClick('records')" :class="{ active: selectedKey.startsWith('records') }">巡检记录</a>
+        <a @click="handleMenuClick('schedule')" :class="{ active: selectedKey === 'schedule' }">巡检排班</a>
+        <a @click="handleMenuClick('issues')" :class="{ active: selectedKey.startsWith('issues') }">问题列表</a>
+        <a @click="handleMenuClick('users')" :class="{ active: selectedKey.startsWith('users') }">用户管理</a>
+        <a @click="handleMenuClick('config')" :class="{ active: selectedKey.startsWith('config') }">系统配置</a>
+      </div>
+      <div class="user">
         <a-dropdown>
           <a class="dropdown-link" @click.prevent>
             {{ userInfo.realName || '管理员' }}
@@ -17,79 +26,24 @@
           </template>
         </a-dropdown>
       </div>
-    </a-layout-header>
-    <a-layout>
-      <a-layout-sider width="200" class="sider">
-        <a-menu
-          mode="inline"
-          :selected-keys="[selectedKey]"
-          :open-keys="openKeys"
-          style="height: 100%"
-          @click="handleMenuClick"
-        >
-          <a-menu-item key="dashboard">
-            <dashboard-outlined />
-            <span>仪表盘</span>
-          </a-menu-item>
-          <a-sub-menu key="records">
-            <template #title>
-              <span>
-                <file-outlined />
-                <span>巡检记录</span>
-              </span>
-            </template>
-            <a-menu-item key="records-list">巡检记录列表</a-menu-item>
-            <a-menu-item key="records-export">导出记录</a-menu-item>
-          </a-sub-menu>
-          <a-sub-menu key="issues">
-            <template #title>
-              <span>
-                <exception-outlined />
-                <span>问题列表</span>
-              </span>
-            </template>
-            <a-menu-item key="issues-list">问题列表</a-menu-item>
-            <a-menu-item key="issues-statistics">问题统计</a-menu-item>
-          </a-sub-menu>
-          <a-sub-menu key="users">
-            <template #title>
-              <span>
-                <user-outlined />
-                <span>用户管理</span>
-              </span>
-            </template>
-            <a-menu-item key="users-list">用户列表</a-menu-item>
-          </a-sub-menu>
-        </a-menu>
-      </a-layout-sider>
-      <a-layout class="content-layout">
-        <a-layout-content class="content">
-          <router-view></router-view>
-        </a-layout-content>
-      </a-layout>
-    </a-layout>
-  </a-layout>
+    </div>
+    
+    <!-- 内容区域 -->
+    <div class="content">
+      <router-view></router-view>
+    </div>
+  </div>
 </template>
 
 <script>
 import { defineComponent, ref, reactive, onMounted, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
-import { 
-  DashboardOutlined, 
-  FileOutlined, 
-  ExceptionOutlined, 
-  UserOutlined,
-  DownOutlined 
-} from '@ant-design/icons-vue'
+import { DownOutlined } from '@ant-design/icons-vue'
 import { message } from 'ant-design-vue'
 
 export default defineComponent({
   name: 'Layout',
   components: {
-    DashboardOutlined,
-    FileOutlined,
-    ExceptionOutlined,
-    UserOutlined,
     DownOutlined
   },
   setup() {
@@ -112,39 +66,39 @@ export default defineComponent({
     watch(() => route.path, (path) => {
       if (path.includes('/dashboard')) {
         selectedKey.value = 'dashboard'
-        openKeys.value = ['dashboard']
       } else if (path.includes('/records')) {
-        selectedKey.value = path.includes('/export') ? 'records-export' : 'records-list'
-        openKeys.value = ['records']
+        selectedKey.value = 'records'
+      } else if (path.includes('/schedule')) {
+        selectedKey.value = 'schedule'
       } else if (path.includes('/issues')) {
-        selectedKey.value = path.includes('/statistics') ? 'issues-statistics' : 'issues-list'
-        openKeys.value = ['issues']
+        selectedKey.value = 'issues'
       } else if (path.includes('/users')) {
-        selectedKey.value = 'users-list'
-        openKeys.value = ['users']
+        selectedKey.value = 'users'
+      } else if (path.includes('/areas') || path.includes('/config')) {
+        selectedKey.value = 'config'
       }
     }, { immediate: true })
     
     // 菜单点击事件
-    const handleMenuClick = ({ key }) => {
+    const handleMenuClick = (key) => {
       switch(key) {
         case 'dashboard':
           router.push('/dashboard')
           break
-        case 'records-list':
+        case 'records':
           router.push('/records/list')
           break
-        case 'records-export':
-          router.push('/records/export')
+        case 'schedule':
+          router.push('/schedule/tasks')
           break
-        case 'issues-list':
+        case 'issues':
           router.push('/issues/list')
           break
-        case 'issues-statistics':
-          router.push('/issues/statistics')
-          break
-        case 'users-list':
+        case 'users':
           router.push('/users/list')
+          break
+        case 'config':
+          router.push('/areas/config')
           break
         default:
           router.push('/')
@@ -172,52 +126,61 @@ export default defineComponent({
 <style scoped>
 .layout {
   min-height: 100vh;
+  background: #f0f2f5;
 }
 
-.header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+.nav {
   background: #fff;
-  padding: 0 24px;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  padding: 0 32px;
+  display: flex;
+  align-items: center;
+  height: 56px;
+  justify-content: space-between;
   z-index: 1;
 }
 
 .logo {
-  font-size: 18px;
-  font-weight: 600;
+  font-weight: bold;
   color: #1890ff;
+  font-size: 22px;
 }
 
-.header-right {
+.menu {
+  display: flex;
+  gap: 32px;
+  font-size: 16px;
+}
+
+.menu a {
+  color: #666;
+  text-decoration: none;
+  padding: 8px 0;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s;
+  cursor: pointer;
+}
+
+.menu a:hover, .menu a.active {
+  color: #1890ff;
+  border-bottom-color: #1890ff;
+}
+
+.user {
   display: flex;
   align-items: center;
+  gap: 8px;
 }
 
 .dropdown-link {
-  display: flex;
-  align-items: center;
-  color: rgba(0, 0, 0, 0.65);
-}
-
-.sider {
-  background: #fff;
-  overflow: auto;
-  height: calc(100vh - 64px);
-  position: fixed;
-  left: 0;
-  box-shadow: 1px 0 4px rgba(0, 0, 0, 0.1);
-}
-
-.content-layout {
-  margin-left: 200px;
+  color: #333;
+  text-decoration: none;
 }
 
 .content {
-  margin: 24px;
-  padding: 24px;
-  background: #fff;
-  min-height: calc(100vh - 112px);
+  max-width: 1300px;
+  margin: 32px auto 0 auto;
+  padding: 0 16px;
+  min-height: calc(100vh - 88px);
 }
 </style> 

@@ -3,6 +3,7 @@ package com.pensun.checkapp.service;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.pensun.checkapp.common.Result;
 import com.pensun.checkapp.dto.AreaDTO;
+import com.pensun.checkapp.dto.AreaConfigDTO;
 import java.util.List;
 
 /**
@@ -59,4 +60,12 @@ public interface AreaService {
      * @return 验证结果
      */
     Boolean verifyQRCode(String qrData);
+    
+    /**
+     * 更新区域配置
+     *
+     * @param id 区域ID
+     * @param configDTO 配置数据
+     */
+    void updateAreaConfig(Long id, AreaConfigDTO configDTO);
 } 

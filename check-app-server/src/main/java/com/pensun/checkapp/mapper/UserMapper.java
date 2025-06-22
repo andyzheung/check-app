@@ -26,6 +26,23 @@ public interface UserMapper extends BaseMapper<User> {
     List<String> selectPermissionCodesByUserId(@Param("userId") Long userId);
 
     /**
+     * 根据AD用户名查询用户
+     *
+     * @param adUsername AD用户名
+     * @return 用户信息
+     */
+    @Select("SELECT * FROM t_user WHERE ad_username = #{adUsername} AND deleted = 0")
+    User selectByAdUsername(@Param("adUsername") String adUsername);
+
+    /**
+     * 查询所有AD用户
+     *
+     * @return AD用户列表
+     */
+    @Select("SELECT * FROM t_user WHERE is_ad_user = 1 AND deleted = 0")
+    List<User> selectAdUsers();
+
+    /**
      * 分页查询用户列表
      *
      * @param page 分页参数

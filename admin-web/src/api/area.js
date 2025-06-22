@@ -1,61 +1,89 @@
 import request from '@/utils/request'
 
-// 获取区域列表
-export function getAreaList(params) {
+/**
+ * 获取区域列表
+ * @param {Object} params 查询参数
+ * @returns {Promise}
+ */
+export function getAreas(params) {
   return request({
-    url: '/areas',
+    url: '/api/v1/areas',
     method: 'get',
     params
   })
 }
 
-// 获取区域详情
-export function getAreaDetail(id) {
+/**
+ * 根据ID获取区域详情
+ * @param {number} id 区域ID
+ * @returns {Promise}
+ */
+export function getAreaById(id) {
   return request({
-    url: `/areas/${id}`,
+    url: `/api/v1/areas/${id}`,
     method: 'get'
   })
 }
 
-// 添加区域
-export function addArea(data) {
+/**
+ * 根据编码获取区域详情
+ * @param {string} code 区域编码
+ * @returns {Promise}
+ */
+export function getAreaByCode(code) {
   return request({
-    url: '/areas',
-    method: 'post',
-    data
+    url: `/api/v1/areas/code/${code}`,
+    method: 'get'
   })
 }
 
-// 更新区域
-export function updateArea(id, data) {
+/**
+ * 更新区域配置
+ * @param {number} id 区域ID
+ * @param {Object} data 配置数据
+ * @returns {Promise}
+ */
+export function updateAreaConfig(id, data) {
   return request({
-    url: `/areas/${id}`,
+    url: `/api/v1/areas/${id}/config`,
     method: 'put',
     data
   })
 }
 
-// 删除区域
+/**
+ * 创建新区域
+ * @param {Object} data 区域数据
+ * @returns {Promise}
+ */
+export function createArea(data) {
+  return request({
+    url: '/api/v1/areas',
+    method: 'post',
+    data
+  })
+}
+
+/**
+ * 删除区域
+ * @param {number} id 区域ID
+ * @returns {Promise}
+ */
 export function deleteArea(id) {
   return request({
-    url: `/areas/${id}`,
+    url: `/api/v1/areas/${id}`,
     method: 'delete'
   })
 }
 
-// 获取区域二维码
-export function getAreaQrCode(id) {
+/**
+ * 生成区域二维码
+ * @param {number} id 区域ID
+ * @returns {Promise}
+ */
+export function generateQRCode(id) {
   return request({
-    url: `/areas/${id}/qrcode`,
-    method: 'get',
-    responseType: 'blob'
-  })
-}
-
-// 生成区域二维码
-export function generateAreaQrCode(id) {
-  return request({
-    url: `/areas/${id}/qrcode`,
+    url: `/api/v1/areas/${id}/qrcode`,
     method: 'post'
   })
 } 
