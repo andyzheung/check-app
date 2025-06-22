@@ -3,7 +3,7 @@ import request from '@/utils/request'
 // 获取巡检记录列表
 export function getRecordList(params) {
   return request({
-    url: '/records',
+    url: '/api/v1/records',
     method: 'get',
     params
   })
@@ -12,7 +12,7 @@ export function getRecordList(params) {
 // 获取巡检记录详情
 export function getRecordDetail(id) {
   return request({
-    url: `/records/${id}`,
+    url: `/api/v1/records/${id}`,
     method: 'get'
   })
 }
@@ -20,7 +20,7 @@ export function getRecordDetail(id) {
 // 获取统计数据
 export function getRecordStats() {
   return request({
-    url: '/statistics/dashboard',
+    url: '/api/v1/statistics/dashboard',
     method: 'get'
   })
 }
@@ -52,7 +52,7 @@ export function getInspectorRanking() {
 // 导出记录
 export function exportRecords(params) {
   return request({
-    url: '/records/export',
+    url: '/api/v1/records/export',
     method: 'get',
     params,
     responseType: 'blob'

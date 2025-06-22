@@ -3,9 +3,9 @@
     <!-- 配置标签页 -->
     <div class="config-tabs">
       <div class="tab-header">
-        <div class="tab-item active" @click="showTab('area')">区域配置</div>
-        <div class="tab-item" @click="showTab('system')">系统参数</div>
-        <div class="tab-item" @click="showTab('ad')">AD配置</div>
+        <div class="tab-item" :class="{ active: activeTab === 'area' }" @click="showTab('area')">区域配置</div>
+        <div class="tab-item" :class="{ active: activeTab === 'system' }" @click="showTab('system')">系统参数</div>
+        <div class="tab-item" :class="{ active: activeTab === 'ad' }" @click="showTab('ad')">AD配置</div>
       </div>
       
       <!-- 区域配置标签页 -->
@@ -27,7 +27,7 @@
           <div class="area-list">
             <div v-for="area in areas" :key="area.id" class="area-card">
               <div class="area-header">
-                <div class="area-name">{{ area.areaName }}</div>
+                                  <div class="area-name">{{ area.name }}</div>
                 <div class="area-type" :class="area.areaType === 'D' ? 'type-datacenter' : 'type-weakroom'">
                   {{ area.areaType === 'D' ? '数据中心' : '弱电间' }}
                 </div>
@@ -38,6 +38,7 @@
               <div class="area-actions">
                 <a-button size="small" v-if="area.areaType === 'D'" @click="handleEdit(area)">配置模块</a-button>
                 <a-button size="small" @click="handleView(area)">编辑</a-button>
+                <a-button size="small" danger @click="handleDelete(area)">删除</a-button>
               </div>
             </div>
           </div>
@@ -98,6 +99,40 @@
       </div>
     </div>
 
+    <!-- 新增/编辑区域弹窗 -->
+    <a-modal
+      v-model:open="areaModalVisible"
+      :title="areaModalTitle"
+      width="600px"
+      @ok="handleAreaSave"
+      @cancel="handleAreaCancel">
+      
+      <a-form :model="areaForm" :label-col="{ span: 6 }" :wrapper-col="{ span: 18 }" ref="areaFormRef">
+        <a-form-item label="区域名称" name="name" :rules="[{ required: true, message: '请输入区域名称' }]">
+          <a-input v-model:value="areaForm.name" placeholder="请输入区域名称" />
+        </a-form-item>
+        
+        <a-form-item label="区域编码" name="areaCode" :rules="[{ required: true, message: '请输入区域编码' }]">
+          <a-input v-model:value="areaForm.areaCode" placeholder="请输入区域编码" />
+        </a-form-item>
+        
+        <a-form-item label="区域类型" name="areaType" :rules="[{ required: true, message: '请选择区域类型' }]">
+          <a-select v-model:value="areaForm.areaType" placeholder="请选择区域类型">
+            <a-select-option value="D">数据中心</a-select-option>
+            <a-select-option value="E">弱电间</a-select-option>
+          </a-select>
+        </a-form-item>
+        
+        <a-form-item label="区域地址" name="address">
+          <a-input v-model:value="areaForm.address" placeholder="请输入区域地址" />
+        </a-form-item>
+        
+        <a-form-item label="区域描述" name="description">
+          <a-textarea v-model:value="areaForm.description" placeholder="请输入区域描述" :rows="3" />
+        </a-form-item>
+      </a-form>
+    </a-modal>
+
     <!-- 模块配置弹窗 -->
     <a-modal
       v-model:open="configModalVisible"
@@ -154,17 +189,30 @@
 
 <script setup>
 import { ref, reactive, onMounted } from 'vue'
-import { message } from 'ant-design-vue'
-import { getAreas, updateAreaConfig } from '@/api/area'
+import { message, Modal } from 'ant-design-vue'
+import { getAreas, updateAreaConfig, createArea, updateArea, deleteArea } from '@/api/area'
 
 const loading = ref(false)
 const areas = ref([])
 const configModalVisible = ref(false)
+const areaModalVisible = ref(false)
+const areaModalTitle = ref('新增区域')
 const activeTab = ref('area')
+const areaFormRef = ref()
 
 const searchForm = reactive({
   areaType: undefined,
   keyword: ''
+})
+
+const areaForm = reactive({
+  id: null,
+  name: '',
+  areaCode: '',
+  areaType: '',
+  address: '',
+  description: '',
+  status: 'active'
 })
 
 const configForm = reactive({
@@ -186,6 +234,8 @@ const adConfig = reactive({
   enabled: false
 })
 
+
+
 // 标签页切换
 const showTab = (tabName) => {
   activeTab.value = tabName
@@ -197,15 +247,89 @@ const fetchAreas = async () => {
     const params = {
       page: 1,
       size: 100,
-      type: searchForm.areaType
+      type: searchForm.areaType,
+      keyword: searchForm.keyword
     }
     const response = await getAreas(params)
     areas.value = response.data.records || response.data.list || []
   } catch (error) {
+    console.error('获取区域列表失败:', error)
     message.error('获取区域列表失败')
   } finally {
     loading.value = false
   }
+}
+
+// 新增区域
+const handleAdd = () => {
+  areaModalTitle.value = '新增区域'
+  resetAreaForm()
+  areaModalVisible.value = true
+}
+
+// 编辑区域
+const handleView = (record) => {
+  areaModalTitle.value = '编辑区域'
+  Object.assign(areaForm, record)
+  areaModalVisible.value = true
+}
+
+// 删除区域
+const handleDelete = (record) => {
+  Modal.confirm({
+    title: '确认删除',
+    content: `确定要删除区域"${record.name}"吗？`,
+    onOk: async () => {
+      try {
+        await deleteArea(record.id)
+        message.success('删除成功')
+        fetchAreas()
+      } catch (error) {
+        message.error('删除失败')
+      }
+    }
+  })
+}
+
+// 重置区域表单
+const resetAreaForm = () => {
+  Object.assign(areaForm, {
+    id: null,
+    name: '',
+    areaCode: '',
+    areaType: '',
+    address: '',
+    description: '',
+    status: 'active'
+  })
+}
+
+// 保存区域
+const handleAreaSave = async () => {
+  try {
+    await areaFormRef.value.validate()
+    
+    if (areaForm.id) {
+      // 编辑
+      await updateArea(areaForm.id, areaForm)
+      message.success('更新成功')
+    } else {
+      // 新增
+      await createArea(areaForm)
+      message.success('创建成功')
+    }
+    
+    areaModalVisible.value = false
+    fetchAreas()
+  } catch (error) {
+    console.error('保存失败:', error)
+    message.error('保存失败')
+  }
+}
+
+const handleAreaCancel = () => {
+  areaModalVisible.value = false
+  resetAreaForm()
 }
 
 // 系统配置保存
@@ -227,7 +351,7 @@ const saveAdConfig = () => {
 
 const handleEdit = (record) => {
   configForm.id = record.id
-  configForm.areaName = record.areaName
+  configForm.areaName = record.name
   configForm.moduleCount = record.moduleCount || 4
   
   // 解析现有配置或创建默认配置
@@ -293,27 +417,6 @@ const handleConfigCancel = () => {
   configModalVisible.value = false
 }
 
-const resetSearch = () => {
-  searchForm.areaType = undefined
-  searchForm.keyword = ''
-  fetchAreas()
-}
-
-const handleAdd = () => {
-  // TODO: 实现新增区域功能
-  message.info('新增功能待实现')
-}
-
-const handleView = (record) => {
-  // TODO: 实现查看详情功能
-  message.info('查看功能待实现')
-}
-
-const handleDelete = (record) => {
-  // TODO: 实现删除功能
-  message.info('删除功能待实现')
-}
-
 onMounted(() => {
   fetchAreas()
 })
@@ -321,68 +424,62 @@ onMounted(() => {
 
 <style scoped>
 .config-container {
-  background: #f0f2f5;
+  padding: 24px;
+  background: #f5f5f5;
+  min-height: 100vh;
 }
 
 .config-tabs {
-  background: #fff;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(31, 38, 135, 0.08);
-  margin-bottom: 24px;
+  background: white;
+  border-radius: 8px;
+  overflow: hidden;
 }
 
 .tab-header {
   display: flex;
-  border-bottom: 1px solid #f0f0f0;
-  padding: 0 16px;
+  border-bottom: 1px solid #e8e8e8;
 }
 
 .tab-item {
   padding: 16px 24px;
   cursor: pointer;
   border-bottom: 2px solid transparent;
-  color: #666;
-  font-weight: 500;
-  transition: all 0.2s;
+  transition: all 0.3s;
 }
 
-.tab-item:hover, .tab-item.active {
+.tab-item:hover {
+  background: #f5f5f5;
+}
+
+.tab-item.active {
   color: #1890ff;
   border-bottom-color: #1890ff;
+  background: #f0f8ff;
 }
 
 .tab-content {
   padding: 24px;
-  min-height: 400px;
 }
 
 .config-section {
-  margin-bottom: 32px;
+  margin-bottom: 24px;
 }
 
 .section-title {
   font-size: 18px;
-  font-weight: bold;
+  font-weight: 600;
   margin-bottom: 16px;
   color: #333;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.section-title::before {
-  content: '';
-  width: 4px;
-  height: 18px;
-  background: #1890ff;
-  border-radius: 2px;
 }
 
 .search-toolbar {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 16px;
+  margin-bottom: 24px;
+  padding: 16px;
+  background: #fafafa;
+  border-radius: 6px;
 }
 
 .search-left {
@@ -395,7 +492,6 @@ onMounted(() => {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 16px;
-  margin-top: 16px;
 }
 
 .area-card {
@@ -403,12 +499,12 @@ onMounted(() => {
   border: 1px solid #e8e8e8;
   border-radius: 8px;
   padding: 16px;
-  transition: all 0.2s;
+  transition: all 0.3s;
 }
 
 .area-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   border-color: #1890ff;
-  box-shadow: 0 2px 8px rgba(24, 144, 255, 0.1);
 }
 
 .area-header {
@@ -419,70 +515,62 @@ onMounted(() => {
 }
 
 .area-name {
-  font-weight: bold;
   font-size: 16px;
+  font-weight: 600;
   color: #333;
 }
 
 .area-type {
-  padding: 2px 8px;
-  border-radius: 12px;
+  padding: 4px 8px;
+  border-radius: 4px;
   font-size: 12px;
-  font-weight: 500;
+  color: white;
 }
 
-.type-datacenter {
-  background: #e6f7ff;
-  color: #1890ff;
-}
-
-.type-weakroom {
-  background: #f6ffed;
-  color: #52c41a;
-}
+.type-datacenter { background: #f5222d; }
+.type-weakroom { background: #fa8c16; }
 
 .area-info {
-  font-size: 14px;
-  color: #666;
   margin-bottom: 8px;
+  color: #666;
+  font-size: 14px;
 }
 
 .area-actions {
   display: flex;
   gap: 8px;
-  justify-content: flex-end;
+  margin-top: 12px;
 }
 
 .config-form {
-  background: #fafafa;
-  padding: 20px;
-  border-radius: 8px;
-  border: 1px solid #e8e8e8;
+  max-width: 600px;
 }
 
 .form-row {
   display: flex;
-  gap: 16px;
-  margin-bottom: 16px;
   align-items: center;
+  margin-bottom: 16px;
 }
 
 .form-label {
-  min-width: 120px;
-  font-weight: 500;
+  width: 120px;
+  text-align: right;
+  margin-right: 16px;
   color: #333;
 }
 
 .module-config-list {
-  max-height: 400px;
-  overflow-y: auto;
+  border: 1px solid #e8e8e8;
+  border-radius: 6px;
+  padding: 16px;
+  background: #fafafa;
 }
 
 .module-item {
   margin-bottom: 12px;
-  padding: 12px;
-  border: 1px solid #d9d9d9;
-  border-radius: 6px;
-  background: #fafafa;
+}
+
+.module-item:last-child {
+  margin-bottom: 0;
 }
 </style> 

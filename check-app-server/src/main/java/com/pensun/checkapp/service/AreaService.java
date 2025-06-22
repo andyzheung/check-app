@@ -62,6 +62,29 @@ public interface AreaService {
     Boolean verifyQRCode(String qrData);
     
     /**
+     * 创建新区域
+     *
+     * @param areaDTO 区域数据
+     * @return 区域ID
+     */
+    Long createArea(AreaDTO areaDTO);
+    
+    /**
+     * 更新区域信息
+     *
+     * @param id 区域ID
+     * @param areaDTO 区域数据
+     */
+    void updateArea(Long id, AreaDTO areaDTO);
+    
+    /**
+     * 删除区域
+     *
+     * @param id 区域ID
+     */
+    void deleteArea(Long id);
+
+    /**
      * 更新区域配置
      *
      * @param id 区域ID

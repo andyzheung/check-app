@@ -3,7 +3,7 @@ import request from '@/utils/request'
 // 获取每日巡检统计
 export function getDailyInspectionStatistics(date) {
   return request({
-    url: '/statistics/inspection/daily',
+    url: '/api/v1/statistics/inspection/daily',
     method: 'get',
     params: { date }
   })
@@ -12,7 +12,7 @@ export function getDailyInspectionStatistics(date) {
 // 获取每周巡检统计
 export function getWeeklyInspectionStatistics(startDate, endDate) {
   return request({
-    url: '/statistics/inspection/weekly',
+    url: '/api/v1/statistics/inspection/weekly',
     method: 'get',
     params: { startDate, endDate }
   })
@@ -21,7 +21,7 @@ export function getWeeklyInspectionStatistics(startDate, endDate) {
 // 获取问题统计
 export function getIssueStatistics() {
   return request({
-    url: '/statistics/issues',
+    url: '/api/v1/statistics/issues',
     method: 'get'
   })
 }
@@ -29,7 +29,7 @@ export function getIssueStatistics() {
 // 获取仪表盘数据
 export function getDashboardData() {
   return request({
-    url: '/statistics/dashboard',
+    url: '/api/v1/statistics/dashboard',
     method: 'get'
   })
 }
@@ -37,7 +37,7 @@ export function getDashboardData() {
 // 刷新统计缓存
 export function refreshStatisticsCache(type) {
   return request({
-    url: `/statistics/refresh/${type}`,
+    url: `/api/v1/statistics/refresh/${type}`,
     method: 'post'
   })
 } 

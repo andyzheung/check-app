@@ -19,6 +19,7 @@
           <a-select v-model:value="queryParams.role" placeholder="全部角色" style="width: 160px">
             <a-select-option value="">全部角色</a-select-option>
             <a-select-option value="admin">管理员</a-select-option>
+            <a-select-option value="inspector">巡检员</a-select-option>
             <a-select-option value="user">普通用户</a-select-option>
           </a-select>
         </a-form-item>
@@ -56,8 +57,8 @@
       >
         <template #bodyCell="{ column, record }">
           <template v-if="column.key === 'role'">
-            <a-tag :color="record.role === 'admin' ? 'blue' : 'purple'">
-              {{ record.role === 'admin' ? '管理员' : '普通用户' }}
+            <a-tag :color="getRoleColor(record.role)">
+              {{ getRoleText(record.role) }}
             </a-tag>
           </template>
           <template v-else-if="column.key === 'status'">
@@ -121,6 +122,7 @@
         <a-form-item label="角色" name="role">
           <a-select v-model:value="userForm.role" placeholder="请选择角色">
             <a-select-option value="user">普通用户</a-select-option>
+            <a-select-option value="inspector">巡检员</a-select-option>
             <a-select-option value="admin">管理员</a-select-option>
           </a-select>
         </a-form-item>
@@ -444,6 +446,26 @@ export default defineComponent({
       permissionModal.visible = false
     }
 
+    // 获取角色颜色
+    const getRoleColor = (role) => {
+      const colors = {
+        admin: 'red',
+        inspector: 'blue', 
+        user: 'green'
+      }
+      return colors[role] || 'default'
+    }
+
+    // 获取角色文本
+    const getRoleText = (role) => {
+      const texts = {
+        admin: '管理员',
+        inspector: '巡检员',
+        user: '普通用户'
+      }
+      return texts[role] || role
+    }
+
     onMounted(() => {
       getList()
     })
@@ -472,7 +494,9 @@ export default defineComponent({
       handleDelete,
       handlePermission,
       handlePermissionSubmit,
-      cancelPermissionModal
+      cancelPermissionModal,
+      getRoleColor,
+      getRoleText
     }
   }
 })

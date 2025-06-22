@@ -65,6 +65,20 @@ export function createArea(data) {
 }
 
 /**
+ * 更新区域
+ * @param {number} id 区域ID
+ * @param {Object} data 区域数据
+ * @returns {Promise}
+ */
+export function updateArea(id, data) {
+  return request({
+    url: `/api/v1/areas/${id}`,
+    method: 'put',
+    data
+  })
+}
+
+/**
  * 删除区域
  * @param {number} id 区域ID
  * @returns {Promise}

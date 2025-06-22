@@ -100,21 +100,5 @@ public class Area implements Serializable {
     @TableField("deleted")
     private Integer deleted;
 
-    /**
-     * 获取区域名称
-     * 
-     * @return 区域名称
-     */
-    public String getAreaName() {
-        return this.name;
-    }
-    
-    /**
-     * 获取区域类型
-     * 
-     * @return 区域类型
-     */
-    public String getAreaType() {
-        return this.areaType;
-    }
+
 } 

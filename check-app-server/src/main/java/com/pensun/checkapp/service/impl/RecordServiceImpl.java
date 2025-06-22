@@ -70,7 +70,7 @@ public class RecordServiceImpl extends ServiceImpl<InspectionRecordMapper, Inspe
             // 查询区域名称
             Area area = areaMapper.selectById(record.getAreaId());
             if (area != null) {
-                recordDTO.setAreaName(area.getAreaName());
+                recordDTO.setAreaName(area.getName());
             }
             
             // 查询巡检人员名称
@@ -124,7 +124,7 @@ public class RecordServiceImpl extends ServiceImpl<InspectionRecordMapper, Inspe
         // 查询区域名称
         Area area = areaMapper.selectById(record.getAreaId());
         if (area != null) {
-            recordDTO.setAreaName(area.getAreaName());
+            recordDTO.setAreaName(area.getName());
         }
 
         // 查询巡检人员名称
@@ -428,7 +428,7 @@ public class RecordServiceImpl extends ServiceImpl<InspectionRecordMapper, Inspe
                 
                 // 查询区域名称
                 Area area = areaMapper.selectById(record.getAreaId());
-                row.createCell(1).setCellValue(area != null ? area.getAreaName() : "");
+                row.createCell(1).setCellValue(area != null ? area.getName() : "");
                 
                 // 查询巡检人员名称
                 User inspector = userMapper.selectById(record.getInspectorId());

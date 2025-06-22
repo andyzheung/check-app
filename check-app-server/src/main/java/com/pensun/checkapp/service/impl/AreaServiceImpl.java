@@ -241,4 +241,62 @@ public class AreaServiceImpl extends ServiceImpl<AreaMapper, Area> implements Ar
         
         log.info("区域配置更新成功 - ID: {}", id);
     }
+    
+    @Override
+    public Long createArea(AreaDTO areaDTO) {
+        log.info("创建新区域: {}", areaDTO);
+        
+        Area area = new Area();
+        BeanUtils.copyProperties(areaDTO, area);
+        
+        // 设置默认值
+        if (area.getStatus() == null) {
+            area.setStatus("active");
+        }
+        
+        int result = areaMapper.insert(area);
+        if (result <= 0) {
+            throw new RuntimeException("创建区域失败");
+        }
+        
+        log.info("区域创建成功: id={}, code={}", area.getId(), area.getAreaCode());
+        return area.getId();
+    }
+
+    @Override
+    public void updateArea(Long id, AreaDTO areaDTO) {
+        log.info("更新区域信息: id={}, area={}", id, areaDTO);
+        
+        Area area = areaMapper.selectById(id);
+        if (area == null || area.getDeleted() == 1) {
+            throw new RuntimeException("区域不存在");
+        }
+        
+        BeanUtils.copyProperties(areaDTO, area);
+        area.setId(id); // 确保ID不被覆盖
+        
+        int result = areaMapper.updateById(area);
+        if (result <= 0) {
+            throw new RuntimeException("更新区域失败");
+        }
+        
+        log.info("区域更新成功: id={}", id);
+    }
+
+    @Override
+    public void deleteArea(Long id) {
+        log.info("删除区域: id={}", id);
+        
+        Area area = areaMapper.selectById(id);
+        if (area == null || area.getDeleted() == 1) {
+            throw new RuntimeException("区域不存在");
+        }
+        
+        int result = areaMapper.deleteById(id);
+        if (result <= 0) {
+            throw new RuntimeException("删除区域失败");
+        }
+        
+        log.info("区域删除成功: id={}", id);
+    }
 } 

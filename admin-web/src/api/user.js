@@ -3,7 +3,7 @@ import request from '@/utils/request'
 // 用户登录
 export function login(data) {
   return request({
-    url: '/auth/login',
+    url: '/api/v1/auth/login',
     method: 'post',
     data
   })
@@ -12,7 +12,7 @@ export function login(data) {
 // 获取用户信息
 export function getUserInfo() {
   return request({
-    url: '/users/current',
+    url: '/api/v1/users/current',
     method: 'get'
   })
 }
@@ -28,7 +28,7 @@ export function logout() {
 // 获取用户列表
 export function getUserList(params) {
   return request({
-    url: '/users/page',
+    url: '/api/v1/users/page',
     method: 'get',
     params
   })
@@ -46,7 +46,7 @@ export function addUser(data) {
 // 更新用户
 export function updateUser(id, data) {
   return request({
-    url: `/users/${id}`,
+    url: `/api/v1/users/${id}`,
     method: 'put',
     data
   })
@@ -55,7 +55,7 @@ export function updateUser(id, data) {
 // 删除用户
 export function deleteUser(id) {
   return request({
-    url: `/users/${id}`,
+    url: `/api/v1/users/${id}`,
     method: 'delete'
   })
 }
@@ -63,7 +63,7 @@ export function deleteUser(id) {
 // 获取用户权限
 export function getUserPermissions(userId) {
   return request({
-    url: `/users/${userId}/permissions`,
+    url: `/api/v1/users/${userId}/permissions`,
     method: 'get'
   })
 }
@@ -71,8 +71,16 @@ export function getUserPermissions(userId) {
 // 更新用户权限
 export function updateUserPermissions(id, data) {
   return request({
-    url: `/users/${id}/permissions`,
+    url: `/api/v1/users/${id}/permissions`,
     method: 'put',
     data
+  })
+}
+
+// 获取所有权限列表
+export function getAllPermissions() {
+  return request({
+    url: '/api/v1/permissions',
+    method: 'get'
   })
 } 

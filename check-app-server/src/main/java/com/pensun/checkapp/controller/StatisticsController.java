@@ -159,6 +159,8 @@ public class StatisticsController {
         return Result.success(areaData);
     }
     
+
+    
     /**
      * 获取巡检人员排名
      * [ADMIN]
@@ -205,24 +207,7 @@ public class StatisticsController {
     @GetMapping("/issues/by-handler")
     public Result<List<Map<String, Object>>> getIssueByHandler() {
         log.info("获取问题处理人员统计");
-        
-        // 模拟数据，后续可以从数据库统计
-        List<Map<String, Object>> handlerStats = new java.util.ArrayList<>();
-        
-        Map<String, Object> handler1 = new java.util.HashMap<>();
-        handler1.put("name", "张三");
-        handler1.put("processedCount", 12);
-        handler1.put("resolvedCount", 10);
-        handler1.put("avgProcessTime", 2.5);
-        handlerStats.add(handler1);
-        
-        Map<String, Object> handler2 = new java.util.HashMap<>();
-        handler2.put("name", "李四");
-        handler2.put("processedCount", 8);
-        handler2.put("resolvedCount", 7);
-        handler2.put("avgProcessTime", 3.2);
-        handlerStats.add(handler2);
-        
-        return Result.success(handlerStats);
+        List<Map<String, Object>> handlerData = statisticsCacheService.getIssueByHandler();
+        return Result.success(handlerData);
     }
 } 

@@ -76,6 +76,36 @@ public class AreaController {
     }
     
     /**
+     * 创建新区域
+     */
+    @PostMapping
+    public Result<Long> createArea(@RequestBody AreaDTO areaDTO) {
+        log.info("创建新区域: {}", areaDTO);
+        Long areaId = areaService.createArea(areaDTO);
+        return Result.success(areaId);
+    }
+    
+    /**
+     * 更新区域信息
+     */
+    @PutMapping("/{id}")
+    public Result<Void> updateArea(@PathVariable Long id, @RequestBody AreaDTO areaDTO) {
+        log.info("更新区域信息: id={}, area={}", id, areaDTO);
+        areaService.updateArea(id, areaDTO);
+        return Result.success();
+    }
+    
+    /**
+     * 删除区域
+     */
+    @DeleteMapping("/{id}")
+    public Result<Void> deleteArea(@PathVariable Long id) {
+        log.info("删除区域: id={}", id);
+        areaService.deleteArea(id);
+        return Result.success();
+    }
+
+    /**
      * 更新区域配置
      */
     @PutMapping("/{id}/config")

@@ -83,6 +83,8 @@ public class TaskScheduleServiceImpl implements TaskScheduleService {
     @Override
     @Transactional
     public void createTask(TaskCreateDTO taskDTO) {
+        log.info("创建新任务: {}", taskDTO.getTaskName());
+        
         // 检查冲突
         TaskConflictCheckDTO conflictCheck = checkScheduleConflict(
                 taskDTO.getInspectorId(), taskDTO.getScheduledTime(), null);
@@ -97,14 +99,17 @@ public class TaskScheduleServiceImpl implements TaskScheduleService {
         task.setInspectorId(taskDTO.getInspectorId());
         task.setPlanTime(taskDTO.getScheduledTime()); // scheduled_time字段在实体中为planTime
         task.setDescription(taskDTO.getDescription());
-        task.setStatus(taskDTO.getStatus());
+        task.setStatus("pending"); // 设置默认状态为待执行
         task.setCreateTime(LocalDateTime.now());
         task.setUpdateTime(LocalDateTime.now());
+        task.setCreateUserId(1L); // TODO: 从当前登录用户获取
         
         inspectionTaskMapper.insert(task);
         
         log.info("创建任务成功: {} - {}", task.getId(), task.getName());
     }
+
+
 
     @Override
     @Transactional
@@ -293,7 +298,7 @@ public class TaskScheduleServiceImpl implements TaskScheduleService {
         if (task.getPointId() != null) {
             Area area = areaMapper.selectById(task.getPointId());
             if (area != null) {
-                dto.setAreaName(area.getAreaName());
+                dto.setAreaName(area.getName());
                 dto.setAreaCode(area.getAreaCode());
             }
         }

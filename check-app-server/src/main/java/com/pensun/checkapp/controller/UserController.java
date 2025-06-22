@@ -141,45 +141,20 @@ public class UserController {
      * @return 权限列表
      */
     @GetMapping("/permissions")
-    public Result<List<Map<String, Object>>> getAllPermissions() {
-        // 返回系统中所有可用的权限
-        List<Map<String, Object>> permissions = new java.util.ArrayList<>();
-        
-        // 基础权限
-        permissions.add(createPermission("inspection_view", "巡检查看权限", "巡检管理"));
-        permissions.add(createPermission("inspection_edit", "巡检编辑权限", "巡检管理"));
-        permissions.add(createPermission("inspection_all", "查看所有巡检权限", "巡检管理"));
-        
-        // 问题管理权限
-        permissions.add(createPermission("issue_view", "问题查看权限", "问题管理"));
-        permissions.add(createPermission("issue_edit", "问题编辑权限", "问题管理"));
-        permissions.add(createPermission("issue_delete", "问题删除权限", "问题管理"));
-        
-        // 排班权限
-        permissions.add(createPermission("schedule_view", "排班查看权限", "排班管理"));
-        permissions.add(createPermission("schedule_edit", "排班编辑权限", "排班管理"));
-        permissions.add(createPermission("schedule_all", "查看所有排班权限", "排班管理"));
-        
-        // 区域管理权限
-        permissions.add(createPermission("area_manage", "区域管理权限", "系统管理"));
-        permissions.add(createPermission("statistics_view", "统计信息查看权限", "系统管理"));
-        
-        // AD管理权限
-        permissions.add(createPermission("ad_config", "AD配置管理权限", "系统管理"));
-        permissions.add(createPermission("ad_sync", "AD用户同步权限", "系统管理"));
-        
-        // 用户管理权限
-        permissions.add(createPermission("user_manage", "用户管理权限", "系统管理"));
-        permissions.add(createPermission("permission_manage", "权限管理权限", "系统管理"));
+    public Result<List<String>> getAllPermissions() {
+        // 返回系统中所有可用的权限列表
+        List<String> permissions = new java.util.ArrayList<>();
+        permissions.add("dashboard");
+        permissions.add("records_view");
+        permissions.add("records_all");
+        permissions.add("records_export");
+        permissions.add("issues_view");
+        permissions.add("issues_edit");
+        permissions.add("user_manage");
+        permissions.add("system_config");
+        permissions.add("area_config");
+        permissions.add("schedule_manage");
         
         return Result.success(permissions);
-    }
-    
-    private Map<String, Object> createPermission(String code, String name, String category) {
-        Map<String, Object> permission = new java.util.HashMap<>();
-        permission.put("code", code);
-        permission.put("name", name);
-        permission.put("category", category);
-        return permission;
     }
 } 
