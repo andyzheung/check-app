@@ -1,0 +1,157 @@
+# Production values for admin-web
+# This overrides the default values.yaml
+
+# 镜像配置
+image:
+  repository: registry.example.com/admin-web
+  pullPolicy: Always
+  tag: "v1.0.0"
+
+# 镜像拉取密钥
+imagePullSecrets:
+  - name: registry-secret
+
+# 副本数配置
+replicaCount: 2
+
+# 资源配置 - 生产环境增加资源
+resources:
+  limits:
+    cpu: 500m
+    memory: 512Mi
+  requests:
+    cpu: 200m
+    memory: 256Mi
+
+# 自动扩缩容配置
+autoscaling:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 5
+  targetCPUUtilizationPercentage: 70
+  targetMemoryUtilizationPercentage: 80
+
+# Ingress配置
+ingress:
+  enabled: true
+  className: "nginx"
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/rate-limit: "100"
+    nginx.ingress.kubernetes.io/rate-limit-window: "1m"
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+  hosts:
+    - host: admin.yourdomain.com
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: admin-web-tls-prod
+      hosts:
+        - admin.yourdomain.com
+
+# 后端服务配置
+backend:
+  service: check-app-server
+  port: 8080
+
+# 健康检查配置 - 生产环境更严格
+livenessProbe:
+  httpGet:
+    path: /health
+    port: http
+  initialDelaySeconds: 60
+  periodSeconds: 30
+  timeoutSeconds: 10
+  failureThreshold: 3
+
+readinessProbe:
+  httpGet:
+    path: /ready
+    port: http
+  initialDelaySeconds: 10
+  periodSeconds: 10
+  timeoutSeconds: 5
+  failureThreshold: 3
+
+startupProbe:
+  httpGet:
+    path: /health
+    port: http
+  initialDelaySeconds: 30
+  periodSeconds: 10
+  timeoutSeconds: 5
+  failureThreshold: 60
+
+# Pod中断预算
+podDisruptionBudget:
+  enabled: true
+  minAvailable: 1
+
+# 节点选择器 - 生产环境节点
+nodeSelector:
+  node-type: production
+
+# 容忍度
+tolerations:
+  - key: "production"
+    operator: "Equal"
+    value: "true"
+    effect: "NoSchedule"
+
+# 亲和性 - 确保Pod分布在不同节点
+affinity:
+  podAntiAffinity:
+    preferredDuringSchedulingIgnoredDuringExecution:
+    - weight: 100
+      podAffinityTerm:
+        labelSelector:
+          matchExpressions:
+          - key: app.kubernetes.io/name
+            operator: In
+            values:
+            - admin-web
+        topologyKey: kubernetes.io/hostname
+
+# 监控配置
+monitoring:
+  enabled: true
+  serviceMonitor:
+    enabled: true
+    interval: 30s
+    path: /metrics
+
+# 网络策略
+networkPolicy:
+  enabled: true
+  ingress:
+    - from:
+      - namespaceSelector:
+          matchLabels:
+            name: ingress-nginx
+      ports:
+      - protocol: TCP
+        port: 80
+  egress:
+    - to:
+      - namespaceSelector:
+          matchLabels:
+            name: default
+      ports:
+      - protocol: TCP
+        port: 8080
+
+# Pod注解
+podAnnotations:
+  prometheus.io/scrape: "true"
+  prometheus.io/port: "80"
+  prometheus.io/path: "/metrics"
+
+# 环境变量
+env:
+  - name: NODE_ENV
+    value: "production"
+  - name: LOG_LEVEL
+    value: "info" 

@@ -1,0 +1,21 @@
+{{- if .Values.configMap.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "admin-web.fullname" . }}-config
+  labels:
+    {{- include "admin-web.labels" . | nindent 4 }}
+data:
+  # 后端服务配置
+  backend.service: {{ .Values.backend.service | quote }}
+  backend.port: {{ .Values.backend.port | quote }}
+  backend.url: {{ include "admin-web.backendUrl" . | quote }}
+  
+  # 应用配置
+  app.name: {{ include "admin-web.fullname" . | quote }}
+  app.version: {{ .Chart.AppVersion | quote }}
+  
+  {{- with .Values.configMap.data }}
+  {{- toYaml . | nindent 2 }}
+  {{- end }}
+{{- end }} 

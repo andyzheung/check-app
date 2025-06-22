@@ -1,0 +1,163 @@
+# Default values for admin-web
+# This is a YAML-formatted file.
+
+# 应用基本信息
+nameOverride: ""
+fullnameOverride: ""
+
+# 镜像配置
+image:
+  repository: admin-web
+  pullPolicy: IfNotPresent
+  tag: "latest"
+
+# 镜像拉取密钥
+imagePullSecrets: []
+
+# 服务账户配置
+serviceAccount:
+  create: true
+  annotations: {}
+  name: ""
+
+# Pod安全上下文
+podSecurityContext:
+  fsGroup: 1001
+  runAsNonRoot: true
+  runAsUser: 1001
+
+# 容器安全上下文
+securityContext:
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+    - ALL
+  readOnlyRootFilesystem: false
+  runAsNonRoot: true
+  runAsUser: 1001
+
+# 服务配置
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 80
+  annotations: {}
+
+# Ingress配置
+ingress:
+  enabled: true
+  className: "nginx"
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+  hosts:
+    - host: admin.local
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: admin-web-tls
+      hosts:
+        - admin.local
+
+# 资源配置
+resources:
+  limits:
+    cpu: 200m
+    memory: 256Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi
+
+# 自动扩缩容配置
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 3
+  targetCPUUtilizationPercentage: 80
+  targetMemoryUtilizationPercentage: 80
+
+# 副本数配置
+replicaCount: 1
+
+# 节点选择器
+nodeSelector: {}
+
+# 容忍度
+tolerations: []
+
+# 亲和性
+affinity: {}
+
+# Pod注解
+podAnnotations: {}
+
+# Pod标签
+podLabels: {}
+
+# 健康检查配置
+livenessProbe:
+  httpGet:
+    path: /health
+    port: http
+  initialDelaySeconds: 30
+  periodSeconds: 10
+  timeoutSeconds: 5
+  failureThreshold: 3
+
+readinessProbe:
+  httpGet:
+    path: /ready
+    port: http
+  initialDelaySeconds: 5
+  periodSeconds: 5
+  timeoutSeconds: 3
+  failureThreshold: 3
+
+startupProbe:
+  httpGet:
+    path: /health
+    port: http
+  initialDelaySeconds: 10
+  periodSeconds: 10
+  timeoutSeconds: 5
+  failureThreshold: 30
+
+# 后端服务配置
+backend:
+  service: check-app-server
+  port: 8080
+
+# 环境变量
+env: []
+
+# 配置映射
+configMap:
+  enabled: true
+  data: {}
+
+# 存储卷
+volumes: []
+
+# 存储卷挂载
+volumeMounts: []
+
+# 网络策略
+networkPolicy:
+  enabled: false
+  ingress: []
+  egress: []
+
+# Pod中断预算
+podDisruptionBudget:
+  enabled: false
+  minAvailable: 1
+
+# 监控配置
+monitoring:
+  enabled: false
+  serviceMonitor:
+    enabled: false
+    interval: 30s
+    path: /metrics 
