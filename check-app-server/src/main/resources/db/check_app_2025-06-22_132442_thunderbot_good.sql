@@ -24,9 +24,7 @@ DROP TABLE IF EXISTS `t_area`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `t_area` (
   `id` bigint NOT NULL AUTO_INCREMENT COMMENT '区域ID',
-  `area_code` varchar(8) NOT NULL COMMENT '区域编码',
   `qr_code_url` varchar(255) DEFAULT NULL COMMENT '二维码图片URL',
-  `area_name` varchar(50) NOT NULL COMMENT '区域名称',
   `area_type` char(1) NOT NULL COMMENT '区域类型：A-机房,B-办公区,C-设备区',
   `code` varchar(50) NOT NULL COMMENT '区域编码',
   `name` varchar(100) NOT NULL COMMENT '区域名称',
@@ -40,8 +38,7 @@ CREATE TABLE `t_area` (
   `module_count` int DEFAULT '0' COMMENT '妯″潡鏁伴噺锛堟暟鎹?腑蹇冧笓鐢?級',
   `config_json` text COMMENT '鍖哄煙閰嶇疆锛圝SON鏍煎紡锛',
   PRIMARY KEY (`id`),
-  UNIQUE KEY `uk_code` (`code`),
-  UNIQUE KEY `uk_area_code` (`area_code`)
+  UNIQUE KEY `uk_code` (`code`)
 ) ENGINE=InnoDB AUTO_INCREMENT=31 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='巡检区域表';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -50,7 +47,7 @@ CREATE TABLE `t_area` (
 --
 
 /*!40000 ALTER TABLE `t_area` DISABLE KEYS */;
-INSERT INTO `t_area` VALUES (13,'A101','https://checkapp.pengxinxu.com/qrcode/area/13','Server Room A','A','AREA101','Server Room A','Main server equipment room','Data Center 1F','server','active','2025-06-10 19:39:33','2025-06-10 19:39:33',0,0,NULL),(14,'B102','https://checkapp.pengxinxu.com/qrcode/area/14','Power Room B','B','AREA102','Power Room B','Power distribution room','Data Center B1','power','active','2025-06-10 19:39:33','2025-06-10 19:39:33',0,0,NULL),(15,'C103','https://checkapp.pengxinxu.com/qrcode/dynamic/15?t=1749555573','Network Room C','C','AREA103','Network Room C','Network equipment room','Data Center 2F','network','active','2025-06-10 19:39:33','2025-06-10 19:39:33',0,0,NULL),(16,'DC001',NULL,'数据中心1','D','DC001','数据中心1','涓绘暟鎹?腑蹇冩満鎴','1鍙锋ゼB1灞','datacenter','active','2025-06-19 21:03:57','2025-06-19 21:08:00',0,4,'{\"modules\": [{\"id\": 1, \"name\": \"璁＄畻妯″潡1\"}, {\"id\": 2, \"name\": \"璁＄畻妯″潡2\"}, {\"id\": 3, \"name\": \"瀛樺偍妯″潡1\"}, {\"id\": 4, \"name\": \"缃戠粶妯″潡1\"}]}'),(17,'DC002',NULL,'数据中心2','D','DC002','数据中心2','澶囩敤鏁版嵁涓?績鏈烘埧','2鍙锋ゼB1灞','datacenter','active','2025-06-19 21:03:57','2025-06-19 21:08:49',0,3,'{\"modules\": [{\"id\": 1, \"name\": \"璁＄畻妯″潡1\"}, {\"id\": 2, \"name\": \"瀛樺偍妯″潡1\"}, {\"id\": 3, \"name\": \"缃戠粶妯″潡1\"}]}'),(18,'DC003',NULL,'数据中心3','D','DC003','数据中心3','鐏惧?鏁版嵁涓?績鏈烘埧','3鍙锋ゼB2灞','datacenter','active','2025-06-19 21:03:57','2025-06-19 21:08:49',0,6,'{\"modules\": [{\"id\": 1, \"name\": \"璁＄畻妯″潡1\"}, {\"id\": 2, \"name\": \"璁＄畻妯″潡2\"}, {\"id\": 3, \"name\": \"璁＄畻妯″潡3\"}, {\"id\": 4, \"name\": \"瀛樺偍妯″潡1\"}, {\"id\": 5, \"name\": \"瀛樺偍妯″潡2\"}, {\"id\": 6, \"name\": \"缃戠粶妯″潡1\"}]}'),(19,'WR001',NULL,'弱电间1','E','WR001','弱电间1','1鍙锋ゼ寮辩數闂','1鍙锋ゼ1灞','weakroom','active','2025-06-19 21:03:57','2025-06-19 21:08:49',0,0,'{}'),(20,'WR002',NULL,'弱电间2','E','WR002','弱电间2','2鍙锋ゼ寮辩數闂','2鍙锋ゼ1灞','weakroom','active','2025-06-19 21:03:57','2025-06-19 21:08:49',0,0,'{}'),(21,'WR003',NULL,'弱电间3','E','WR003','弱电间3','3鍙锋ゼ寮辩數闂','3鍙锋ゼ2灞','weakroom','active','2025-06-19 21:03:57','2025-06-19 21:08:49',0,0,'{}'),(22,'WR004',NULL,'弱电间4','E','WR004','弱电间4','4鍙锋ゼ寮辩數闂','4鍙锋ゼ鍦颁笅1灞','weakroom','active','2025-06-19 21:03:57','2025-06-19 21:08:49',0,0,'{}');
+INSERT INTO `t_area` VALUES (13,'https://checkapp.pengxinxu.com/qrcode/area/13','A','AREA101','Server Room A','Main server equipment room','Data Center 1F','server','active','2025-06-10 19:39:33','2025-06-10 19:39:33',0,0,NULL),(14,'https://checkapp.pengxinxu.com/qrcode/area/14','B','AREA102','Power Room B','Power distribution room','Data Center B1','power','active','2025-06-10 19:39:33','2025-06-10 19:39:33',0,0,NULL),(15,'https://checkapp.pengxinxu.com/qrcode/dynamic/15?t=1749555573','C','AREA103','Network Room C','Network equipment room','Data Center 2F','network','active','2025-06-10 19:39:33','2025-06-10 19:39:33',0,0,NULL),(16,NULL,'D','DC001','数据中心1','涓绘暟鎹?腑蹇冩満鎴','1鍙锋ゼB1灞','datacenter','active','2025-06-19 21:03:57','2025-06-22 00:47:45',0,4,'{\"modules\": [{\"id\": 1, \"name\": \"计算模块1\", \"type\": \"compute\"}, {\"id\": 2, \"name\": \"计算模块2\", \"type\": \"compute\"}, {\"id\": 3, \"name\": \"存储模块1\", \"type\": \"storage\"}, {\"id\": 4, \"name\": \"网络模块1\", \"type\": \"network\"}]}'),(17,NULL,'D','DC002','数据中心2','澶囩敤鏁版嵁涓?績鏈烘埧','2鍙锋ゼB1灞','datacenter','active','2025-06-19 21:03:57','2025-06-22 00:47:46',0,3,'{\"modules\": [{\"id\": 1, \"name\": \"计算模块1\", \"type\": \"compute\"}, {\"id\": 2, \"name\": \"存储模块1\", \"type\": \"storage\"}, {\"id\": 3, \"name\": \"网络模块1\", \"type\": \"network\"}]}'),(18,NULL,'D','DC003','数据中心3','鐏惧?鏁版嵁涓?績鏈烘埧','3鍙锋ゼB2灞','datacenter','active','2025-06-19 21:03:57','2025-06-22 00:47:48',0,6,'{\"modules\": [{\"id\": 1, \"name\": \"计算模块1\", \"type\": \"compute\"}, {\"id\": 2, \"name\": \"计算模块2\", \"type\": \"compute\"}, {\"id\": 3, \"name\": \"计算模块3\", \"type\": \"compute\"}, {\"id\": 4, \"name\": \"存储模块1\", \"type\": \"storage\"}, {\"id\": 5, \"name\": \"存储模块2\", \"type\": \"storage\"}, {\"id\": 6, \"name\": \"网络模块1\", \"type\": \"network\"}]}'),(19,NULL,'E','WR001','弱电间1','1鍙锋ゼ寮辩數闂','1鍙锋ゼ1灞','weakroom','active','2025-06-19 21:03:57','2025-06-19 21:08:49',0,0,'{}'),(20,NULL,'E','WR002','弱电间2','2鍙锋ゼ寮辩數闂','2鍙锋ゼ1灞','weakroom','active','2025-06-19 21:03:57','2025-06-19 21:08:49',0,0,'{}'),(21,NULL,'E','WR003','弱电间3','3鍙锋ゼ寮辩數闂','3鍙锋ゼ2灞','weakroom','active','2025-06-19 21:03:57','2025-06-19 21:08:49',0,0,'{}'),(22,NULL,'E','WR004','弱电间4','4鍙锋ゼ寮辩數闂','4鍙锋ゼ鍦颁笅1灞','weakroom','active','2025-06-19 21:03:57','2025-06-19 21:08:49',0,0,'{}');
 /*!40000 ALTER TABLE `t_area` ENABLE KEYS */;
 
 --
@@ -185,7 +182,7 @@ CREATE TABLE `t_inspection_item` (
   `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   `deleted` tinyint NOT NULL DEFAULT '0' COMMENT '是否删除：0-未删除，1-已删除',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=147 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='巡检项表';
+) ENGINE=InnoDB AUTO_INCREMENT=175 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='巡检项表';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -193,6 +190,7 @@ CREATE TABLE `t_inspection_item` (
 --
 
 /*!40000 ALTER TABLE `t_inspection_item` DISABLE KEYS */;
+INSERT INTO `t_inspection_item` VALUES (147,22,'机房环境温度','environment','normal','36.5°C','2025-06-21 00:02:08','2025-06-21 00:02:08',0),(148,22,'机房地面是否漏水','security','abnormal',NULL,'2025-06-21 00:02:08','2025-06-21 00:02:08',0),(149,22,'墙壁是否漏水','security','normal',NULL,'2025-06-21 00:02:08','2025-06-21 00:02:08',0),(150,22,'天花是否漏水','security','abnormal',NULL,'2025-06-21 00:02:08','2025-06-21 00:02:08',0),(151,22,'机房是否有垃圾纸箱等可燃物','security','normal',NULL,'2025-06-21 00:02:08','2025-06-21 00:02:08',0),(152,22,'市电供电是否正常','security','abnormal',NULL,'2025-06-21 00:02:08','2025-06-21 00:02:08',0),(153,22,'UPS供电是否正常','security','normal',NULL,'2025-06-21 00:02:08','2025-06-21 00:02:08',0),(154,22,'网络机柜是否正常上锁','security','normal',NULL,'2025-06-21 00:02:08','2025-06-21 00:02:08',0),(155,22,'机房门禁是否正常','security','normal',NULL,'2025-06-21 00:02:08','2025-06-21 00:02:08',0),(156,22,'机房设备运行是否有异响','security','abnormal',NULL,'2025-06-21 00:02:08','2025-06-21 00:02:08',0),(157,22,'机房照明是否正常','security','normal',NULL,'2025-06-21 00:02:08','2025-06-21 00:02:08',0),(158,23,'机房环境温度','environment','normal','37.5°C','2025-06-21 00:03:43','2025-06-21 00:03:43',0),(159,23,'模块1回风温度','environment','normal','37.5°C','2025-06-21 00:03:43','2025-06-21 00:03:43',0),(160,23,'模块2回风温度','environment','normal','37.5°C','2025-06-21 00:03:43','2025-06-21 00:03:43',0),(161,23,'模块3回风温度','environment','normal','37.5°C','2025-06-21 00:03:43','2025-06-21 00:03:43',0),(162,23,'模块4回风温度','environment','normal','37.5°C','2025-06-21 00:03:43','2025-06-21 00:03:43',0),(163,23,'模块5回风温度','environment','normal','37.5°C','2025-06-21 00:03:43','2025-06-21 00:03:43',0),(164,23,'模块6回风温度','environment','normal','37.5°C','2025-06-21 00:03:43','2025-06-21 00:03:43',0),(165,23,'机房范围内是否有声光报警','security','abnormal',NULL,'2025-06-21 00:03:43','2025-06-21 00:03:43',0),(166,23,'机房内是否有纸箱、泡沫等火载量','security','normal',NULL,'2025-06-21 00:03:43','2025-06-21 00:03:43',0),(167,23,'机房内是否有漏水','security','abnormal',NULL,'2025-06-21 00:03:43','2025-06-21 00:03:43',0),(168,23,'天花是否有漏水','security','abnormal',NULL,'2025-06-21 00:03:43','2025-06-21 00:03:43',0),(169,23,'模块1供电状态','security','abnormal',NULL,'2025-06-21 00:03:43','2025-06-21 00:03:43',0),(170,23,'模块2供电状态','security','abnormal',NULL,'2025-06-21 00:03:43','2025-06-21 00:03:43',0),(171,23,'模块3供电状态','security','abnormal',NULL,'2025-06-21 00:03:43','2025-06-21 00:03:43',0),(172,23,'模块4供电状态','security','abnormal',NULL,'2025-06-21 00:03:43','2025-06-21 00:03:43',0),(173,23,'模块5供电状态','security','abnormal',NULL,'2025-06-21 00:03:43','2025-06-21 00:03:43',0),(174,23,'模块6供电状态','security','abnormal',NULL,'2025-06-21 00:03:43','2025-06-21 00:03:43',0);
 /*!40000 ALTER TABLE `t_inspection_item` ENABLE KEYS */;
 
 --
@@ -249,11 +247,12 @@ CREATE TABLE `t_inspection_record` (
   `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   `deleted` tinyint NOT NULL DEFAULT '0' COMMENT '是否删除：0-未删除，1-已删除',
+  `route_data` text COMMENT '巡检路径数据（JSON格式存储）',
   PRIMARY KEY (`id`),
   UNIQUE KEY `uk_record_no` (`record_no`),
   KEY `idx_area_inspector_time` (`area_id`,`inspector_id`,`start_time`),
   KEY `idx_task_id` (`task_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=22 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='巡检记录表';
+) ENGINE=InnoDB AUTO_INCREMENT=24 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='巡检记录表';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -261,6 +260,7 @@ CREATE TABLE `t_inspection_record` (
 --
 
 /*!40000 ALTER TABLE `t_inspection_record` DISABLE KEYS */;
+INSERT INTO `t_inspection_record` VALUES (22,'R20250621000208',NULL,19,8,'2025-06-20 16:02:08','2025-06-20 16:02:08','abnormal','',NULL,'2025-06-21 00:02:08','2025-06-21 00:02:08',0,NULL),(23,'R20250621000343',NULL,16,8,'2025-06-20 16:03:43','2025-06-20 16:03:43','abnormal','',NULL,'2025-06-21 00:03:43','2025-06-21 00:03:43',0,NULL);
 /*!40000 ALTER TABLE `t_inspection_record` ENABLE KEYS */;
 
 --
@@ -314,7 +314,7 @@ CREATE TABLE `t_inspection_task` (
   PRIMARY KEY (`id`),
   KEY `idx_area_inspector_time` (`area_id`,`inspector_id`,`plan_time`),
   KEY `idx_status` (`status`)
-) ENGINE=InnoDB AUTO_INCREMENT=36 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='巡检任务表';
+) ENGINE=InnoDB AUTO_INCREMENT=53 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='巡检任务表';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -322,6 +322,7 @@ CREATE TABLE `t_inspection_task` (
 --
 
 /*!40000 ALTER TABLE `t_inspection_task` DISABLE KEYS */;
+INSERT INTO `t_inspection_task` VALUES (36,'数据中心日常巡检',1,1,'2025-06-21 09:00:00','PENDING',1,'2025-06-21 00:35:43','2025-06-21 00:35:43',0),(37,'弱电间设备检查',2,1,'2025-06-21 14:00:00','PENDING',1,'2025-06-21 00:35:43','2025-06-21 00:35:43',0),(38,'机房环境监测',3,1,'2025-06-21 16:00:00','COMPLETED',1,'2025-06-21 00:35:43','2025-06-21 00:35:43',0),(39,'网络设备巡检',1,1,'2025-06-21 10:30:00','COMPLETED',1,'2025-06-21 00:35:43','2025-06-21 00:35:43',0),(40,'安全检查任务',2,1,'2025-06-21 13:00:00','PENDING',1,'2025-06-21 00:35:43','2025-06-21 00:35:43',0),(41,'昨日数据中心巡检',1,1,'2025-06-20 09:00:00','COMPLETED',1,'2025-06-21 00:35:45','2025-06-21 00:35:45',0),(42,'昨日弱电间检查',2,1,'2025-06-20 14:00:00','COMPLETED',1,'2025-06-21 00:35:45','2025-06-21 00:35:45',0),(43,'数据中心1定期巡检',16,14,'2025-06-23 00:47:50','pending',1,'2025-06-22 00:47:50','2025-06-22 00:47:50',0),(44,'数据中心1定期巡检',16,12,'2025-06-26 00:47:50','pending',1,'2025-06-22 00:47:50','2025-06-22 00:47:50',0),(45,'数据中心1定期巡检',16,10,'2025-06-28 00:47:50','pending',1,'2025-06-22 00:47:50','2025-06-22 00:47:50',0),(46,'数据中心1定期巡检',16,9,'2025-06-27 00:47:50','pending',1,'2025-06-22 00:47:50','2025-06-22 00:47:50',0),(47,'数据中心2定期巡检',17,14,'2025-06-23 00:47:50','pending',1,'2025-06-22 00:47:50','2025-06-22 00:47:50',0),(48,'数据中心2定期巡检',17,12,'2025-06-25 00:47:50','pending',1,'2025-06-22 00:47:50','2025-06-22 00:47:50',0),(49,'数据中心2定期巡检',17,10,'2025-06-28 00:47:50','pending',1,'2025-06-22 00:47:50','2025-06-22 00:47:50',0),(50,'数据中心2定期巡检',17,9,'2025-06-22 00:47:50','pending',1,'2025-06-22 00:47:50','2025-06-22 00:47:50',0),(51,'数据中心3定期巡检',18,14,'2025-06-27 00:47:50','pending',1,'2025-06-22 00:47:50','2025-06-22 00:47:50',0),(52,'数据中心3定期巡检',18,12,'2025-06-28 00:47:50','pending',1,'2025-06-22 00:47:50','2025-06-22 00:47:50',0);
 /*!40000 ALTER TABLE `t_inspection_task` ENABLE KEYS */;
 
 --
@@ -497,9 +498,14 @@ CREATE TABLE `t_user` (
   `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   `deleted` tinyint NOT NULL DEFAULT '0' COMMENT '是否删除：0-未删除，1-已删除',
+  `ad_username` varchar(100) DEFAULT NULL COMMENT 'AD域账号',
+  `is_ad_user` tinyint DEFAULT '0' COMMENT '是否AD用户：0-本地用户，1-AD用户',
+  `ad_sync_time` datetime DEFAULT NULL COMMENT 'AD同步时间',
   PRIMARY KEY (`id`),
-  UNIQUE KEY `uk_username` (`username`)
-) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='用户表';
+  UNIQUE KEY `uk_username` (`username`),
+  KEY `idx_ad_username` (`ad_username`),
+  KEY `idx_is_ad_user` (`is_ad_user`)
+) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='用户表';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -507,7 +513,7 @@ CREATE TABLE `t_user` (
 --
 
 /*!40000 ALTER TABLE `t_user` DISABLE KEYS */;
-INSERT INTO `t_user` VALUES (8,'admin','$2a$10$7JB720yubVSZvUI0rEqK/.VqGOZTH.ulu33dHOiBE8ByOhJIrdAu2','Administrator',1,'admin','active',NULL,NULL,'https://checkapp.pengxinxu.com/avatars/default-8.png',NULL,'2025-06-10 19:30:15','2025-06-10 19:30:15',0);
+INSERT INTO `t_user` VALUES (8,'admin','$2a$10$7JB720yubVSZvUI0rEqK/.VqGOZTH.ulu33dHOiBE8ByOhJIrdAu2','Administrator',1,'admin','active',NULL,NULL,'https://checkapp.pengxinxu.com/avatars/default-8.png',NULL,'2025-06-10 19:30:15','2025-06-10 19:30:15',0,NULL,0,NULL),(9,'zhang.san','$2a$10$7JB720yubVSZvUI0rEqK/.VqGOZTH.ulu33dHOiBE8ByOhJIrdAu2','张三',NULL,'inspector','active','13800138001','zhang.san@company.com',NULL,NULL,'2025-06-22 00:47:38','2025-06-22 00:47:38',0,'zhang.san',1,'2025-06-22 00:47:38'),(10,'li.si','$2a$10$7JB720yubVSZvUI0rEqK/.VqGOZTH.ulu33dHOiBE8ByOhJIrdAu2','李四',NULL,'inspector','active','13800138002','li.si@company.com',NULL,NULL,'2025-06-22 00:47:38','2025-06-22 00:47:38',0,'li.si',1,'2025-06-22 00:47:38'),(11,'wang.wu','$2a$10$7JB720yubVSZvUI0rEqK/.VqGOZTH.ulu33dHOiBE8ByOhJIrdAu2','王五',NULL,'admin','active','13800138003','wang.wu@company.com',NULL,NULL,'2025-06-22 00:47:38','2025-06-22 00:47:38',0,'wang.wu',1,'2025-06-22 00:47:38'),(12,'chen.liu','$2a$10$7JB720yubVSZvUI0rEqK/.VqGOZTH.ulu33dHOiBE8ByOhJIrdAu2','陈六',NULL,'inspector','active','13800138004','chen.liu@company.com',NULL,NULL,'2025-06-22 00:47:38','2025-06-22 00:47:38',0,'chen.liu',1,'2025-06-22 00:47:38'),(13,'zhao.qi','$2a$10$7JB720yubVSZvUI0rEqK/.VqGOZTH.ulu33dHOiBE8ByOhJIrdAu2','赵七',NULL,'user','active','13800138005','zhao.qi@company.com',NULL,NULL,'2025-06-22 00:47:38','2025-06-22 00:47:38',0,'zhao.qi',1,'2025-06-22 00:47:38'),(14,'sun.ba','$2a$10$7JB720yubVSZvUI0rEqK/.VqGOZTH.ulu33dHOiBE8ByOhJIrdAu2','孙八',NULL,'inspector','active','13800138006','sun.ba@company.com',NULL,NULL,'2025-06-22 00:47:38','2025-06-22 00:47:38',0,'sun.ba',1,'2025-06-22 00:47:38');
 /*!40000 ALTER TABLE `t_user` ENABLE KEYS */;
 
 --
@@ -527,7 +533,7 @@ CREATE TABLE `t_user_permission` (
   `deleted` tinyint NOT NULL DEFAULT '0' COMMENT '是否删除：0-未删除，1-已删除',
   PRIMARY KEY (`id`),
   UNIQUE KEY `uk_user_permission` (`user_id`,`permission_code`)
-) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='用户权限表';
+) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='用户权限表';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -535,6 +541,7 @@ CREATE TABLE `t_user_permission` (
 --
 
 /*!40000 ALTER TABLE `t_user_permission` DISABLE KEYS */;
+INSERT INTO `t_user_permission` VALUES (9,9,'INSPECTION_EXECUTE','执行巡检任务','2025-06-22 00:47:40','2025-06-22 00:47:40',0),(10,10,'INSPECTION_EXECUTE','执行巡检任务','2025-06-22 00:47:40','2025-06-22 00:47:40',0),(11,12,'INSPECTION_EXECUTE','执行巡检任务','2025-06-22 00:47:40','2025-06-22 00:47:40',0),(12,14,'INSPECTION_EXECUTE','执行巡检任务','2025-06-22 00:47:40','2025-06-22 00:47:40',0),(16,11,'ADMIN_MANAGE','管理员权限','2025-06-22 00:47:42','2025-06-22 00:47:42',0);
 /*!40000 ALTER TABLE `t_user_permission` ENABLE KEYS */;
 
 --
@@ -550,4 +557,4 @@ CREATE TABLE `t_user_permission` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-06-20 23:23:20
+-- Dump completed on 2025-06-22 13:24:56
