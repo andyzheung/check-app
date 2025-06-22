@@ -243,7 +243,7 @@ export default defineComponent({
       remark: ''
     })
 
-    // 获取记录列表 - 采用与Users.vue相同的简单方式
+    // 获取记录列表 - 修复数据处理逻辑
     const getList = async () => {
       loading.value = true
       try {
@@ -261,15 +261,45 @@ export default defineComponent({
         delete params.pageNum
         delete params.pageSize
         
-        // 从API响应的data字段中解构数据，适配后端返回的{list, total}格式
+        console.log('请求参数:', params)
+        
+        // API调用
         const response = await getRecordList(params)
-        const data = response.data || {}
-        recordList.value = data.list || []
-        pagination.total = data.total || 0
+        console.log('API完整响应:', response)
+        
+        // 正确处理API响应数据结构
+        let list = []
+        let total = 0
+        
+        if (response && response.data) {
+          // 优先检查records字段（后端实际返回的字段）
+          if (response.data.records !== undefined) {
+            list = response.data.records || []
+            total = response.data.total || response.data.records.length
+          }
+          // 如果response.data直接包含list字段
+          else if (response.data.list !== undefined) {
+            list = response.data.list || []
+            total = response.data.total || 0
+          }
+          // 如果response.data是数组形式
+          else if (Array.isArray(response.data)) {
+            list = response.data
+            total = response.data.length
+          }
+        }
+        // 如果response直接是数组
+        else if (Array.isArray(response)) {
+          list = response
+          total = response.length
+        }
+        
+        recordList.value = list
+        pagination.total = total
         pagination.current = queryParams.pageNum
         pagination.pageSize = queryParams.pageSize
         
-        console.log('获取记录列表结果:', data.list, data.total)
+        console.log('处理后的数据:', { list, total, recordList: recordList.value })
       } catch (error) {
         console.error('Failed to get record list:', error)
         // 确保出错时也有默认值

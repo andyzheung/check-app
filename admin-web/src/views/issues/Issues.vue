@@ -228,14 +228,26 @@ export default defineComponent({
         delete params.pageNum
         delete params.pageSize
         
-        const { list, total } = await getIssueList(params)
-        issueList.value = list || []
-        pagination.total = total || 0
+        const response = await getIssueList(params)
+        console.log('获取问题列表响应:', response)
+        
+        // 正确处理API响应数据结构
+        if (response && response.data) {
+          const { list, total } = response.data
+          issueList.value = list || []
+          pagination.total = total || 0
+        } else {
+          issueList.value = []
+          pagination.total = 0
+        }
+        
         pagination.current = queryParams.pageNum
         pagination.pageSize = queryParams.pageSize
-        console.log('获取问题列表结果:', list, total)
+        console.log('处理后的问题列表:', issueList.value, pagination.total)
       } catch (error) {
         console.error('Failed to get issue list:', error)
+        issueList.value = []
+        pagination.total = 0
       } finally {
         loading.value = false
       }
@@ -309,8 +321,16 @@ export default defineComponent({
     // 查看详情
     const showDetail = async (record) => {
       try {
-        const data = await getIssueDetail(record.id)
-        issueDetail.value = data
+        const response = await getIssueDetail(record.id)
+        console.log('获取问题详情响应:', response)
+        
+        // 正确处理API响应数据结构
+        if (response && response.data) {
+          issueDetail.value = response.data
+        } else {
+          issueDetail.value = response || {}
+        }
+        
         detailVisible.value = true
         
         // 重置处理表单
@@ -355,13 +375,22 @@ export default defineComponent({
     // 获取用户列表（用于筛选）
     const getUserOptions = async () => {
       try {
-        const { list } = await getUserList({ pageSize: 100 })
+        const response = await getUserList({ pageSize: 100 })
+        console.log('获取用户列表响应:', response)
+        
+        // 正确处理API响应数据结构
+        let list = []
+        if (response && response.data) {
+          list = response.data.list || response.data.records || []
+        }
+        
         userOptions.value = list.map(item => ({
           id: item.id,
-          name: item.realname
+          name: item.realName || item.realname || item.name
         }))
       } catch (error) {
         console.error('Failed to get user options:', error)
+        userOptions.value = []
       }
     }
 

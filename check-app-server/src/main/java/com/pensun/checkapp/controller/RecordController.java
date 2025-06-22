@@ -47,9 +47,10 @@ public class RecordController {
             com.pensun.checkapp.dto.PageResult<com.pensun.checkapp.dto.RecordDTO> pageResult = 
                 recordService.getRecordList(page, size, areaId, inspectorId, status, start, end);
             
-            // 构造符合前端预期的格式
+            // 构造符合前端预期的格式 - 使用records字段匹配前端处理逻辑
             java.util.Map<String, Object> result = new java.util.HashMap<>();
-            result.put("list", pageResult.getList());
+            result.put("records", pageResult.getList());
+            result.put("list", pageResult.getList()); // 兼容性支持
             result.put("total", pageResult.getTotal());
             
             return com.pensun.checkapp.common.Result.success(result);

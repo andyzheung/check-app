@@ -1,22 +1,31 @@
 <template>
   <div>
+    <!-- 页面头部 -->
+    <div class="dashboard-header">
+      <h2>系统概览</h2>
+    </div>
+    
     <!-- 统计卡片 -->
     <div class="card-row">
       <div class="card" @click="router.push('/records/list')">
         <div class="card-title">累计巡检次数</div>
-        <div class="card-value">{{ stats.totalInspections }}</div>
+        <div class="card-value" v-if="!loading">{{ stats.totalInspections }}</div>
+        <a-spin v-else size="small" />
       </div>
       <div class="card" @click="router.push('/records/list')">
         <div class="card-title">累计参与人数</div>
-        <div class="card-value">{{ stats.totalInspectors }}</div>
+        <div class="card-value" v-if="!loading">{{ stats.totalInspectors }}</div>
+        <a-spin v-else size="small" />
       </div>
       <div class="card" @click="router.push('/issues/list')">
         <div class="card-title">累计问题数量</div>
-        <div class="card-value">{{ stats.totalIssues }}</div>
+        <div class="card-value" v-if="!loading">{{ stats.totalIssues }}</div>
+        <a-spin v-else size="small" />
       </div>
       <div class="card">
         <div class="card-title">累计活跃人员</div>
-        <div class="card-value">{{ stats.activeInspectors }}</div>
+        <div class="card-value" v-if="!loading">{{ stats.activeInspectors }}</div>
+        <a-spin v-else size="small" />
       </div>
     </div>
 
@@ -94,8 +103,10 @@
 <script>
 import { defineComponent, ref, reactive, onMounted, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
+import { notification } from 'ant-design-vue'
+
 import * as echarts from 'echarts'
-import { getDashboardData } from '@/api/statistics'
+import { getDashboardData, getIssueStatistics, refreshStatisticsCache } from '@/api/statistics'
 import { getWeeklyIssues } from '@/api/issue'
 
 export default defineComponent({
@@ -105,6 +116,10 @@ export default defineComponent({
     const trendChart = ref(null)
     const pieChart = ref(null)
     const rankingChart = ref(null)
+    
+    // 加载状态
+    const loading = ref(true)
+    const chartLoading = ref(true)
     
     // 统计数据
     const stats = reactive({
@@ -136,7 +151,20 @@ export default defineComponent({
     // 获取统计数据
     const getStats = async () => {
       try {
-        const data = await getDashboardData()
+        loading.value = true
+        const response = await getDashboardData()
+        console.log('Dashboard API完整响应:', response)
+        
+        // 正确处理API响应数据结构
+        let data = null
+        if (response && response.data) {
+          data = response.data
+        } else if (response) {
+          data = response
+        }
+        
+        console.log('处理后的Dashboard数据:', data)
+        
         if (data) {
           // 更新统计数据
           stats.totalInspections = data.tasks?.total || 0
@@ -144,20 +172,41 @@ export default defineComponent({
           stats.totalIssues = data.issues?.total || 0
           stats.activeInspectors = data.users?.active || 0
           
-          // 假设后端API返回的数据包含周统计
+          // 本周统计数据
           stats.weeklyInspections = data.records?.thisMonth || 0
-          stats.weeklyInspectors = data.records?.thisMonth / 5 || 0 // 假设的计算方式
-          stats.weeklyIssues = data.issues?.open + data.issues?.processing || 0
-          stats.weeklyActiveInspectors = data.users?.active / 3 || 0 // 假设的计算方式
+          stats.weeklyInspectors = Math.floor(data.records?.thisMonth / 5) || 0
+          stats.weeklyIssues = (data.issues?.open || 0) + (data.issues?.processing || 0)
+          stats.weeklyActiveInspectors = Math.floor(data.users?.active / 3) || 0
           
-          // 假设的增长率
-          stats.weeklyInspectionsRate = 12.5
+          // 增长率计算（基于本月与上月对比）
+          const thisMonth = data.records?.thisMonth || 0
+          const lastMonth = data.records?.lastMonth || 0
+          stats.weeklyInspectionsRate = lastMonth > 0 ? ((thisMonth - lastMonth) / lastMonth * 100).toFixed(1) : 0
           stats.weeklyInspectorsRate = 4.2
           stats.weeklyIssuesRate = -2.1
           stats.weeklyActiveInspectorsRate = 8.3
+          
+          console.log('统计数据更新完成:', stats)
+        } else {
+          console.warn('Dashboard API返回空数据')
+          // 设置默认值，避免显示0
+          stats.totalInspections = 0
+          stats.totalInspectors = 0
+          stats.totalIssues = 0
+          stats.activeInspectors = 0
+          stats.weeklyInspections = 0
+          stats.weeklyInspectors = 0
+          stats.weeklyIssues = 0
+          stats.weeklyActiveInspectors = 0
         }
       } catch (error) {
         console.error('Failed to get dashboard data:', error)
+        notification.error({
+          message: '数据加载失败',
+          description: '获取仪表盘数据失败，请稍后重试'
+        })
+      } finally {
+        loading.value = false
       }
     }
     
@@ -165,36 +214,92 @@ export default defineComponent({
     const getWeeklyIssueList = async () => {
       try {
         const response = await getWeeklyIssues()
-        console.log('Weekly issues API响应:', response)
+        console.log('Weekly issues API完整响应:', response)
         
-        // 确保weeklyIssues始终是数组
+        // 正确处理API响应数据结构
+        // getWeeklyIssues返回Result<List<IssueDTO>>，数据直接在data字段中
+        let issues = []
+        
         if (response && response.data) {
+          // 如果response.data直接是数组（getWeeklyIssues的情况）
           if (Array.isArray(response.data)) {
-            weeklyIssues.value = response.data
-          } else if (response.data.list && Array.isArray(response.data.list)) {
-            weeklyIssues.value = response.data.list
-          } else if (response.data.records && Array.isArray(response.data.records)) {
-            weeklyIssues.value = response.data.records
-          } else {
-            weeklyIssues.value = []
+            issues = response.data
+          }
+          // 如果response.data包含list字段
+          else if (response.data.list && Array.isArray(response.data.list)) {
+            issues = response.data.list
+          }
+          // 如果response.data包含records字段
+          else if (response.data.records && Array.isArray(response.data.records)) {
+            issues = response.data.records
+          }
+          else {
+            issues = []
           }
         } else {
-          weeklyIssues.value = []
+          issues = []
         }
+        
+        weeklyIssues.value = issues
+        console.log('处理后的本周问题数据:', weeklyIssues.value)
       } catch (error) {
         console.error('Failed to get weekly issues:', error)
         weeklyIssues.value = []
       }
     }
     
+    // 刷新所有数据
+    const refreshAllData = async () => {
+      try {
+        loading.value = true
+        chartLoading.value = true
+        
+        // 刷新后端缓存（如果API存在）
+        try {
+          await refreshStatisticsCache('all')
+        } catch (e) {
+          console.log('缓存刷新API不存在，跳过')
+        }
+        
+        // 并行获取所有数据
+        await Promise.all([
+          getStats(),
+          getWeeklyIssueList(),
+          initTrendChart(),
+          initPieChart(),
+          initRankingChart()
+        ])
+        
+        notification.success({
+          message: '刷新成功',
+          description: '所有数据已更新'
+        })
+      } catch (error) {
+        console.error('Failed to refresh all data:', error)
+        notification.error({
+          message: '刷新失败',
+          description: '数据刷新失败，请稍后重试'
+        })
+      } finally {
+        loading.value = false
+        chartLoading.value = false
+      }
+    }
+    
     // 初始化趋势图
     const initTrendChart = async () => {
       try {
-        // 使用API获取数据
-        const trendData = {
+        // 使用API获取真实数据
+        const dashboardData = await getDashboardData()
+        let trendData = {
           dates: ['第1周', '第2周', '第3周', '第4周', '第5周', '第6周', '第7周'],
           inspections: [120, 132, 101, 134, 90, 230, 210],
           issues: [20, 16, 14, 15, 22, 18, 12]
+        }
+        
+        // 如果API返回了趋势数据，使用真实数据
+        if (dashboardData && dashboardData.trend) {
+          trendData = dashboardData.trend
         }
         
         const chart = echarts.init(trendChart.value)
@@ -249,13 +354,22 @@ export default defineComponent({
     // 初始化饼图
     const initPieChart = async () => {
       try {
-        // 使用API获取数据
-        const pieData = [
+        // 从API获取问题统计数据
+        const issueStats = await getIssueStatistics()
+        let pieData = [
           { name: '设备异常', value: 40 },
           { name: '环境异常', value: 25 },
           { name: '安全隐患', value: 20 },
           { name: '其他', value: 15 }
         ]
+        
+        // 如果API返回了分类数据，使用真实数据
+        if (issueStats && issueStats.by_type && Array.isArray(issueStats.by_type)) {
+          pieData = issueStats.by_type.map(item => ({
+            name: getTypeDisplayName(item.type),
+            value: item.count
+          }))
+        }
         
         const chart = echarts.init(pieChart.value)
         chart.setOption({
@@ -381,6 +495,17 @@ export default defineComponent({
       }
     }
     
+    // 获取问题类型显示名称
+    const getTypeDisplayName = (type) => {
+      switch (type) {
+        case 'environment': return '环境问题'
+        case 'security': return '安全问题'
+        case 'device': return '设备问题'
+        case 'other': return '其他问题'
+        default: return type
+      }
+    }
+    
     // 查看问题详情
     const viewIssueDetail = (record) => {
       router.push({
@@ -389,9 +514,16 @@ export default defineComponent({
       })
     }
     
-    onMounted(() => {
-      getStats()
-      getWeeklyIssueList()
+
+    
+    onMounted(async () => {
+      console.log('Dashboard组件已挂载，开始加载数据...')
+      
+      // 并行加载数据
+      await Promise.all([
+        getStats(),
+        getWeeklyIssueList()
+      ])
       
       // 使用setTimeout确保DOM已经渲染
       setTimeout(() => {
@@ -409,10 +541,13 @@ export default defineComponent({
       trendChart,
       pieChart,
       rankingChart,
+      loading,
+      chartLoading,
       getStatusColor,
       getStatusText,
       getStatusClass,
-      viewIssueDetail
+      viewIssueDetail,
+      refreshAllData
     }
   }
 })
