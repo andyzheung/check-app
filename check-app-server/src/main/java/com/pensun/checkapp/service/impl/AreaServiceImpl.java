@@ -57,11 +57,26 @@ public class AreaServiceImpl extends ServiceImpl<AreaMapper, Area> implements Ar
         List<AreaDTO> areaDTOs = new ArrayList<>();
         for (Area area : areas) {
             AreaDTO areaDTO = new AreaDTO();
-            BeanUtils.copyProperties(area, areaDTO);
+            
+            // 手动映射字段，避免字段名不匹配问题
+            areaDTO.setId(area.getId());
+            areaDTO.setAreaCode(area.getAreaCode()); // Area.areaCode -> AreaDTO.areaCode
+            areaDTO.setAreaName(area.getName()); // Area.name -> AreaDTO.areaName
+            areaDTO.setAreaType(area.getAreaType());
+            areaDTO.setStatus(area.getStatus());
+            areaDTO.setDescription(area.getDescription());
+            areaDTO.setAddress(area.getAddress());
+            areaDTO.setModuleCount(area.getModuleCount());
+            areaDTO.setConfigJson(area.getConfigJson());
+            areaDTO.setQrCodeUrl(area.getQrCodeUrl());
+            areaDTO.setCreateTime(area.getCreateTime());
+            areaDTO.setUpdateTime(area.getUpdateTime());
+            
             // 设置区域类型名称
             if (area.getAreaType() != null) {
                 areaDTO.setAreaTypeName(typeNameMap.get(area.getAreaType()));
             }
+            
             areaDTOs.add(areaDTO);
         }
         
@@ -89,7 +104,20 @@ public class AreaServiceImpl extends ServiceImpl<AreaMapper, Area> implements Ar
             
             // 2. 转换为DTO
             AreaDTO areaDTO = new AreaDTO();
-            BeanUtils.copyProperties(area, areaDTO);
+            
+            // 手动映射字段，避免字段名不匹配问题
+            areaDTO.setId(area.getId());
+            areaDTO.setAreaCode(area.getAreaCode()); // Area.areaCode -> AreaDTO.areaCode
+            areaDTO.setAreaName(area.getName()); // Area.name -> AreaDTO.areaName
+            areaDTO.setAreaType(area.getAreaType());
+            areaDTO.setStatus(area.getStatus());
+            areaDTO.setDescription(area.getDescription());
+            areaDTO.setAddress(area.getAddress());
+            areaDTO.setModuleCount(area.getModuleCount());
+            areaDTO.setConfigJson(area.getConfigJson());
+            areaDTO.setQrCodeUrl(area.getQrCodeUrl());
+            areaDTO.setCreateTime(area.getCreateTime());
+            areaDTO.setUpdateTime(area.getUpdateTime());
             
             // 3. 查询并设置区域类型名称
             if (area.getAreaType() != null) {
@@ -247,11 +275,21 @@ public class AreaServiceImpl extends ServiceImpl<AreaMapper, Area> implements Ar
         log.info("创建新区域: {}", areaDTO);
         
         Area area = new Area();
-        BeanUtils.copyProperties(areaDTO, area);
+        
+        // 手动映射字段，避免字段名不匹配问题
+        area.setAreaCode(areaDTO.getAreaCode()); // AreaDTO.areaCode -> Area.areaCode
+        area.setName(areaDTO.getAreaName()); // AreaDTO.areaName -> Area.name
+        area.setAreaType(areaDTO.getAreaType());
+        area.setDescription(areaDTO.getDescription());
+        area.setAddress(areaDTO.getAddress());
+        area.setModuleCount(areaDTO.getModuleCount());
+        area.setConfigJson(areaDTO.getConfigJson());
         
         // 设置默认值
-        if (area.getStatus() == null) {
+        if (areaDTO.getStatus() == null) {
             area.setStatus("active");
+        } else {
+            area.setStatus(areaDTO.getStatus());
         }
         
         int result = areaMapper.insert(area);
@@ -272,7 +310,18 @@ public class AreaServiceImpl extends ServiceImpl<AreaMapper, Area> implements Ar
             throw new RuntimeException("区域不存在");
         }
         
-        BeanUtils.copyProperties(areaDTO, area);
+        // 手动映射字段，避免字段名不匹配问题
+        area.setAreaCode(areaDTO.getAreaCode()); // AreaDTO.areaCode -> Area.areaCode
+        area.setName(areaDTO.getAreaName()); // AreaDTO.areaName -> Area.name
+        area.setAreaType(areaDTO.getAreaType());
+        area.setDescription(areaDTO.getDescription());
+        area.setAddress(areaDTO.getAddress());
+        area.setModuleCount(areaDTO.getModuleCount());
+        area.setConfigJson(areaDTO.getConfigJson());
+        if (areaDTO.getStatus() != null) {
+            area.setStatus(areaDTO.getStatus());
+        }
+        
         area.setId(id); // 确保ID不被覆盖
         
         int result = areaMapper.updateById(area);

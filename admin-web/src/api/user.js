@@ -34,10 +34,19 @@ export function getUserList(params) {
   })
 }
 
+// 获取用户列表（别名，用于兼容）
+export function getUsers(params) {
+  return request({
+    url: '/api/v1/users/page',
+    method: 'get',
+    params
+  })
+}
+
 // 添加用户
 export function addUser(data) {
   return request({
-    url: '/users',
+    url: '/api/v1/users',
     method: 'post',
     data
   })

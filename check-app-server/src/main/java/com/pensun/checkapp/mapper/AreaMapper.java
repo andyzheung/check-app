@@ -19,7 +19,7 @@ public interface AreaMapper extends BaseMapper<Area> {
      * @param areaCode 区域编码
      * @return 区域实体
      */
-    @Select("SELECT * FROM t_area WHERE area_code = #{areaCode} AND deleted = 0")
+    @Select("SELECT * FROM t_area WHERE code = #{areaCode} AND deleted = 0")
     Area selectByAreaCode(@Param("areaCode") String areaCode);
 
     /**

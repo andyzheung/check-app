@@ -82,7 +82,7 @@
               <a-space>
                 <a-button type="link" size="small" @click="showTaskDetail(record)">查看</a-button>
                 <a-button type="link" size="small" @click="editTask(record)" :disabled="record.status === 'completed'">编辑</a-button>
-                <a-popconfirm title="确定要删除这个任务吗？" @confirm="deleteTask(record.id)">
+                <a-popconfirm title="确定要删除这个任务吗？" @confirm="deleteTaskHandler(record.id)">
                   <a-button type="link" size="small" danger :disabled="record.status === 'completed'">删除</a-button>
                 </a-popconfirm>
               </a-space>
@@ -94,7 +94,7 @@
 
     <!-- 创建/编辑任务弹窗 -->
     <a-modal 
-      v-model:open="taskModalVisible" 
+      v-model:visible="taskModalVisible" 
       :title="taskModalTitle"
       width="600px"
       @ok="handleTaskSave"
@@ -128,7 +128,7 @@
             format="YYYY-MM-DD HH:mm"
             placeholder="请选择计划时间"
             style="width: 100%"
-            @change="checkScheduleConflict" />
+            @change="checkScheduleConflictHandler" />
         </a-form-item>
         
         <a-form-item label="任务优先级" name="priority">
@@ -156,7 +156,7 @@
 
     <!-- 任务详情弹窗 -->
     <a-modal 
-      v-model:open="detailModalVisible" 
+      v-model:visible="detailModalVisible" 
       title="任务详情"
       width="500px"
       :footer="null">
@@ -190,7 +190,9 @@ import { ref, reactive, onMounted, computed } from 'vue'
 import { message } from 'ant-design-vue'
 import { PlusOutlined, ReloadOutlined } from '@ant-design/icons-vue'
 import dayjs from 'dayjs'
-import request from '@/utils/request'
+import { getTasks, createTask, updateTask, deleteTask, checkScheduleConflict } from '@/api/schedule'
+import { getUsers } from '@/api/user'
+import { getAreas } from '@/api/area'
 
 // 响应式数据
 const loading = ref(false)
@@ -208,6 +210,7 @@ const detailModalVisible = ref(false)
 const taskModalTitle = ref('新建任务')
 const selectedTask = ref(null)
 const conflictWarning = ref('')
+const taskFormRef = ref()
 
 const taskForm = reactive({
   id: null,
@@ -270,13 +273,26 @@ const loadScheduleData = async () => {
       params.endDate = dateRange.value[1].format('YYYY-MM-DD')
     }
     
-    const res = await request.get('/api/v1/schedule/tasks', { params })
-    if (res.data) {
+    console.log('发送任务列表请求，参数:', params)
+    const res = await getTasks(params)
+    console.log('任务列表API响应:', res)
+    
+    // 正确处理响应数据结构
+    if (res && res.data) {
+      // 后端返回的数据结构是 { list: [...], total: number }
       tasks.value = res.data.list || res.data.records || []
+      console.log('解析后的任务列表:', tasks.value)
+    } else if (res && Array.isArray(res)) {
+      // 如果直接返回数组
+      tasks.value = res
+    } else {
+      tasks.value = []
+      console.warn('未知的响应数据结构:', res)
     }
   } catch (error) {
     console.error('加载排班数据失败:', error)
     message.error('加载排班数据失败')
+    tasks.value = []
   } finally {
     loading.value = false
   }
@@ -284,25 +300,48 @@ const loadScheduleData = async () => {
 
 const loadInspectors = async () => {
   try {
-    const res = await request.get('/api/v1/users', { 
-      params: { role: 'inspector', status: 'active', size: 100 } 
+    const res = await getUsers({ 
+      role: 'inspector', 
+      status: 'active', 
+      page: 1,
+      size: 100 
     })
-    if (res.data) {
+    console.log('巡检员API响应:', res)
+    
+    // 正确处理响应数据结构
+    if (res && res.data) {
       inspectors.value = res.data.list || res.data.records || []
+    } else if (res && Array.isArray(res)) {
+      inspectors.value = res
+    } else {
+      inspectors.value = []
     }
+    console.log('解析后的巡检员列表:', inspectors.value)
   } catch (error) {
     console.error('加载巡检员失败:', error)
+    message.error('加载巡检员失败')
+    inspectors.value = []
   }
 }
 
 const loadAreas = async () => {
   try {
-    const res = await request.get('/api/v1/areas', { params: { size: 100 } })
-    if (res.data) {
+    const res = await getAreas({ page: 1, size: 100 })
+    console.log('区域API响应:', res)
+    
+    // 正确处理响应数据结构
+    if (res && res.data) {
       areas.value = res.data.list || res.data.records || []
+    } else if (res && Array.isArray(res)) {
+      areas.value = res
+    } else {
+      areas.value = []
     }
+    console.log('解析后的区域列表:', areas.value)
   } catch (error) {
     console.error('加载区域失败:', error)
+    message.error('加载区域失败')
+    areas.value = []
   }
 }
 
@@ -314,9 +353,13 @@ const getTasksByDate = (date) => {
 }
 
 const showCreateTask = () => {
+  console.log('点击新建任务按钮')
+  console.log('当前模态框状态:', taskModalVisible.value)
   taskModalTitle.value = '新建任务'
   resetTaskForm()
   taskModalVisible.value = true
+  console.log('设置模态框状态为:', taskModalVisible.value)
+  console.log('模态框标题:', taskModalTitle.value)
 }
 
 const editTask = (task) => {
@@ -348,16 +391,18 @@ const resetTaskForm = () => {
 
 const handleTaskSave = async () => {
   try {
+    await taskFormRef.value.validate()
+    
     const formData = {
       ...taskForm,
       scheduledTime: taskForm.scheduledTime ? taskForm.scheduledTime.format('YYYY-MM-DD HH:mm:ss') : null
     }
     
     if (taskForm.id) {
-      await request.put(`/api/v1/schedule/tasks/${taskForm.id}`, formData)
+      await updateTask(taskForm.id, formData)
       message.success('任务更新成功')
     } else {
-      await request.post('/api/v1/schedule/tasks', formData)
+      await createTask(formData)
       message.success('任务创建成功')
     }
     
@@ -374,9 +419,9 @@ const handleTaskCancel = () => {
   resetTaskForm()
 }
 
-const deleteTask = async (taskId) => {
+const deleteTaskHandler = async (taskId) => {
   try {
-    await request.delete(`/api/v1/schedule/tasks/${taskId}`)
+    await deleteTask(taskId)
     message.success('任务删除成功')
     loadScheduleData()
   } catch (error) {
@@ -390,28 +435,26 @@ const showTaskDetail = (task) => {
   detailModalVisible.value = true
 }
 
-const checkScheduleConflict = async () => {
+const checkScheduleConflictHandler = async () => {
   if (!taskForm.inspectorId || !taskForm.scheduledTime) {
     conflictWarning.value = ''
     return
   }
   
   try {
-    const res = await request.get('/api/v1/schedule/conflict-check', {
-      params: {
-        inspectorId: taskForm.inspectorId,
-        scheduledTime: taskForm.scheduledTime.format('YYYY-MM-DD HH:mm:ss'),
-        excludeTaskId: taskForm.id
-      }
+    const res = await checkScheduleConflict({
+      inspectorId: taskForm.inspectorId,
+      scheduledTime: taskForm.scheduledTime.format('YYYY-MM-DD HH:mm:ss'),
+      excludeTaskId: taskForm.id
     })
     
     if (res.data && res.data.hasConflict) {
-      conflictWarning.value = `该巡检员在此时间段已有任务安排：${res.data.conflictTask.taskName}`
+      conflictWarning.value = `时间冲突：${res.data.conflictMessage}`
     } else {
       conflictWarning.value = ''
     }
   } catch (error) {
-    console.error('检查冲突失败:', error)
+    console.error('冲突检测失败:', error)
   }
 }
 
@@ -419,20 +462,20 @@ const refreshSchedule = () => {
   loadScheduleData()
 }
 
-const onDateSelect = (date) => {
-  selectedDate.value = date
-}
-
 const onDateRangeChange = (dates) => {
   dateRange.value = dates
   loadScheduleData()
 }
 
-const onAreaChange = () => {
-  checkScheduleConflict()
+const onDateSelect = (date) => {
+  selectedDate.value = date
 }
 
-// 工具方法
+const onAreaChange = () => {
+  // 区域变更时可以做一些处理
+}
+
+// 格式化方法
 const formatTime = (time) => {
   return dayjs(time).format('HH:mm')
 }
@@ -444,7 +487,7 @@ const formatDateTime = (time) => {
 const getTaskStatusClass = (task) => {
   return {
     'task-pending': task.status === 'pending',
-    'task-in-progress': task.status === 'in_progress',
+    'task-in-progress': task.status === 'in-progress', 
     'task-completed': task.status === 'completed',
     'task-cancelled': task.status === 'cancelled'
   }
@@ -452,42 +495,42 @@ const getTaskStatusClass = (task) => {
 
 const getStatusColor = (status) => {
   const colors = {
-    pending: 'orange',
-    in_progress: 'blue',
-    completed: 'green',
-    cancelled: 'red'
+    'pending': 'orange',
+    'in-progress': 'blue',
+    'completed': 'green',
+    'cancelled': 'red'
   }
   return colors[status] || 'default'
 }
 
 const getStatusText = (status) => {
   const texts = {
-    pending: '待执行',
-    in_progress: '进行中',
-    completed: '已完成',
-    cancelled: '已取消'
+    'pending': '待执行',
+    'in-progress': '执行中',
+    'completed': '已完成',
+    'cancelled': '已取消'
   }
-  return texts[status] || '未知'
+  return texts[status] || status
 }
 
 const getPriorityColor = (priority) => {
   const colors = {
-    low: 'green',
-    normal: 'blue',
-    high: 'orange',
-    urgent: 'red'
+    'low': 'default',
+    'normal': 'blue',
+    'high': 'orange',
+    'urgent': 'red'
   }
   return colors[priority] || 'default'
 }
 
 const getPriorityText = (priority) => {
   const texts = {
-    low: '低',
-    normal: '普通',
-    high: '高',
-    urgent: '紧急'
+    'low': '低',
+    'normal': '普通',
+    'high': '高',
+    'urgent': '紧急'
   }
-  return texts[priority] || '普通'
+  return texts[priority] || priority
 }
 
 // 生命周期

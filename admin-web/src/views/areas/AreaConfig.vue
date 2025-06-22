@@ -27,7 +27,7 @@
           <div class="area-list">
             <div v-for="area in areas" :key="area.id" class="area-card">
               <div class="area-header">
-                                  <div class="area-name">{{ area.name }}</div>
+                <div class="area-name">{{ area.areaName }}</div>
                 <div class="area-type" :class="area.areaType === 'D' ? 'type-datacenter' : 'type-weakroom'">
                   {{ area.areaType === 'D' ? '数据中心' : '弱电间' }}
                 </div>
@@ -101,15 +101,15 @@
 
     <!-- 新增/编辑区域弹窗 -->
     <a-modal
-      v-model:open="areaModalVisible"
+      v-model:visible="areaModalVisible"
       :title="areaModalTitle"
       width="600px"
       @ok="handleAreaSave"
       @cancel="handleAreaCancel">
       
       <a-form :model="areaForm" :label-col="{ span: 6 }" :wrapper-col="{ span: 18 }" ref="areaFormRef">
-        <a-form-item label="区域名称" name="name" :rules="[{ required: true, message: '请输入区域名称' }]">
-          <a-input v-model:value="areaForm.name" placeholder="请输入区域名称" />
+        <a-form-item label="区域名称" name="areaName" :rules="[{ required: true, message: '请输入区域名称' }]">
+          <a-input v-model:value="areaForm.areaName" placeholder="请输入区域名称" />
         </a-form-item>
         
         <a-form-item label="区域编码" name="areaCode" :rules="[{ required: true, message: '请输入区域编码' }]">
@@ -135,7 +135,7 @@
 
     <!-- 模块配置弹窗 -->
     <a-modal
-      v-model:open="configModalVisible"
+      v-model:visible="configModalVisible"
       title="数据中心模块配置"
       width="800px"
       @ok="handleConfigSave"
@@ -207,7 +207,7 @@ const searchForm = reactive({
 
 const areaForm = reactive({
   id: null,
-  name: '',
+  areaName: '',
   areaCode: '',
   areaType: '',
   address: '',
@@ -250,11 +250,24 @@ const fetchAreas = async () => {
       type: searchForm.areaType,
       keyword: searchForm.keyword
     }
+    console.log('发送区域列表请求，参数:', params)
     const response = await getAreas(params)
-    areas.value = response.data.records || response.data.list || []
+    console.log('区域列表API响应:', response)
+    
+    // 正确处理响应数据结构
+    if (response && response.data) {
+      areas.value = response.data.records || response.data.list || []
+    } else if (response && Array.isArray(response)) {
+      areas.value = response
+    } else {
+      areas.value = []
+      console.warn('未知的响应数据结构:', response)
+    }
+    console.log('解析后的区域列表:', areas.value)
   } catch (error) {
     console.error('获取区域列表失败:', error)
     message.error('获取区域列表失败')
+    areas.value = []
   } finally {
     loading.value = false
   }
@@ -262,9 +275,14 @@ const fetchAreas = async () => {
 
 // 新增区域
 const handleAdd = () => {
+  console.log('点击新增区域按钮')
+  console.log('当前弹窗状态:', areaModalVisible.value)
   areaModalTitle.value = '新增区域'
   resetAreaForm()
   areaModalVisible.value = true
+  console.log('设置弹窗状态为:', areaModalVisible.value)
+  console.log('弹窗标题:', areaModalTitle.value)
+  console.log('表单数据:', areaForm)
 }
 
 // 编辑区域
@@ -278,7 +296,7 @@ const handleView = (record) => {
 const handleDelete = (record) => {
   Modal.confirm({
     title: '确认删除',
-    content: `确定要删除区域"${record.name}"吗？`,
+    content: `确定要删除区域"${record.areaName}"吗？`,
     onOk: async () => {
       try {
         await deleteArea(record.id)
@@ -295,7 +313,7 @@ const handleDelete = (record) => {
 const resetAreaForm = () => {
   Object.assign(areaForm, {
     id: null,
-    name: '',
+    areaName: '',
     areaCode: '',
     areaType: '',
     address: '',
@@ -351,7 +369,7 @@ const saveAdConfig = () => {
 
 const handleEdit = (record) => {
   configForm.id = record.id
-  configForm.areaName = record.name
+  configForm.areaName = record.areaName
   configForm.moduleCount = record.moduleCount || 4
   
   // 解析现有配置或创建默认配置

@@ -96,18 +96,11 @@ service.interceptors.response.use(
         return Promise.reject(new Error(res.message || '请求失败'))
       }
       
-      // 特别处理records接口和issues接口的返回格式
-      if (response.config.url.includes('/records') || response.config.url.includes('/issues')) {
-        // 确保返回结构正确: { list: [...], total: number }
-        if (res.data && (res.data.records || res.data.list)) {
-          return {
-            list: res.data.records || res.data.list || [],
-            total: res.data.total || 0
-          };
-        }
-      }
+      // 移除特殊处理，让前端组件自己处理数据结构
+      // 注释掉：这个特殊处理导致了前端组件接收到的数据结构不一致
       
-      return res.data || res
+      // 对于其他API，直接返回完整的响应结构，让前端组件自己处理
+      return res
     }
     
     // 没有code字段，直接返回
