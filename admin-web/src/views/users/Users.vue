@@ -279,11 +279,33 @@ export default defineComponent({
     const getList = async () => {
       loading.value = true
       try {
-        const { list, total } = await getUserList({
+        const response = await getUserList({
           ...queryParams
         })
-        userList.value = list
-        pagination.total = total
+        console.log('Users API响应:', response)
+        
+        // 处理API响应数据
+        if (response && response.data) {
+          if (response.data.records) {
+            // IPage格式
+            userList.value = response.data.records
+            pagination.total = response.data.total
+          } else if (response.data.list) {
+            // 自定义格式
+            userList.value = response.data.list
+            pagination.total = response.data.total
+          } else if (Array.isArray(response.data)) {
+            // 直接数组格式
+            userList.value = response.data
+            pagination.total = response.data.length
+          } else {
+            userList.value = []
+            pagination.total = 0
+          }
+        } else {
+          userList.value = []
+          pagination.total = 0
+        }
         pagination.current = queryParams.pageNum
         pagination.pageSize = queryParams.pageSize
       } catch (error) {

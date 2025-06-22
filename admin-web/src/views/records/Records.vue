@@ -67,7 +67,7 @@
       </div>
       <a-table
         :columns="columns"
-        :data-source="recordList"
+        :data-source="recordList || []"
         :loading="loading"
         :pagination="pagination"
         @change="handleTableChange"
@@ -152,7 +152,7 @@ import { defineComponent, ref, reactive, onMounted } from 'vue'
 import { message } from 'ant-design-vue'
 import { DownloadOutlined } from '@ant-design/icons-vue'
 import { getRecordList, getRecordDetail, exportRecords } from '@/api/record'
-import { getAreaList } from '@/api/area'
+import { getAreas } from '@/api/area'
 import { getUserList } from '@/api/user'
 import moment from 'moment'
 
@@ -243,11 +243,10 @@ export default defineComponent({
       remark: ''
     })
 
-    // 获取记录列表
+    // 获取记录列表 - 采用与Users.vue相同的简单方式
     const getList = async () => {
       loading.value = true
       try {
-        // 确保日期格式正确
         const params = {
           ...queryParams,
           startDate: queryParams.startTime,
@@ -262,36 +261,70 @@ export default defineComponent({
         delete params.pageNum
         delete params.pageSize
         
-        const { list, total } = await getRecordList(params)
-        recordList.value = list || []
-        pagination.total = total || 0
+        // 从API响应的data字段中解构数据，适配后端返回的{list, total}格式
+        const response = await getRecordList(params)
+        const data = response.data || {}
+        recordList.value = data.list || []
+        pagination.total = data.total || 0
         pagination.current = queryParams.pageNum
         pagination.pageSize = queryParams.pageSize
-        console.log('获取记录列表结果:', list, total)
+        
+        console.log('获取记录列表结果:', data.list, data.total)
       } catch (error) {
         console.error('Failed to get record list:', error)
+        // 确保出错时也有默认值
+        recordList.value = []
+        pagination.total = 0
       } finally {
         loading.value = false
       }
     }
 
     // 获取区域选项
-    const getAreas = async () => {
+    const loadAreas = async () => {
       try {
-        const data = await getAreaList({ pageSize: 100 })
-        areaOptions.value = data.list || []
+        const res = await getAreas({ page: 1, size: 100 })
+        console.log('Areas API响应:', res)
+        
+        let areas = []
+        if (res && res.data) {
+          if (Array.isArray(res.data)) {
+            areas = res.data
+          } else if (res.data.records && Array.isArray(res.data.records)) {
+            areas = res.data.records
+          } else if (res.data.list && Array.isArray(res.data.list)) {
+            areas = res.data.list
+          }
+        }
+        areaOptions.value = areas
+        console.log('处理后的区域列表:', areas)
       } catch (error) {
         console.error('Failed to get area options:', error)
+        areaOptions.value = []
       }
     }
 
     // 获取用户选项
-    const getUsers = async () => {
+    const loadUsers = async () => {
       try {
-        const data = await getUserList({ pageSize: 100 })
-        userOptions.value = data.list || []
+        const res = await getUserList({ page: 1, size: 100 })
+        console.log('Users API响应:', res)
+        
+        let users = []
+        if (res && res.data) {
+          if (Array.isArray(res.data)) {
+            users = res.data
+          } else if (res.data.records && Array.isArray(res.data.records)) {
+            users = res.data.records
+          } else if (res.data.list && Array.isArray(res.data.list)) {
+            users = res.data.list
+          }
+        }
+        userOptions.value = users
+        console.log('处理后的用户列表:', users)
       } catch (error) {
         console.error('Failed to get user options:', error)
+        userOptions.value = []
       }
     }
 
@@ -337,7 +370,16 @@ export default defineComponent({
     const showDetail = async (record) => {
       try {
         const data = await getRecordDetail(record.id)
-        Object.assign(recordDetail, data)
+        console.log('记录详情API响应:', data)
+        
+        // 确保数组字段始终是数组
+        Object.assign(recordDetail, {
+          ...data,
+          environmentItems: Array.isArray(data.environmentItems) ? data.environmentItems : [],
+          securityItems: Array.isArray(data.securityItems) ? data.securityItems : []
+        })
+        
+        console.log('处理后的记录详情:', recordDetail)
         detailVisible.value = true
       } catch (error) {
         console.error('Failed to get record detail:', error)
@@ -375,8 +417,8 @@ export default defineComponent({
 
     onMounted(() => {
       getList()
-      getAreas()
-      getUsers()
+      loadAreas()
+      loadUsers()
     })
 
     return {

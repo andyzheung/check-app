@@ -72,7 +72,7 @@
       </div>
       <a-table
         :columns="issueColumns"
-        :data-source="weeklyIssues"
+        :data-source="weeklyIssues || []"
         :pagination="false"
         size="small"
       >
@@ -164,10 +164,26 @@ export default defineComponent({
     // 获取本周问题
     const getWeeklyIssueList = async () => {
       try {
-        const data = await getWeeklyIssues()
-        weeklyIssues.value = data
+        const response = await getWeeklyIssues()
+        console.log('Weekly issues API响应:', response)
+        
+        // 确保weeklyIssues始终是数组
+        if (response && response.data) {
+          if (Array.isArray(response.data)) {
+            weeklyIssues.value = response.data
+          } else if (response.data.list && Array.isArray(response.data.list)) {
+            weeklyIssues.value = response.data.list
+          } else if (response.data.records && Array.isArray(response.data.records)) {
+            weeklyIssues.value = response.data.records
+          } else {
+            weeklyIssues.value = []
+          }
+        } else {
+          weeklyIssues.value = []
+        }
       } catch (error) {
         console.error('Failed to get weekly issues:', error)
+        weeklyIssues.value = []
       }
     }
     
