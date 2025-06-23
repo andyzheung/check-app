@@ -119,5 +119,5 @@ ldap:
 
 # 二维码配置
 qrcode:
-  secret-key: ${QRCODE_SECRET_KEY:your-secret-key}
+  secret-key: ${QRCODE_SECRET_KEY:7xY1QAPkZ24a5IOwJyUKBvXpoTDu6bSM}
   output-dir: ${QRCODE_OUTPUT_DIR:./qrcode} 

@@ -36,14 +36,20 @@ public class JwtInterceptor extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
         String path = request.getRequestURI();
+        
+        // 排除不需要认证的路径
         if (path.endsWith("/api/v1/login") ||
             path.endsWith("/api/v1/register") ||
             path.endsWith("/api/v1/captcha") ||
             path.endsWith("/api/v1/users/login") ||
-            path.endsWith("/api/v1/auth/login")) {
+            path.endsWith("/api/v1/auth/login") ||
+            path.startsWith("/qrcode/") ||           // 排除二维码静态资源
+            path.startsWith("/uploads/") ||          // 排除上传文件静态资源
+            path.contains("/qrcode")) {              // 排除包含qrcode的路径
             filterChain.doFilter(request, response);
             return;
         }
+        
         String header = request.getHeader("Authorization");
         log.info("[JwtInterceptor] Request path: {}, Authorization: {}", path, header);
         if (StringUtils.hasText(header) && header.startsWith("Bearer ")) {

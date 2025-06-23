@@ -38,6 +38,7 @@
               <div class="area-actions">
                 <a-button size="small" v-if="area.areaType === 'D'" @click="handleEdit(area)">配置模块</a-button>
                 <a-button size="small" @click="handleView(area)">编辑</a-button>
+                <a-button size="small" type="primary" @click="handleGenerateQRCode(area)">生成二维码</a-button>
                 <a-button size="small" danger @click="handleDelete(area)">删除</a-button>
               </div>
             </div>
@@ -184,13 +185,60 @@
         </a-form-item>
       </a-form>
     </a-modal>
+
+    <!-- 二维码预览弹窗 -->
+    <a-modal
+      v-model:visible="qrCodeModalVisible"
+      :title="`${currentArea?.areaName || ''} - 二维码`"
+      width="500px"
+      :footer="null"
+      @cancel="handleQRCodeCancel">
+      
+      <div class="qrcode-preview">
+        <div v-if="qrCodeLoading" class="qrcode-loading">
+          <a-spin size="large" />
+          <p>正在生成二维码...</p>
+        </div>
+        
+        <div v-else-if="qrCodeUrl" class="qrcode-content">
+          <div class="qrcode-info">
+            <h3>{{ currentArea?.areaName }}</h3>
+            <p>区域编码：{{ currentArea?.areaCode }}</p>
+            <p>区域类型：{{ currentArea?.areaType === 'D' ? '数据中心' : '弱电间' }}</p>
+          </div>
+          
+          <div class="qrcode-image">
+            <img :src="qrCodeUrl" :alt="`${currentArea?.areaCode} 二维码`" />
+          </div>
+          
+          <div class="qrcode-actions">
+            <a-button type="primary" @click="handleDownloadQRCode" block>
+              <template #icon>
+                <span class="material-icons">download</span>
+              </template>
+              下载二维码
+            </a-button>
+          </div>
+          
+          <div class="qrcode-tips">
+            <p><strong>使用说明：</strong></p>
+            <ul>
+              <li>将二维码打印并张贴在对应区域入口</li>
+              <li>巡检人员使用移动App扫码开始巡检</li>
+              <li>建议打印尺寸：5cm x 5cm以上</li>
+              <li>请选择高质量打印（600DPI以上）</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </a-modal>
   </div>
 </template>
 
 <script setup>
 import { ref, reactive, onMounted } from 'vue'
 import { message, Modal } from 'ant-design-vue'
-import { getAreas, updateAreaConfig, createArea, updateArea, deleteArea } from '@/api/area'
+import { getAreas, updateAreaConfig, createArea, updateArea, deleteArea, generateQRCode, getQRCode } from '@/api/area'
 
 const loading = ref(false)
 const areas = ref([])
@@ -199,6 +247,12 @@ const areaModalVisible = ref(false)
 const areaModalTitle = ref('新增区域')
 const activeTab = ref('area')
 const areaFormRef = ref()
+
+// 二维码相关状态
+const qrCodeModalVisible = ref(false)
+const qrCodeUrl = ref('')
+const currentArea = ref(null)
+const qrCodeLoading = ref(false)
 
 const searchForm = reactive({
   areaType: undefined,
@@ -435,6 +489,63 @@ const handleConfigCancel = () => {
   configModalVisible.value = false
 }
 
+// 生成二维码
+const handleGenerateQRCode = async (area) => {
+  try {
+    currentArea.value = area
+    qrCodeLoading.value = true
+    qrCodeModalVisible.value = true
+    
+    // 先尝试获取已有的二维码
+    let response
+    try {
+      response = await getQRCode(area.id)
+      if (response.data) {
+        qrCodeUrl.value = response.data
+      } else {
+        throw new Error('No existing QR code')
+      }
+    } catch (error) {
+      // 如果没有二维码，则生成新的
+      response = await generateQRCode(area.id)
+      qrCodeUrl.value = response.data
+    }
+    
+    message.success('二维码获取成功')
+  } catch (error) {
+    console.error('二维码操作失败:', error)
+    message.error('二维码操作失败')
+    qrCodeModalVisible.value = false
+  } finally {
+    qrCodeLoading.value = false
+  }
+}
+
+// 下载二维码
+const handleDownloadQRCode = () => {
+  if (qrCodeUrl.value && currentArea.value) {
+    // 使用相对路径，让浏览器自动处理协议和域名
+    const downloadUrl = qrCodeUrl.value.startsWith('http') 
+      ? qrCodeUrl.value 
+      : qrCodeUrl.value  // 直接使用相对路径，由Nginx代理处理
+    
+    const link = document.createElement('a')
+    link.href = downloadUrl
+    link.download = `${currentArea.value.areaCode}_qrcode.png`
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    message.success('二维码下载成功')
+  }
+}
+
+// 关闭二维码弹窗
+const handleQRCodeCancel = () => {
+  qrCodeModalVisible.value = false
+  qrCodeUrl.value = ''
+  currentArea.value = null
+}
+
 onMounted(() => {
   fetchAreas()
 })
@@ -590,5 +701,88 @@ onMounted(() => {
 
 .module-item:last-child {
   margin-bottom: 0;
+}
+
+/* 二维码预览样式 */
+.qrcode-preview {
+  text-align: center;
+}
+
+.qrcode-loading {
+  padding: 40px 0;
+}
+
+.qrcode-loading p {
+  margin-top: 16px;
+  color: #666;
+}
+
+.qrcode-content {
+  padding: 20px 0;
+}
+
+.qrcode-info {
+  margin-bottom: 24px;
+  padding: 16px;
+  background: #f5f5f5;
+  border-radius: 6px;
+  text-align: left;
+}
+
+.qrcode-info h3 {
+  margin: 0 0 12px 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #333;
+}
+
+.qrcode-info p {
+  margin: 8px 0;
+  color: #666;
+  font-size: 14px;
+}
+
+.qrcode-image {
+  margin: 24px 0;
+  padding: 20px;
+  background: #fff;
+  border: 2px dashed #d9d9d9;
+  border-radius: 8px;
+}
+
+.qrcode-image img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 4px;
+}
+
+.qrcode-actions {
+  margin: 24px 0;
+}
+
+.qrcode-tips {
+  margin-top: 24px;
+  padding: 16px;
+  background: #f0f8ff;
+  border-radius: 6px;
+  text-align: left;
+}
+
+.qrcode-tips p {
+  margin: 0 0 12px 0;
+  font-weight: 600;
+  color: #1890ff;
+}
+
+.qrcode-tips ul {
+  margin: 0;
+  padding-left: 20px;
+  color: #666;
+  font-size: 14px;
+}
+
+.qrcode-tips li {
+  margin: 8px 0;
+  line-height: 1.6;
 }
 </style> 

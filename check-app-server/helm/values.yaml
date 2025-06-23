@@ -12,6 +12,22 @@ service:
   type: ClusterIP
   port: 8080
 
+# 持久化存储配置
+persistence:
+  enabled: true
+  # 存储类名，根据K8s集群配置
+  storageClass: ""
+  # 存储大小
+  size: 10Gi
+  # 访问模式
+  accessMode: ReadWriteOnce
+  # 挂载路径
+  mountPath: /app/data
+  # 子路径配置
+  subPaths:
+    qrcode: qrcode
+    uploads: uploads
+
 # Ingress配置
 ingress:
   enabled: false
@@ -59,4 +75,9 @@ config:
       database: 0
   jwt:
     secret: pensun-check-app-secret-key
-    expiration: 86400000 
+    expiration: 86400000
+  # 文件存储配置
+  qrcode:
+    output-dir: /app/data/qrcode
+  file:
+    upload-dir: /app/data/uploads 

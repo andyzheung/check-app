@@ -904,6 +904,168 @@ public Boolean verifyQRCode(String qrData) {
 
 ---
 
+## 🎯 **Admin-Web管理后台二维码功能实现**
+
+### **✅ 已完全实现的Admin-Web功能**
+
+#### **1. 前端界面组件**
+```vue
+<!-- AreaConfig.vue - 区域管理界面 -->
+<template>
+  <!-- 区域卡片中的操作按钮 -->
+  <div class="area-actions">
+    <a-button size="small" v-if="area.areaType === 'D'" @click="handleEdit(area)">配置模块</a-button>
+    <a-button size="small" @click="handleView(area)">编辑</a-button>
+    <a-button size="small" type="primary" @click="handleGenerateQRCode(area)">生成二维码</a-button>
+    <a-button size="small" danger @click="handleDelete(area)">删除</a-button>
+  </div>
+
+  <!-- 二维码预览弹窗 -->
+  <a-modal v-model:visible="qrCodeModalVisible" :title="`${currentArea?.areaName || ''} - 二维码`" width="500px">
+    <div class="qrcode-preview">
+      <!-- 加载状态 -->
+      <div v-if="qrCodeLoading" class="qrcode-loading">
+        <a-spin size="large" />
+        <p>正在生成二维码...</p>
+      </div>
+      
+      <!-- 二维码内容 -->
+      <div v-else-if="qrCodeUrl" class="qrcode-content">
+        <!-- 区域信息展示 -->
+        <div class="qrcode-info">
+          <h3>{{ currentArea?.areaName }}</h3>
+          <p>区域编码：{{ currentArea?.areaCode }}</p>
+          <p>区域类型：{{ currentArea?.areaType === 'D' ? '数据中心' : '弱电间' }}</p>
+        </div>
+        
+        <!-- 二维码图片 -->
+        <div class="qrcode-image">
+          <img :src="qrCodeUrl" :alt="`${currentArea?.areaCode} 二维码`" />
+        </div>
+        
+        <!-- 下载按钮 -->
+        <div class="qrcode-actions">
+          <a-button type="primary" @click="handleDownloadQRCode" block>
+            📥 下载二维码
+          </a-button>
+        </div>
+        
+        <!-- 使用说明 -->
+        <div class="qrcode-tips">
+          <p><strong>使用说明：</strong></p>
+          <ul>
+            <li>将二维码打印并张贴在对应区域入口</li>
+            <li>巡检人员使用移动App扫码开始巡检</li>
+            <li>建议打印尺寸：5cm x 5cm以上</li>
+            <li>请选择高质量打印（600DPI以上）</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </a-modal>
+</template>
+```
+
+#### **2. API接口调用**
+```javascript
+// area.js - API接口定义
+/**
+ * 生成区域二维码
+ * @param {number} id 区域ID
+ * @returns {Promise}
+ */
+export function generateQRCode(id) {
+  return request({
+    url: `/api/v1/areas/${id}/qrcode`,
+    method: 'post'
+  })
+}
+
+/**
+ * 获取区域二维码
+ * @param {number} id 区域ID
+ * @returns {Promise}
+ */
+export function getQRCode(id) {
+  return request({
+    url: `/api/v1/areas/${id}/qrcode`,
+    method: 'get'
+  })
+}
+```
+
+#### **3. 业务逻辑处理**
+```javascript
+// AreaConfig.vue - 二维码处理逻辑
+// 生成二维码
+const handleGenerateQRCode = async (area) => {
+  try {
+    currentArea.value = area
+    qrCodeLoading.value = true
+    qrCodeModalVisible.value = true
+    
+    // 智能检测：先获取已有二维码，无则生成新的
+    let response
+    try {
+      response = await getQRCode(area.id)
+      if (response.data) {
+        qrCodeUrl.value = response.data
+      } else {
+        throw new Error('No existing QR code')
+      }
+    } catch (error) {
+      // 如果没有二维码，则生成新的
+      response = await generateQRCode(area.id)
+      qrCodeUrl.value = response.data
+    }
+    
+    message.success('二维码获取成功')
+  } catch (error) {
+    console.error('二维码操作失败:', error)
+    message.error('二维码操作失败')
+    qrCodeModalVisible.value = false
+  } finally {
+    qrCodeLoading.value = false
+  }
+}
+
+// 下载二维码
+const handleDownloadQRCode = () => {
+  if (qrCodeUrl.value && currentArea.value) {
+    const link = document.createElement('a')
+    link.href = qrCodeUrl.value
+    link.download = `${currentArea.value.areaCode}_qrcode.png`
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    message.success('二维码下载成功')
+  }
+}
+```
+
+#### **4. 用户操作流程**
+```
+管理员操作流程：
+1. 登录admin-web管理后台
+2. 进入"区域配置"页面
+3. 找到目标区域卡片
+4. 点击蓝色"生成二维码"按钮
+5. 系统弹出二维码预览窗口
+6. 查看区域信息和二维码图片
+7. 点击"下载二维码"按钮
+8. 获得PNG格式的二维码文件
+9. 打印并张贴到对应区域
+```
+
+#### **5. 界面设计特色**
+- **🎨 视觉设计**: 蓝色主题按钮，现代化弹窗设计
+- **📱 响应式布局**: 适配不同屏幕尺寸
+- **⚡ 智能交互**: 自动检测已有二维码，避免重复生成
+- **🔄 状态提示**: 加载动画，成功/失败消息提示
+- **💡 用户指导**: 详细的使用说明和操作建议
+
+---
+
 ## 🎯 **当前实现vs设计文档对比分析**
 
 ### **✅ 已完全实现（无需修改）**

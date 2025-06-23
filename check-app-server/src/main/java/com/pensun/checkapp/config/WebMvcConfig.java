@@ -30,6 +30,9 @@ public class WebMvcConfig implements WebMvcConfigurer {
     @Value("${file.upload-dir}")
     private String uploadDir;
 
+    @Value("${qrcode.output-dir}")
+    private String qrcodeOutputDir;
+
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         System.out.println("WebMvcConfig.addCorsMappings() - allowedOriginPatterns: " + allowedOriginPatterns);
@@ -45,7 +48,13 @@ public class WebMvcConfig implements WebMvcConfigurer {
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        // 上传文件静态资源
         registry.addResourceHandler("/uploads/**")
                 .addResourceLocations("file:" + uploadDir);
+        
+        // 二维码静态资源
+        registry.addResourceHandler("/qrcode/**")
+                .addResourceLocations("file:" + qrcodeOutputDir + "/")
+                .setCachePeriod(86400); // 缓存24小时
     }
 } 

@@ -33,6 +33,18 @@ export default defineConfig({
         changeOrigin: true,
         secure: false,
         ws: true
+      },
+      // 二维码静态资源代理
+      '/qrcode': {
+        target: 'http://localhost:8080',
+        changeOrigin: true,
+        secure: false
+      },
+      // 上传文件静态资源代理
+      '/uploads': {
+        target: 'http://localhost:8080',
+        changeOrigin: true,
+        secure: false
       }
     }
   }

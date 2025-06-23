@@ -20,6 +20,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -274,6 +275,16 @@ public class AreaServiceImpl extends ServiceImpl<AreaMapper, Area> implements Ar
     public Long createArea(AreaDTO areaDTO) {
         log.info("创建新区域: {}", areaDTO);
         
+        // 检查区域编码是否已存在
+        LambdaQueryWrapper<Area> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(Area::getAreaCode, areaDTO.getAreaCode())
+                   .eq(Area::getDeleted, 0);
+        Area existingArea = areaMapper.selectOne(queryWrapper);
+        
+        if (existingArea != null) {
+            throw new RuntimeException("区域编码已存在: " + areaDTO.getAreaCode());
+        }
+        
         Area area = new Area();
         
         // 手动映射字段，避免字段名不匹配问题
@@ -291,6 +302,11 @@ public class AreaServiceImpl extends ServiceImpl<AreaMapper, Area> implements Ar
         } else {
             area.setStatus(areaDTO.getStatus());
         }
+        
+        // 手动设置时间字段
+        LocalDateTime now = LocalDateTime.now();
+        area.setCreateTime(now);
+        area.setUpdateTime(now);
         
         int result = areaMapper.insert(area);
         if (result <= 0) {
@@ -323,6 +339,9 @@ public class AreaServiceImpl extends ServiceImpl<AreaMapper, Area> implements Ar
         }
         
         area.setId(id); // 确保ID不被覆盖
+        
+        // 手动设置更新时间
+        area.setUpdateTime(LocalDateTime.now());
         
         int result = areaMapper.updateById(area);
         if (result <= 0) {

@@ -100,4 +100,16 @@ export function generateQRCode(id) {
     url: `/api/v1/areas/${id}/qrcode`,
     method: 'post'
   })
+}
+
+/**
+ * 获取区域二维码
+ * @param {number} id 区域ID
+ * @returns {Promise}
+ */
+export function getQRCode(id) {
+  return request({
+    url: `/api/v1/areas/${id}/qrcode`,
+    method: 'get'
+  })
 } 

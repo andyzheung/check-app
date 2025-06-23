@@ -8,6 +8,7 @@ import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
 import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.util.DigestUtils;
@@ -26,6 +27,7 @@ import java.util.Map;
 /**
  * 二维码工具类
  */
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class QRCodeUtils {
@@ -45,7 +47,27 @@ public class QRCodeUtils {
      * @return 二维码URL
      */
     public String generateQRCode(Map<String, Object> data) {
+        String areaCode = (String) data.get("areaCode");
+        log.info("开始生成二维码 - 区域编码: {}, 输出目录: {}", areaCode, outputDir);
+        
         try {
+            // 验证输入参数
+            if (data == null || !data.containsKey("areaCode")) {
+                throw new IllegalArgumentException("区域编码不能为空");
+            }
+            
+            // 创建输出目录
+            Path outputPath = Paths.get(outputDir);
+            if (!Files.exists(outputPath)) {
+                log.info("创建二维码输出目录: {}", outputPath.toAbsolutePath());
+                Files.createDirectories(outputPath);
+            }
+            
+            // 检查目录权限
+            if (!Files.isWritable(outputPath)) {
+                throw new RuntimeException("二维码输出目录没有写入权限: " + outputPath.toAbsolutePath());
+            }
+            
             // 创建二维码生成器
             QRCodeWriter qrCodeWriter = new QRCodeWriter();
             
@@ -57,20 +79,31 @@ public class QRCodeUtils {
             
             // 生成二维码矩阵
             String content = objectMapper.writeValueAsString(data);
+            log.debug("二维码内容: {}", content);
             BitMatrix bitMatrix = qrCodeWriter.encode(content, BarcodeFormat.QR_CODE, 300, 300, hints);
             
             // 生成二维码图片
             BufferedImage qrImage = MatrixToImageWriter.toBufferedImage(bitMatrix);
             
             // 保存二维码图片
-            String fileName = data.get("areaCode") + "_" + System.currentTimeMillis() + ".png";
-            Path filePath = Paths.get(outputDir, fileName);
-            Files.createDirectories(filePath.getParent());
+            String fileName = areaCode + "_" + System.currentTimeMillis() + ".png";
+            Path filePath = outputPath.resolve(fileName);
+            log.info("保存二维码文件: {}", filePath.toAbsolutePath());
+            
             ImageIO.write(qrImage, "PNG", filePath.toFile());
+            
+            // 验证文件是否成功创建
+            if (!Files.exists(filePath)) {
+                throw new RuntimeException("二维码文件创建失败: " + filePath.toAbsolutePath());
+            }
+            
+            long fileSize = Files.size(filePath);
+            log.info("二维码生成成功 - 文件: {}, 大小: {} bytes", fileName, fileSize);
             
             return "/qrcode/" + fileName;
         } catch (Exception e) {
-            throw new RuntimeException("生成二维码失败", e);
+            log.error("生成二维码失败 - 区域编码: {}, 错误信息: {}", areaCode, e.getMessage(), e);
+            throw new RuntimeException("生成二维码失败: " + e.getMessage(), e);
         }
     }
     
