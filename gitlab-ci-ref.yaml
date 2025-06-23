@@ -1,0 +1,73 @@
+stages:
+  - build
+  - package
+  - deploy_test
+  - deploy_prod
+
+variables:
+  REGISTRY_ADDRESS: ${REGISTRY_ADDRESS}
+  REGISTRY_USERNAME: ${REGISTRY_USERNAME}
+  REGISTRY_PASSWORD: ${REGISTRY_PASSWORD}
+  IMAGE_NAME: it-platform/alarm-phone-call-service
+  NAMESPACE: om
+  CHART_NAME: alarm-phone-call-service
+
+# Build stage - Compile and build the Java application
+build_image:
+  stage: build
+  image: harbor-internal.ppp.com/google_containers/kaniko-project/executor:debug
+  script:
+    - mkdir -p /kaniko/.docker
+    - echo "{\"auths\":{\"$REGISTRY_ADDRESS\":{\"username\":\"$REGISTRY_USERNAME\",\"password\":\"$REGISTRY_PASSWORD\"}}}" > /kaniko/.docker/config.json
+    - echo ${SELF_CA} >> /kaniko/ssl/certs/additional-ca-cert-bundle.crt
+    - KANIKO_TLS_VERIFY=false /kaniko/executor --context . --dockerfile Dockerfile --destination $REGISTRY_ADDRESS/$IMAGE_NAME:$CI_COMMIT_SHORT_SHA --skip-tls-verify
+
+# Package stage - Package the application (if needed, such as creating Helm chart or additional artifacts)
+package_chart:
+  stage: package
+  image: harbor-internal.ppp.com/registry.jihulab.com/ubuntu-k8s-tool:20.04
+  script:
+    - helm package deploy -d charts/
+  artifacts:
+    paths:
+      - charts/
+
+
+# Deploy to Test environment
+deploy_chart_to_test_uniops_cluster:
+  stage: deploy_test
+  image: harbor-internal.ppp.com/registry.jihulab.com/ubuntu-k8s-tool:20.04
+  script:
+    - echo "$UNIOPS_TEST_KUBECONFIG" | base64 -d > /tmp/kubeconfig_uniops_test
+    - chmod 600 /tmp/kubeconfig_uniops_test
+    - export KUBECONFIG=/tmp/kubeconfig_uniops_test
+    - tar -xzvf charts/*.tgz -C charts/ # 解压到 charts 目录
+    - helm upgrade --install --namespace $NAMESPACE --create-namespace $CHART_NAME charts/*.tgz --set image.repository=$REGISTRY_ADDRESS/$IMAGE_NAME --set image.tag=$CI_COMMIT_SHORT_SHA --values "charts/$CHART_NAME/values_test.yaml"
+  when: manual
+  only:
+    - dev
+    - master
+  dependencies:
+    - package_chart
+  artifacts:
+    paths:
+      - charts/
+
+
+# Deploy to Production environment
+deploy_chart_to_uniops_cluster:
+  stage: deploy_prod
+  image: harbor-internal.ppp.com/registry.jihulab.com/ubuntu-k8s-tool:20.04
+  script:
+    - echo "$UNIOPS_KUBECONFIG" | base64 -d > /tmp/kubeconfig_uniops
+    - export KUBECONFIG=/tmp/kubeconfig_uniops
+    - helm upgrade --install --namespace $NAMESPACE --create-namespace $CHART_NAME charts/*.tgz --set image.repository=$REGISTRY_ADDRESS/$IMAGE_NAME --set image.tag=$CI_COMMIT_SHORT_SHA --values "charts/$CHART_NAME/values_prod.yaml"
+  when: manual
+  rules:
+    - if: "$CI_COMMIT_TAG" # 仅在推送标签时触发
+    - if: '$CI_COMMIT_BRANCH == "dev" || $CI_COMMIT_BRANCH == "master"' # 仅在 dev 或 master 分支时触发
+  dependencies:
+    - deploy_chart_to_test_uniops_cluster
+  artifacts:
+    paths:
+      - charts/

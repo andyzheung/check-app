@@ -105,12 +105,38 @@ const greeting = computed(() => {
 // 格式化时间
 function formatTime(time) {
   if (!time) return ''
-  const date = new Date(time)
-  return date.toLocaleString('zh-CN', {
-    hour: '2-digit',
-    minute: '2-digit',
-    hour12: false
-  })
+  
+  try {
+    // 处理不同的时间格式
+    let date
+    if (typeof time === 'string') {
+      // 如果是字符串，尝试解析
+      date = new Date(time)
+    } else if (time instanceof Date) {
+      date = time
+    } else {
+      return ''
+    }
+    
+    // 检查日期是否有效
+    if (isNaN(date.getTime())) {
+      return ''
+    }
+    
+    // 使用浏览器本地时区格式化时间
+    return date.toLocaleString('zh-CN', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false
+      // 移除硬编码时区，使用浏览器本地时区
+    })
+  } catch (error) {
+    console.error('时间格式化错误:', error, time)
+    return ''
+  }
 }
 
 // 格式化区域类型

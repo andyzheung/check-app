@@ -3,9 +3,13 @@ package com.pensun.checkapp.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.pensun.checkapp.common.Result;
+import com.pensun.checkapp.common.PageResult;
+import com.pensun.checkapp.common.TaskStatus;
 import com.pensun.checkapp.dto.TaskDTO;
 import com.pensun.checkapp.entity.InspectionTask;
+import com.pensun.checkapp.entity.Area;
 import com.pensun.checkapp.mapper.TaskMapper;
+import com.pensun.checkapp.mapper.AreaMapper;
 import com.pensun.checkapp.service.TaskService;
 import com.pensun.checkapp.utils.SecurityUtils;
 import org.springframework.beans.BeanUtils;
@@ -18,7 +22,9 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 @Slf4j  
 @Service
@@ -26,48 +32,102 @@ public class TaskServiceImpl implements TaskService {
 
     @Autowired
     private TaskMapper taskMapper;
+    
+    @Autowired
+    private AreaMapper areaMapper;
 
     @Override
     public Result list(String keyword, String status, Integer page, Integer size, Long areaId, String priority) {
-        LambdaQueryWrapper<InspectionTask> wrapper = new LambdaQueryWrapper<>();
-        // 添加状态过滤
-        if (StringUtils.hasText(status)) {
-            wrapper.eq(InspectionTask::getStatus, status.toUpperCase());
-        }
-        // 添加关键字搜索 - 只使用name字段
-        if (StringUtils.hasText(keyword)) {
-            wrapper.like(InspectionTask::getName, keyword);
-        }
-        // 添加区域过滤
-        if (areaId != null) {
-            wrapper.eq(InspectionTask::getPointId, areaId); // 使用pointId字段，对应数据库中的area_id
-        }
-        // 添加优先级过滤 - 由于实体类中没有priority字段，暂时不添加此过滤条件
-        // 只查询当前用户的任务
-        wrapper.eq(InspectionTask::getInspectorId, SecurityUtils.getCurrentUserId());
-        wrapper.orderByDesc(InspectionTask::getCreateTime);
-
-        log.info("执行任务查询，条件: status={}, keyword={}, areaId={}, priority={}, page={}, size={}", 
-                status, keyword, areaId, priority, page, size);
-        Page<InspectionTask> pageResult = taskMapper.selectPage(new Page<>(page, size), wrapper);
-        log.info("查询结果: 总记录数={}, 当前页记录数={}", pageResult.getTotal(), pageResult.getRecords().size());
+        Page<InspectionTask> taskPage = new Page<>(page, size);
         
-        // 处理返回结果，添加前端需要的字段
-        if (pageResult.getRecords() != null && !pageResult.getRecords().isEmpty()) {
-            for (InspectionTask task : pageResult.getRecords()) {
-                // 确保前端可以通过task_name字段获取到名称
-                task.setDescription(""); // 设置空值避免NPE
+        LambdaQueryWrapper<InspectionTask> queryWrapper = new LambdaQueryWrapper<>();
+        
+        // 关键字搜索
+        if (StringUtils.hasText(keyword)) {
+            queryWrapper.like(InspectionTask::getName, keyword);
+        }
+        
+        // 状态过滤 - 兼容大小写
+        if (StringUtils.hasText(status)) {
+            if (TaskStatus.PENDING_UPPER.equalsIgnoreCase(status)) {
+                queryWrapper.and(wrapper -> wrapper.eq(InspectionTask::getStatus, TaskStatus.PENDING_UPPER)
+                        .or().eq(InspectionTask::getStatus, TaskStatus.PENDING));
+            } else if (TaskStatus.COMPLETED_UPPER.equalsIgnoreCase(status)) {
+                queryWrapper.and(wrapper -> wrapper.eq(InspectionTask::getStatus, TaskStatus.COMPLETED_UPPER)
+                        .or().eq(InspectionTask::getStatus, TaskStatus.COMPLETED));
+            } else {
+                queryWrapper.eq(InspectionTask::getStatus, status);
             }
         }
         
+        // 区域过滤
+        if (areaId != null) {
+            queryWrapper.eq(InspectionTask::getPointId, areaId);
+        }
+        
+        // 优先级过滤 - 暂时跳过，因为实体类中没有priority字段
+        // if (StringUtils.hasText(priority)) {
+        //     queryWrapper.eq(InspectionTask::getPriority, priority);
+        // }
+        
+        // 只查询当前用户的任务
+        Long userId = SecurityUtils.getCurrentUserId();
+        queryWrapper.eq(InspectionTask::getInspectorId, userId);
+        
+        // 按计划时间排序
+        queryWrapper.orderByDesc(InspectionTask::getPlanTime);
+        
+        Page<InspectionTask> result = taskMapper.selectPage(taskPage, queryWrapper);
+        
+        // 转换为DTO并补充区域信息
+        List<Map<String, Object>> records = result.getRecords().stream().map(task -> {
+            Map<String, Object> taskMap = new HashMap<>();
+            taskMap.put("id", task.getId());
+            taskMap.put("taskName", task.getName());
+            taskMap.put("name", task.getName()); // 兼容前端字段
+            taskMap.put("areaId", task.getPointId());
+            taskMap.put("pointId", task.getPointId()); // 兼容前端字段
+            taskMap.put("status", task.getStatus());
+            taskMap.put("planTime", task.getPlanTime());
+            taskMap.put("startTime", task.getPlanTime()); // 兼容前端字段
+            taskMap.put("priority", TaskStatus.PRIORITY_NORMAL); // 默认优先级，因为实体类中没有priority字段
+            taskMap.put("description", task.getDescription());
+            taskMap.put("createTime", task.getCreateTime());
+            taskMap.put("updateTime", task.getUpdateTime());
+            
+            // 补充区域名称
+            if (task.getPointId() != null) {
+                Area area = areaMapper.selectById(task.getPointId());
+                if (area != null) {
+                    taskMap.put("areaName", area.getName());
+                } else {
+                    taskMap.put("areaName", "未知区域");
+                }
+            }
+            
+            return taskMap;
+        }).collect(Collectors.toList());
+        
+        PageResult<Map<String, Object>> pageResult = new PageResult<>(
+            records, 
+            result.getTotal(), 
+            page, 
+            size
+        );
+        
         return Result.success(pageResult);
     }
+    
+
 
     @Override
     public Result getTodayStats() {
         Long userId = SecurityUtils.getCurrentUserId();
-        LocalDateTime todayStart = LocalDateTime.of(LocalDate.now(), LocalTime.MIN);
-        LocalDateTime todayEnd = LocalDateTime.of(LocalDate.now(), LocalTime.MAX);
+        
+        // 使用系统默认时区（已在配置文件中设置为GMT+8）
+        LocalDate today = LocalDate.now();
+        LocalDateTime todayStart = today.atStartOfDay();
+        LocalDateTime todayEnd = today.atTime(23, 59, 59);
 
         log.info("获取今日任务统计 - userId: {}, todayStart: {}, todayEnd: {}", userId, todayStart, todayEnd);
 
@@ -77,17 +137,19 @@ public class TaskServiceImpl implements TaskService {
                 .between(InspectionTask::getPlanTime, todayStart, todayEnd);
         long totalTasks = taskMapper.selectCount(totalWrapper);
 
-        // 查询已完成任务数
+        // 查询已完成任务数 - 兼容大小写
         LambdaQueryWrapper<InspectionTask> completedWrapper = new LambdaQueryWrapper<>();
         completedWrapper.eq(InspectionTask::getInspectorId, userId)
-                .eq(InspectionTask::getStatus, "COMPLETED")
+                .and(wrapper -> wrapper.eq(InspectionTask::getStatus, TaskStatus.COMPLETED_UPPER)
+                        .or().eq(InspectionTask::getStatus, TaskStatus.COMPLETED))
                 .between(InspectionTask::getPlanTime, todayStart, todayEnd);
         long completedTasks = taskMapper.selectCount(completedWrapper);
 
-        // 查询待完成任务数
+        // 查询待完成任务数 - 兼容大小写
         LambdaQueryWrapper<InspectionTask> pendingWrapper = new LambdaQueryWrapper<>();
         pendingWrapper.eq(InspectionTask::getInspectorId, userId)
-                .eq(InspectionTask::getStatus, "PENDING")
+                .and(wrapper -> wrapper.eq(InspectionTask::getStatus, TaskStatus.PENDING_UPPER)
+                        .or().eq(InspectionTask::getStatus, TaskStatus.PENDING))
                 .between(InspectionTask::getPlanTime, todayStart, todayEnd);
         long pendingTasks = taskMapper.selectCount(pendingWrapper);
 
@@ -113,7 +175,7 @@ public class TaskServiceImpl implements TaskService {
     public Result create(TaskDTO taskDTO) {
         InspectionTask task = new InspectionTask();
         BeanUtils.copyProperties(taskDTO, task);
-        task.setStatus("PENDING");
+        task.setStatus(TaskStatus.PENDING_UPPER);
         taskMapper.insert(task);
         return Result.success();
     }
@@ -144,10 +206,10 @@ public class TaskServiceImpl implements TaskService {
         if (task == null) {
             return Result.error("任务不存在");
         }
-        if (!"PENDING".equals(task.getStatus())) {
+        if (!TaskStatus.PENDING_UPPER.equals(task.getStatus())) {
             return Result.error("任务状态不正确");
         }
-        task.setStatus("IN_PROGRESS");
+        task.setStatus(TaskStatus.IN_PROGRESS);
         taskMapper.updateById(task);
         return Result.success();
     }
