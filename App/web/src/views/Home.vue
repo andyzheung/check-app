@@ -130,8 +130,8 @@ function formatTime(time) {
       day: '2-digit',
       hour: '2-digit',
       minute: '2-digit',
-      hour12: false
-      // 移除硬编码时区，使用浏览器本地时区
+      hour12: false,
+      timeZone: 'Asia/Shanghai' // 明确指定北京时间
     })
   } catch (error) {
     console.error('时间格式化错误:', error, time)

@@ -14,6 +14,11 @@
         <button class="torch-btn" @click="toggleTorch">
           <span class="material-icons">{{ torchOn ? 'flashlight_on' : 'flashlight_off' }}</span>
         </button>
+        
+        <!-- Android扫码按钮 -->
+        <button class="camera-btn" @click="startNativeScan" v-if="isAndroid">
+          <span class="material-icons">camera_alt</span>
+        </button>
       </div>
       <div class="scan-tip">
         <div class="tip-main">将二维码放入框内</div>
@@ -65,6 +70,9 @@ const torchOn = ref(false)
 const areaInfo = ref(null)
 const error = ref('')
 
+// 检测是否为Android环境
+const isAndroid = ref(window.android !== undefined)
+
 async function handleCode() {
   if (!code.value) {
     error.value = '请输入区域编号'
@@ -101,6 +109,55 @@ function toggleTorch() {
 
 function goHome() {
   router.push('/home')
+}
+
+// 启动原生扫码功能（Android）
+function startNativeScan() {
+  if (window.android && window.android.startScan) {
+    try {
+      window.android.startScan()
+    } catch (error) {
+      console.error('启动扫码失败:', error)
+      error.value = '启动扫码功能失败'
+    }
+  }
+}
+
+// 处理Android扫码结果的全局回调函数
+window.handleScanResult = async (scanResult) => {
+  console.log('收到扫码结果:', scanResult)
+  
+  try {
+    error.value = ''
+    
+    // 尝试解析二维码数据
+    if (scanResult.startsWith('{') && scanResult.endsWith('}')) {
+      // JSON格式的二维码，解析区域编码
+      const qrData = JSON.parse(scanResult)
+      if (qrData.areaCode) {
+        code.value = qrData.areaCode
+        
+        // 验证二维码并获取区域信息
+        const response = await getAreaByCode(qrData.areaCode)
+        if (response.data) {
+          areaInfo.value = response.data
+        }
+      } else {
+        error.value = '二维码格式错误，缺少区域编码'
+      }
+    } else {
+      // 简单文本格式，直接作为区域编码处理
+      code.value = scanResult
+      const response = await getAreaByCode(scanResult)
+      if (response.data) {
+        areaInfo.value = response.data
+      }
+    }
+  } catch (err) {
+    console.error('处理扫码结果失败:', err)
+    error.value = err.response?.data?.message || '处理扫码结果失败'
+    areaInfo.value = null
+  }
 }
 </script>
 
@@ -186,6 +243,30 @@ function goHome() {
   font-size: 26px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.08);
   cursor: pointer;
+}
+
+.camera-btn {
+  position: absolute;
+  left: 50%;
+  bottom: 12px;
+  transform: translateX(-50%);
+  background: rgba(33, 150, 243, 0.9);
+  border: none;
+  border-radius: 50%;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  font-size: 28px;
+  box-shadow: 0 4px 12px rgba(33, 150, 243, 0.3);
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.camera-btn:active {
+  transform: translateX(-50%) scale(0.95);
 }
 
 .scan-tip {
