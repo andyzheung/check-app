@@ -1,0 +1,85 @@
+# 巡检系统多工程 CI/CD 配置
+# 支持后端服务、管理后台、Android 应用独立构建部署
+
+include:
+  - local: 'check-app-server/.gitlab-ci-backend.yml'
+  - local: 'admin-web/.gitlab-ci-frontend.yml'  
+  - local: 'App/inspectionapp/.gitlab-ci-android.yml'
+
+stages:
+  - build
+  - package
+  - deploy_test
+  - deploy_prod
+
+variables:
+  # 镜像仓库配置
+  REGISTRY_ADDRESS: ${REGISTRY_ADDRESS}
+  REGISTRY_USERNAME: ${REGISTRY_USERNAME}
+  REGISTRY_PASSWORD: ${REGISTRY_PASSWORD}
+  
+  # 后端服务配置
+  BACKEND_IMAGE_NAME: check-app/check-app-server
+  BACKEND_NAMESPACE: check-app
+  BACKEND_CHART_NAME: check-app-server
+  
+  # 前端服务配置
+  FRONTEND_IMAGE_NAME: check-app/admin-web
+  FRONTEND_NAMESPACE: check-app
+  FRONTEND_CHART_NAME: admin-web
+  
+  # Android 应用配置
+  ANDROID_APP_NAME: inspection-app
+  ANDROID_VERSION_CODE: ${CI_PIPELINE_ID}
+
+# 工程变更检测任务
+detect_changes:
+  stage: build
+  image: alpine/git:latest
+  script:
+    - echo "检测代码变更..."
+    - |
+      if git diff --name-only $CI_COMMIT_BEFORE_SHA $CI_COMMIT_SHA | grep -q "^check-app-server/"; then
+        echo "BACKEND_CHANGED=true" >> detect.env
+        echo "后端代码有变更"
+      else
+        echo "BACKEND_CHANGED=false" >> detect.env
+        echo "后端代码无变更"
+      fi
+    - |
+      if git diff --name-only $CI_COMMIT_BEFORE_SHA $CI_COMMIT_SHA | grep -q "^admin-web/"; then
+        echo "FRONTEND_CHANGED=true" >> detect.env
+        echo "前端代码有变更"
+      else
+        echo "FRONTEND_CHANGED=false" >> detect.env
+        echo "前端代码无变更"
+      fi
+    - |
+      if git diff --name-only $CI_COMMIT_BEFORE_SHA $CI_COMMIT_SHA | grep -q "^App/inspectionapp/"; then
+        echo "ANDROID_CHANGED=true" >> detect.env
+        echo "Android代码有变更"
+      else
+        echo "ANDROID_CHANGED=false" >> detect.env
+        echo "Android代码无变更"
+      fi
+    - cat detect.env
+  artifacts:
+    reports:
+      dotenv: detect.env
+    expire_in: 1 hour
+  only:
+    - dev
+    - master
+    - merge_requests
+
+# 全局清理任务
+cleanup_artifacts:
+  stage: deploy_prod
+  image: alpine:latest
+  script:
+    - echo "清理临时制品..."
+    - echo "构建完成"
+  when: always
+  only:
+    - dev
+    - master 

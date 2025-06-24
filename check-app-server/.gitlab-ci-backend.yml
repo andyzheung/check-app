@@ -1,0 +1,119 @@
+# 后端服务 CI/CD 配置
+# 基于 Spring Boot + Maven 构建
+
+# 后端构建阶段
+build_backend:
+  stage: build
+  image: harbor-internal.ppp.com/google_containers/kaniko-project/executor:debug
+  script:
+    - echo "开始构建后端服务..."
+    - cd check-app-server
+    - mkdir -p /kaniko/.docker
+    - echo "{\"auths\":{\"$REGISTRY_ADDRESS\":{\"username\":\"$REGISTRY_USERNAME\",\"password\":\"$REGISTRY_PASSWORD\"}}}" > /kaniko/.docker/config.json
+    - echo ${SELF_CA} >> /kaniko/ssl/certs/additional-ca-cert-bundle.crt
+    - KANIKO_TLS_VERIFY=false /kaniko/executor --context . --dockerfile Dockerfile --destination $REGISTRY_ADDRESS/$BACKEND_IMAGE_NAME:$CI_COMMIT_SHORT_SHA --skip-tls-verify
+  rules:
+    - changes:
+        - "check-app-server/**/*"
+      when: on_success
+    - if: '$BACKEND_CHANGED == "true"'
+      when: on_success
+  cache:
+    key: maven-backend-$CI_PROJECT_ID
+    paths:
+      - check-app-server/.m2/repository/
+  artifacts:
+    reports:
+      junit:
+        - check-app-server/target/surefire-reports/TEST-*.xml
+    expire_in: 1 day
+
+# 后端 Helm 打包
+package_backend_chart:
+  stage: package
+  image: harbor-internal.ppp.com/registry.jihulab.com/ubuntu-k8s-tool:20.04
+  script:
+    - echo "打包后端 Helm Chart..."
+    - cd check-app-server
+    - helm package helm -d charts/
+    - echo "Helm Chart 打包完成"
+  rules:
+    - changes:
+        - "check-app-server/**/*"
+      when: on_success
+    - if: '$BACKEND_CHANGED == "true"'
+      when: on_success
+  dependencies:
+    - build_backend
+  artifacts:
+    paths:
+      - check-app-server/charts/
+    expire_in: 1 week
+
+# 部署到测试环境
+deploy_backend_to_test:
+  stage: deploy_test
+  image: harbor-internal.ppp.com/registry.jihulab.com/ubuntu-k8s-tool:20.04
+  script:
+    - echo "部署后端服务到测试环境..."
+    - echo "$UNIOPS_TEST_KUBECONFIG" | base64 -d > /tmp/kubeconfig_uniops_test
+    - chmod 600 /tmp/kubeconfig_uniops_test
+    - export KUBECONFIG=/tmp/kubeconfig_uniops_test
+    - cd check-app-server
+    - tar -xzvf charts/*.tgz -C charts/ # 解压到 charts 目录
+    - |
+      helm upgrade --install --namespace $BACKEND_NAMESPACE --create-namespace $BACKEND_CHART_NAME charts/*.tgz \
+        --set image.repository=$REGISTRY_ADDRESS/$BACKEND_IMAGE_NAME \
+        --set image.tag=$CI_COMMIT_SHORT_SHA \
+        --values "charts/$BACKEND_CHART_NAME/values_test.yaml"
+    - echo "后端服务测试环境部署完成"
+  when: manual
+  rules:
+    - changes:
+        - "check-app-server/**/*"
+      if: '$CI_COMMIT_BRANCH == "dev" || $CI_COMMIT_BRANCH == "master"'
+      when: manual
+    - if: '$BACKEND_CHANGED == "true" && ($CI_COMMIT_BRANCH == "dev" || $CI_COMMIT_BRANCH == "master")'
+      when: manual
+  dependencies:
+    - package_backend_chart
+  environment:
+    name: test/backend
+    url: https://check-app-server-test.example.com
+  artifacts:
+    paths:
+      - check-app-server/charts/
+    expire_in: 1 week
+
+# 部署到生产环境
+deploy_backend_to_prod:
+  stage: deploy_prod
+  image: harbor-internal.ppp.com/registry.jihulab.com/ubuntu-k8s-tool:20.04
+  script:
+    - echo "部署后端服务到生产环境..."
+    - echo "$UNIOPS_KUBECONFIG" | base64 -d > /tmp/kubeconfig_uniops
+    - export KUBECONFIG=/tmp/kubeconfig_uniops
+    - cd check-app-server
+    - |
+      helm upgrade --install --namespace $BACKEND_NAMESPACE --create-namespace $BACKEND_CHART_NAME charts/*.tgz \
+        --set image.repository=$REGISTRY_ADDRESS/$BACKEND_IMAGE_NAME \
+        --set image.tag=$CI_COMMIT_SHORT_SHA \
+        --values "charts/$BACKEND_CHART_NAME/values_prod.yaml"
+    - echo "后端服务生产环境部署完成"
+  when: manual
+  rules:
+    - if: "$CI_COMMIT_TAG" # 仅在推送标签时触发
+      changes:
+        - "check-app-server/**/*"
+      when: manual
+    - if: '$CI_COMMIT_BRANCH == "master" && $BACKEND_CHANGED == "true"' # 仅在 master 分支时触发
+      when: manual
+  dependencies:
+    - deploy_backend_to_test
+  environment:
+    name: production/backend
+    url: https://check-app-server.example.com
+  artifacts:
+    paths:
+      - check-app-server/charts/
+    expire_in: 1 month 

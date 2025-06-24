@@ -1,0 +1,231 @@
+# Android 应用 CI/CD 配置
+# 基于 Gradle + Android SDK 构建
+
+# Android 构建阶段
+build_android:
+  stage: build
+  image: docker:20.10.16
+  services:
+    - docker:20.10.16-dind
+  variables:
+    DOCKER_TLS_CERTDIR: "/certs"
+    DOCKER_DRIVER: overlay2
+  script:
+    - echo "开始构建 Android 应用..."
+    - cd App/inspectionapp
+    - docker info
+    - echo "$REGISTRY_PASSWORD" | docker login $REGISTRY_ADDRESS -u "$REGISTRY_USERNAME" --password-stdin
+    
+    # 构建 Android 应用
+    - docker build -f Dockerfile.android -t android-builder:$CI_COMMIT_SHORT_SHA .
+    - docker run --rm -v $(pwd):/workspace android-builder:$CI_COMMIT_SHORT_SHA ./gradlew assembleRelease --no-daemon
+    
+    # 检查 APK 文件
+    - ls -la app/build/outputs/apk/release/
+    - mv app/build/outputs/apk/release/app-release-unsigned.apk app-$CI_COMMIT_SHORT_SHA.apk || mv app/build/outputs/apk/release/app-release.apk app-$CI_COMMIT_SHORT_SHA.apk
+    
+    # 生成构建信息
+    - echo "构建版本: $CI_COMMIT_SHORT_SHA" > build_info.txt
+    - echo "构建时间: $(date)" >> build_info.txt
+    - echo "分支: $CI_COMMIT_REF_NAME" >> build_info.txt
+    - echo "提交信息: $CI_COMMIT_MESSAGE" >> build_info.txt
+    
+    - echo "Android 应用构建完成"
+  rules:
+    - changes:
+        - "App/inspectionapp/**/*"
+      when: on_success
+    - if: '$ANDROID_CHANGED == "true"'
+      when: on_success
+  cache:
+    key: gradle-android-$CI_PROJECT_ID
+    paths:
+      - App/inspectionapp/.gradle/
+      - App/inspectionapp/build/
+  artifacts:
+    name: "android-app-$CI_COMMIT_SHORT_SHA"
+    paths:
+      - App/inspectionapp/app-$CI_COMMIT_SHORT_SHA.apk
+      - App/inspectionapp/build_info.txt
+    expire_in: 1 month
+    reports:
+      junit:
+        - App/inspectionapp/app/build/test-results/test*/*.xml
+
+# Android 代码质量检查
+android_code_quality:
+  stage: build
+  image: docker:20.10.16
+  services:
+    - docker:20.10.16-dind
+  variables:
+    DOCKER_TLS_CERTDIR: "/certs"
+  script:
+    - echo "执行 Android 代码质量检查..."
+    - cd App/inspectionapp
+    - docker build -f Dockerfile.android -t android-builder:$CI_COMMIT_SHORT_SHA .
+    - docker run --rm -v $(pwd):/workspace android-builder:$CI_COMMIT_SHORT_SHA ./gradlew lint --no-daemon
+    - docker run --rm -v $(pwd):/workspace android-builder:$CI_COMMIT_SHORT_SHA ./gradlew test --no-daemon
+    - echo "代码质量检查完成"
+  rules:
+    - changes:
+        - "App/inspectionapp/**/*"
+      when: on_success
+    - if: '$ANDROID_CHANGED == "true"'
+      when: on_success
+  cache:
+    key: gradle-android-$CI_PROJECT_ID
+    paths:
+      - App/inspectionapp/.gradle/
+  allow_failure: true
+  artifacts:
+    name: "android-lint-$CI_COMMIT_SHORT_SHA"
+    paths:
+      - App/inspectionapp/app/build/reports/
+    expire_in: 1 week
+    reports:
+      junit:
+        - App/inspectionapp/app/build/test-results/test*/*.xml
+
+# Android 应用签名 (生产环境)
+sign_android_release:
+  stage: package
+  image: docker:20.10.16
+  services:
+    - docker:20.10.16-dind
+  variables:
+    DOCKER_TLS_CERTDIR: "/certs"
+  script:
+    - echo "对 Android 应用进行签名..."
+    - cd App/inspectionapp
+    
+    # 创建密钥库文件 (如果存在环境变量)
+    - |
+      if [ -n "$ANDROID_KEYSTORE_BASE64" ]; then
+        echo "$ANDROID_KEYSTORE_BASE64" | base64 -d > release.keystore
+        echo "密钥库文件已创建"
+      else
+        echo "未配置签名密钥，跳过签名步骤"
+        cp app-$CI_COMMIT_SHORT_SHA.apk app-$CI_COMMIT_SHORT_SHA-signed.apk
+        exit 0
+      fi
+    
+    # 使用 jarsigner 签名 APK
+    - |
+      if [ -f "release.keystore" ]; then
+        docker run --rm -v $(pwd):/workspace openjdk:11-jdk \
+          jarsigner -verbose -sigalg SHA256withRSA -digestalg SHA-256 \
+          -keystore /workspace/release.keystore \
+          -storepass "$ANDROID_KEYSTORE_PASSWORD" \
+          -keypass "$ANDROID_KEY_PASSWORD" \
+          /workspace/app-$CI_COMMIT_SHORT_SHA.apk \
+          "$ANDROID_KEY_ALIAS"
+        
+        # 重命名签名后的文件
+        mv app-$CI_COMMIT_SHORT_SHA.apk app-$CI_COMMIT_SHORT_SHA-signed.apk
+        echo "APK 签名完成"
+      fi
+    
+    # 清理密钥库文件
+    - rm -f release.keystore
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "master" && $ANDROID_CHANGED == "true"'
+      when: on_success
+    - if: "$CI_COMMIT_TAG"
+      changes:
+        - "App/inspectionapp/**/*"
+      when: on_success
+  dependencies:
+    - build_android
+  artifacts:
+    name: "android-app-signed-$CI_COMMIT_SHORT_SHA"
+    paths:
+      - App/inspectionapp/app-$CI_COMMIT_SHORT_SHA-signed.apk
+      - App/inspectionapp/build_info.txt
+    expire_in: 3 months
+
+# 发布到内部应用商店 (测试环境)
+deploy_android_to_test:
+  stage: deploy_test
+  image: alpine:latest
+  script:
+    - echo "发布 Android 应用到测试环境..."
+    - cd App/inspectionapp
+    
+    # 上传到 GitLab Package Registry
+    - apk add --no-cache curl
+    - |
+      curl --header "JOB-TOKEN: $CI_JOB_TOKEN" \
+           --upload-file app-$CI_COMMIT_SHORT_SHA.apk \
+           "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/${ANDROID_APP_NAME}/${CI_COMMIT_SHORT_SHA}/app-$CI_COMMIT_SHORT_SHA.apk"
+    
+    # 生成下载链接
+    - echo "APK 下载链接:" > download_info.txt
+    - echo "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/${ANDROID_APP_NAME}/${CI_COMMIT_SHORT_SHA}/app-$CI_COMMIT_SHORT_SHA.apk" >> download_info.txt
+    - cat download_info.txt
+    
+    - echo "Android 应用测试环境发布完成"
+  when: manual
+  rules:
+    - changes:
+        - "App/inspectionapp/**/*"
+      if: '$CI_COMMIT_BRANCH == "dev" || $CI_COMMIT_BRANCH == "master"'
+      when: manual
+    - if: '$ANDROID_CHANGED == "true" && ($CI_COMMIT_BRANCH == "dev" || $CI_COMMIT_BRANCH == "master")'
+      when: manual
+  dependencies:
+    - build_android
+  environment:
+    name: test/android
+    url: ${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/${ANDROID_APP_NAME}/${CI_COMMIT_SHORT_SHA}/app-$CI_COMMIT_SHORT_SHA.apk
+  artifacts:
+    paths:
+      - App/inspectionapp/download_info.txt
+    expire_in: 1 week
+
+# 发布到生产环境
+deploy_android_to_prod:
+  stage: deploy_prod
+  image: alpine:latest
+  script:
+    - echo "发布 Android 应用到生产环境..."
+    - cd App/inspectionapp
+    
+    # 上传签名版本到 Package Registry
+    - apk add --no-cache curl
+    - |
+      if [ -f "app-$CI_COMMIT_SHORT_SHA-signed.apk" ]; then
+        APK_FILE="app-$CI_COMMIT_SHORT_SHA-signed.apk"
+      else
+        APK_FILE="app-$CI_COMMIT_SHORT_SHA.apk"
+      fi
+    
+    - |
+      curl --header "JOB-TOKEN: $CI_JOB_TOKEN" \
+           --upload-file $APK_FILE \
+           "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/${ANDROID_APP_NAME}/release-${CI_COMMIT_SHORT_SHA}/$APK_FILE"
+    
+    # 生成生产环境下载信息
+    - echo "生产环境 APK 下载链接:" > prod_download_info.txt
+    - echo "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/${ANDROID_APP_NAME}/release-${CI_COMMIT_SHORT_SHA}/$APK_FILE" >> prod_download_info.txt
+    - cat prod_download_info.txt
+    
+    - echo "Android 应用生产环境发布完成"
+  when: manual
+  rules:
+    - if: "$CI_COMMIT_TAG" # 仅在推送标签时触发
+      changes:
+        - "App/inspectionapp/**/*"
+      when: manual
+    - if: '$CI_COMMIT_BRANCH == "master" && $ANDROID_CHANGED == "true"' # 仅在 master 分支时触发
+      when: manual
+  dependencies:
+    - deploy_android_to_test
+    - sign_android_release
+  environment:
+    name: production/android
+    url: ${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/${ANDROID_APP_NAME}/release-${CI_COMMIT_SHORT_SHA}
+  artifacts:
+    paths:
+      - App/inspectionapp/prod_download_info.txt
+    expire_in: 1 year 

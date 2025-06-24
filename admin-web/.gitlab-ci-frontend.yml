@@ -1,0 +1,145 @@
+# 前端管理后台 CI/CD 配置
+# 基于 Vue.js + NPM 构建
+
+# 前端构建阶段
+build_frontend:
+  stage: build
+  image: harbor-internal.ppp.com/google_containers/kaniko-project/executor:debug
+  script:
+    - echo "开始构建前端管理后台..."
+    - cd admin-web
+    - mkdir -p /kaniko/.docker
+    - echo "{\"auths\":{\"$REGISTRY_ADDRESS\":{\"username\":\"$REGISTRY_USERNAME\",\"password\":\"$REGISTRY_PASSWORD\"}}}" > /kaniko/.docker/config.json
+    - echo ${SELF_CA} >> /kaniko/ssl/certs/additional-ca-cert-bundle.crt
+    - KANIKO_TLS_VERIFY=false /kaniko/executor --context . --dockerfile Dockerfile --destination $REGISTRY_ADDRESS/$FRONTEND_IMAGE_NAME:$CI_COMMIT_SHORT_SHA --skip-tls-verify
+  rules:
+    - changes:
+        - "admin-web/**/*"
+      when: on_success
+    - if: '$FRONTEND_CHANGED == "true"'
+      when: on_success
+  cache:
+    key: npm-frontend-$CI_PROJECT_ID
+    paths:
+      - admin-web/node_modules/
+      - admin-web/.npm/
+  artifacts:
+    paths:
+      - admin-web/dist/
+    expire_in: 1 day
+
+# 前端 Helm 打包
+package_frontend_chart:
+  stage: package
+  image: harbor-internal.ppp.com/registry.jihulab.com/ubuntu-k8s-tool:20.04
+  script:
+    - echo "打包前端 Helm Chart..."
+    - cd admin-web
+    - helm package deploy -d charts/
+    - echo "前端 Helm Chart 打包完成"
+  rules:
+    - changes:
+        - "admin-web/**/*"
+      when: on_success
+    - if: '$FRONTEND_CHANGED == "true"'
+      when: on_success
+  dependencies:
+    - build_frontend
+  artifacts:
+    paths:
+      - admin-web/charts/
+    expire_in: 1 week
+
+# 部署到测试环境
+deploy_frontend_to_test:
+  stage: deploy_test
+  image: harbor-internal.ppp.com/registry.jihulab.com/ubuntu-k8s-tool:20.04
+  script:
+    - echo "部署前端管理后台到测试环境..."
+    - echo "$UNIOPS_TEST_KUBECONFIG" | base64 -d > /tmp/kubeconfig_uniops_test
+    - chmod 600 /tmp/kubeconfig_uniops_test
+    - export KUBECONFIG=/tmp/kubeconfig_uniops_test
+    - cd admin-web
+    - tar -xzvf charts/*.tgz -C charts/ # 解压到 charts 目录
+    - |
+      helm upgrade --install --namespace $FRONTEND_NAMESPACE --create-namespace $FRONTEND_CHART_NAME charts/*.tgz \
+        --set image.repository=$REGISTRY_ADDRESS/$FRONTEND_IMAGE_NAME \
+        --set image.tag=$CI_COMMIT_SHORT_SHA \
+        --values "charts/$FRONTEND_CHART_NAME/values_test.yaml"
+    - echo "前端管理后台测试环境部署完成"
+  when: manual
+  rules:
+    - changes:
+        - "admin-web/**/*"
+      if: '$CI_COMMIT_BRANCH == "dev" || $CI_COMMIT_BRANCH == "master"'
+      when: manual
+    - if: '$FRONTEND_CHANGED == "true" && ($CI_COMMIT_BRANCH == "dev" || $CI_COMMIT_BRANCH == "master")'
+      when: manual
+  dependencies:
+    - package_frontend_chart
+  environment:
+    name: test/frontend
+    url: https://admin-web-test.example.com
+  artifacts:
+    paths:
+      - admin-web/charts/
+    expire_in: 1 week
+
+# 部署到生产环境
+deploy_frontend_to_prod:
+  stage: deploy_prod
+  image: harbor-internal.ppp.com/registry.jihulab.com/ubuntu-k8s-tool:20.04
+  script:
+    - echo "部署前端管理后台到生产环境..."
+    - echo "$UNIOPS_KUBECONFIG" | base64 -d > /tmp/kubeconfig_uniops
+    - export KUBECONFIG=/tmp/kubeconfig_uniops
+    - cd admin-web
+    - |
+      helm upgrade --install --namespace $FRONTEND_NAMESPACE --create-namespace $FRONTEND_CHART_NAME charts/*.tgz \
+        --set image.repository=$REGISTRY_ADDRESS/$FRONTEND_IMAGE_NAME \
+        --set image.tag=$CI_COMMIT_SHORT_SHA \
+        --values "charts/$FRONTEND_CHART_NAME/values_prod.yaml"
+    - echo "前端管理后台生产环境部署完成"
+  when: manual
+  rules:
+    - if: "$CI_COMMIT_TAG" # 仅在推送标签时触发
+      changes:
+        - "admin-web/**/*"
+      when: manual
+    - if: '$CI_COMMIT_BRANCH == "master" && $FRONTEND_CHANGED == "true"' # 仅在 master 分支时触发
+      when: manual
+  dependencies:
+    - deploy_frontend_to_test
+  environment:
+    name: production/frontend
+    url: https://admin-web.example.com
+  artifacts:
+    paths:
+      - admin-web/charts/
+    expire_in: 1 month
+
+# 前端代码质量检查
+frontend_code_quality:
+  stage: build
+  image: node:18-alpine
+  script:
+    - echo "执行前端代码质量检查..."
+    - cd admin-web
+    - npm ci
+    - npm run lint
+    - echo "代码质量检查完成"
+  rules:
+    - changes:
+        - "admin-web/**/*"
+      when: on_success
+    - if: '$FRONTEND_CHANGED == "true"'
+      when: on_success
+  cache:
+    key: npm-frontend-$CI_PROJECT_ID
+    paths:
+      - admin-web/node_modules/
+  allow_failure: true
+  artifacts:
+    reports:
+      codequality: admin-web/gl-code-quality-report.json
+    expire_in: 1 week 
