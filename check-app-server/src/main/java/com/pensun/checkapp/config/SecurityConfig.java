@@ -1,38 +1,39 @@
 package com.pensun.checkapp.config;
 
 import com.pensun.checkapp.interceptor.JwtInterceptor;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.context.annotation.Bean;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.access.AccessDeniedHandler;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
-    @Autowired
-    private JwtInterceptor jwtInterceptor;
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http, JwtInterceptor jwtInterceptor) throws Exception {
         http
             .csrf().disable()
+            .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+            .and()
             .authorizeRequests()
-                .antMatchers("/api/v1/login", "/api/v1/auth/login").permitAll()
+                .antMatchers(
+                        "/api/v1/login",
+                        "/api/v1/auth/login",
+                        "/error",
+                        "/qrcode/**",
+                        "/uploads/**"
+                ).permitAll()
                 .anyRequest().authenticated()
             .and()
-            .exceptionHandling()
-                .authenticationEntryPoint(authenticationEntryPoint())
-                .accessDeniedHandler(accessDeniedHandler())
-            .and()
-            .sessionManagement().disable()
-            .formLogin().disable()
-            .httpBasic().disable()
-            .logout().disable()
-            .addFilterBefore(jwtInterceptor, org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter.class);
+            .addFilterBefore(jwtInterceptor, UsernamePasswordAuthenticationFilter.class);
+
         return http.build();
     }
 

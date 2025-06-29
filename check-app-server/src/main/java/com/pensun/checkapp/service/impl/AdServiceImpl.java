@@ -8,6 +8,7 @@ import com.pensun.checkapp.service.AdService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 import javax.naming.Context;
@@ -24,6 +25,7 @@ import java.util.List;
  */
 @Slf4j
 @Service
+@Profile("prod")
 public class AdServiceImpl implements AdService {
 
     @Value("${ldap.url:ldap://192.168.1.100:389}")

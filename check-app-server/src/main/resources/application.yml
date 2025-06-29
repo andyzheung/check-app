@@ -14,7 +14,7 @@ spring:
   application:
     name: check-app-server
   profiles:
-    active: dev
+    active: dev  
   mvc:
     encoding:
       charset: UTF-8
@@ -84,7 +84,7 @@ logging:
     console: UTF-8
     file: UTF-8
   level:
-    root: INFO
+    root: DEBUG
     com.pensun.checkapp: DEBUG
   file:
     name: logs/check-app-server.log
