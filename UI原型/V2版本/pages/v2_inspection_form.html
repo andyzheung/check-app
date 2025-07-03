@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <style>
+        body {
+            background-color: #f0f2f5;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        }
+        .status-radio-group input[type="radio"] { display: none; }
+        .status-radio-group label {
+            cursor: pointer;
+            padding: 0.5rem 1rem;
+            border-radius: 9999px;
+            border: 1px solid #d1d5db;
+            color: #4b5563;
+            transition: all 0.2s;
+        }
+        .status-radio-group input[type="radio"]:checked + label {
+            color: white;
+        }
+        .status-radio-group input[id^="status-ok"]:checked + label { background-color: #22c55e; border-color: #22c55e; }
+        .status-radio-group input[id^="status-fail"]:checked + label { background-color: #ef4444; border-color: #ef4444; }
+        .status-radio-group input[id^="status-na"]:checked + label { background-color: #6b7280; border-color: #6b7280; }
+    </style>
+</head>
+<body class="pb-24">
+    <div class="container mx-auto p-4">
+
+        <!-- Header -->
+        <header class="mb-6 text-center">
+            <h1 class="text-xl font-bold text-gray-800">A区-01号机柜 巡检表</h1>
+            <p class="text-gray-500">设备ID: SRV-A01-001</p>
+        </header>
+
+        <!-- Inspection Group 1: Device Status -->
+        <div class="bg-white p-4 rounded-xl shadow-sm mb-4">
+            <h2 class="font-bold text-gray-800 mb-4 border-b pb-2">设备状态检查</h2>
+            <div class="space-y-4">
+                <!-- Item 1 -->
+                <div class="flex justify-between items-center">
+                    <span class="text-gray-700">电源指示灯</span>
+                    <div class="status-radio-group flex space-x-2">
+                        <input type="radio" id="status-ok-1" name="status-1" checked><label for="status-ok-1">正常</label>
+                        <input type="radio" id="status-fail-1" name="status-1"><label for="status-fail-1">异常</label>
+                        <input type="radio" id="status-na-1" name="status-1"><label for="status-na-1">N/A</label>
+                    </div>
+                </div>
+                <!-- Item 2 -->
+                <div class="flex justify-between items-center">
+                    <span class="text-gray-700">风扇运转</span>
+                     <div class="status-radio-group flex space-x-2">
+                        <input type="radio" id="status-ok-2" name="status-2" checked><label for="status-ok-2">正常</label>
+                        <input type="radio" id="status-fail-2" name="status-2"><label for="status-fail-2">异常</label>
+                        <input type="radio" id="status-na-2" name="status-2"><label for="status-na-2">N/A</label>
+                    </div>
+                </div>
+                 <!-- Item 3 -->
+                <div class="flex justify-between items-center">
+                    <span class="text-gray-700">网线连接</span>
+                     <div class="status-radio-group flex space-x-2">
+                        <input type="radio" id="status-ok-3" name="status-3" checked><label for="status-ok-3">正常</label>
+                        <input type="radio" id="status-fail-3" name="status-3"><label for="status-fail-3">异常</label>
+                        <input type="radio" id="status-na-3" name="status-3"><label for="status-na-3">N/A</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Inspection Group 2: Environment -->
+        <div class="bg-white p-4 rounded-xl shadow-sm mb-4">
+            <h2 class="font-bold text-gray-800 mb-4 border-b pb-2">环境检查</h2>
+            <div class="space-y-4">
+                <div class="flex items-center justify-between">
+                    <label for="temperature" class="text-gray-700">机房温度 (°C)</label>
+                    <input type="number" id="temperature" value="23.5" class="w-24 text-center border-gray-300 rounded-md shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                </div>
+                 <div class="flex items-center justify-between">
+                    <label for="humidity" class="text-gray-700">机房湿度 (%)</label>
+                    <input type="number" id="humidity" value="45" class="w-24 text-center border-gray-300 rounded-md shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                </div>
+            </div>
+        </div>
+
+        <!-- Problem Description & Photos -->
+        <div class="bg-white p-4 rounded-xl shadow-sm mb-4">
+            <h2 class="font-bold text-gray-800 mb-4 border-b pb-2">异常情况记录</h2>
+            <div>
+                <textarea placeholder="如发现异常，请在此处详细描述..." class="w-full h-24 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+                <div class="mt-4">
+                    <label class="block text-gray-700 mb-2">上传照片 (最多4张)</label>
+                    <div class="grid grid-cols-4 gap-2">
+                        <div class="w-full h-20 bg-gray-100 border-2 border-dashed border-gray-300 rounded-md flex items-center justify-center cursor-pointer">
+                            <i class="fas fa-plus text-gray-400 fa-2x"></i>
+                        </div>
+                        <!-- Placeholder for uploaded images -->
+                        <img src="https://images.pexels.com/photos/4342400/pexels-photo-4342400.jpeg?auto=compress&cs=tinysrgb&w=400" class="w-full h-20 object-cover rounded-md"/>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Sticky Footer Button -->
+    <footer class="fixed bottom-0 left-0 right-0 bg-white p-4 border-t border-gray-200 shadow-t-md">
+        <button class="w-full bg-blue-600 text-white font-bold py-3 rounded-xl shadow-md hover:bg-blue-700 transition-colors">
+            提交巡检报告
+        </button>
+    </footer>
+
+</body>
+</html>

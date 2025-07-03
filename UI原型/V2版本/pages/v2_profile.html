@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <style>
+        body {
+            background-color: #f0f2f5;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        }
+    </style>
+</head>
+<body class="pt-8">
+    <div class="container mx-auto px-4">
+
+        <!-- User Info Header -->
+        <div class="flex items-center mb-8">
+            <img src="https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2" alt="User Avatar" class="w-20 h-20 rounded-full mr-4">
+            <div>
+                <h2 class="text-2xl font-bold text-gray-800">管理员</h2>
+                <p class="text-gray-500">运维部 | Infrastructure</p>
+            </div>
+        </div>
+
+        <!-- Menu List Group 1 -->
+        <div class="bg-white rounded-xl shadow-sm mb-4">
+            <ul class="divide-y divide-gray-100">
+                <li class="p-4 flex justify-between items-center cursor-pointer hover:bg-gray-50">
+                    <div class="flex items-center">
+                        <i class="fas fa-user-edit text-blue-500 w-6 text-center"></i>
+                        <span class="ml-3 text-gray-700">个人信息</span>
+                    </div>
+                    <i class="fas fa-chevron-right text-gray-400"></i>
+                </li>
+                <li class="p-4 flex justify-between items-center cursor-pointer hover:bg-gray-50">
+                    <div class="flex items-center">
+                        <i class="fas fa-shield-alt text-green-500 w-6 text-center"></i>
+                        <span class="ml-3 text-gray-700">修改密码</span>
+                    </div>
+                    <i class="fas fa-chevron-right text-gray-400"></i>
+                </li>
+                 <li class="p-4 flex justify-between items-center cursor-pointer hover:bg-gray-50">
+                    <div class="flex items-center">
+                        <i class="fas fa-tasks text-purple-500 w-6 text-center"></i>
+                        <span class="ml-3 text-gray-700">我的任务</span>
+                    </div>
+                    <i class="fas fa-chevron-right text-gray-400"></i>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Menu List Group 2 -->
+        <div class="bg-white rounded-xl shadow-sm mb-8">
+            <ul class="divide-y divide-gray-100">
+                <li class="p-4 flex justify-between items-center cursor-pointer hover:bg-gray-50">
+                    <div class="flex items-center">
+                        <i class="fas fa-bell text-yellow-500 w-6 text-center"></i>
+                        <span class="ml-3 text-gray-700">通知设置</span>
+                    </div>
+                    <i class="fas fa-chevron-right text-gray-400"></i>
+                </li>
+                <li class="p-4 flex justify-between items-center cursor-pointer hover:bg-gray-50">
+                    <div class="flex items-center">
+                        <i class="fas fa-info-circle text-indigo-500 w-6 text-center"></i>
+                        <span class="ml-3 text-gray-700">关于我们</span>
+                    </div>
+                    <i class="fas fa-chevron-right text-gray-400"></i>
+                </li>
+                <li class="p-4 flex justify-between items-center cursor-pointer hover:bg-gray-50">
+                    <div class="flex items-center">
+                        <i class="fas fa-cloud-arrow-up text-cyan-500 w-6 text-center"></i>
+                        <span class="ml-3 text-gray-700">检查更新</span>
+                    </div>
+                    <div class="flex items-center">
+                        <span class="text-gray-500 mr-2">v2.0.0</span>
+                        <i class="fas fa-chevron-right text-gray-400"></i>
+                    </div>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Logout Button -->
+        <div class="px-4">
+            <button class="w-full bg-red-500 text-white font-bold py-3 rounded-xl shadow-md hover:bg-red-600 transition-colors">
+                退出登录
+            </button>
+        </div>
+
+    </div>
+</body>
+</html>

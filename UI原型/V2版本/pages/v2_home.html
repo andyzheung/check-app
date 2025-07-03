@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <style>
+        body {
+            background-color: #f0f2f5;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        }
+    </style>
+</head>
+<body class="p-4">
+    <div class="container mx-auto">
+
+        <!-- Header -->
+        <header class="flex items-center justify-between mb-6">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-800">您好, 管理员</h1>
+                <p class="text-gray-500">今天是2025年7月3日, 星期四</p>
+            </div>
+            <img src="https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2" alt="User Avatar" class="w-12 h-12 rounded-full">
+        </header>
+
+        <!-- Stats Cards -->
+        <div class="grid grid-cols-2 gap-4 mb-6">
+            <div class="bg-white p-4 rounded-xl shadow-sm flex items-center">
+                <i class="fas fa-tasks fa-2x text-blue-500 mr-4"></i>
+                <div>
+                    <p class="text-gray-500 text-sm">今日待办</p>
+                    <p class="text-2xl font-bold">3</p>
+                </div>
+            </div>
+            <div class="bg-white p-4 rounded-xl shadow-sm flex items-center">
+                <i class="fas fa-check-circle fa-2x text-green-500 mr-4"></i>
+                <div>
+                    <p class="text-gray-500 text-sm">本月完成</p>
+                    <p class="text-2xl font-bold">128</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="bg-white p-4 rounded-xl shadow-sm mb-6">
+            <h2 class="font-bold text-gray-800 mb-3">快捷操作</h2>
+            <div class="grid grid-cols-4 gap-4 text-center">
+                <a href="#" class="text-gray-700">
+                    <div class="bg-blue-100 w-16 h-16 rounded-xl flex items-center justify-center mx-auto mb-1">
+                        <i class="fas fa-play-circle fa-2x text-blue-500"></i>
+                    </div>
+                    <span class="text-sm">开始任务</span>
+                </a>
+                <a href="#" class="text-gray-700">
+                    <div class="bg-green-100 w-16 h-16 rounded-xl flex items-center justify-center mx-auto mb-1">
+                        <i class="fas fa-map-marked-alt fa-2x text-green-500"></i>
+                    </div>
+                    <span class="text-sm">巡检区域</span>
+                </a>
+                <a href="#" class="text-gray-700">
+                    <div class="bg-yellow-100 w-16 h-16 rounded-xl flex items-center justify-center mx-auto mb-1">
+                        <i class="fas fa-history fa-2x text-yellow-500"></i>
+                    </div>
+                    <span class="text-sm">历史报告</span>
+                </a>
+                <a href="#" class="text-gray-700">
+                    <div class="bg-red-100 w-16 h-16 rounded-xl flex items-center justify-center mx-auto mb-1">
+                        <i class="fas fa-exclamation-triangle fa-2x text-red-500"></i>
+                    </div>
+                    <span class="text-sm">异常处理</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Recent Activities -->
+        <div class="bg-white p-4 rounded-xl shadow-sm">
+            <h2 class="font-bold text-gray-800 mb-3">近期动态</h2>
+            <ul>
+                <li class="flex items-center justify-between py-3 border-b">
+                    <div class="flex items-center">
+                        <i class="fas fa-server fa-lg text-gray-400 mr-4"></i>
+                        <div>
+                            <p class="font-semibold">A区-01号机柜巡检完成</p>
+                            <p class="text-sm text-gray-500">操作员: 李明</p>
+                        </div>
+                    </div>
+                    <span class="text-sm text-gray-400">1小时前</span>
+                </li>
+                <li class="flex items-center justify-between py-3 border-b">
+                    <div class="flex items-center">
+                        <i class="fas fa-thermometer-half fa-lg text-red-500 mr-4"></i>
+                        <div>
+                            <p class="font-semibold">B区-空调温度异常</p>
+                            <p class="text-sm text-gray-500">设备: 空调-03</p>
+                        </div>
+                    </div>
+                    <span class="text-sm text-gray-400">3小时前</span>
+                </li>
+                <li class="flex items-center justify-between py-3">
+                    <div class="flex items-center">
+                        <i class="fas fa-server fa-lg text-gray-400 mr-4"></i>
+                        <div>
+                            <p class="font-semibold">C区-12号机柜巡检完成</p>
+                            <p class="text-sm text-gray-500">操作员: 王伟</p>
+                        </div>
+                    </div>
+                    <span class="text-sm text-gray-400">昨天</span>
+                </li>
+            </ul>
+        </div>
+
+    </div>
+</body>
+</html>

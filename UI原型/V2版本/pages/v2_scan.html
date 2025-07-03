@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            overflow: hidden; /* Hide scrollbars */
+        }
+        .camera-bg {
+            background-image: url('https://images.pexels.com/photos/3861964/pexels-photo-3861964.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2');
+            background-size: cover;
+            background-position: center;
+            filter: brightness(0.6);
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            z-index: -1;
+        }
+        .scan-box {
+            position: relative;
+            width: 250px;
+            height: 250px;
+            border: 2px solid rgba(255, 255, 255, 0.7);
+            border-radius: 16px;
+        }
+        .scan-line {
+            position: absolute;
+            top: 0;
+            left: 5%;
+            right: 5%;
+            height: 2px;
+            background: linear-gradient(to right, transparent, #0A84FF, transparent);
+            animation: scan-animation 2.5s infinite linear;
+            box-shadow: 0 0 10px #0A84FF;
+        }
+        @keyframes scan-animation {
+            0% { transform: translateY(10px); }
+            50% { transform: translateY(230px); }
+            100% { transform: translateY(10px); }
+        }
+        .corner {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border-color: #0A84FF;
+            border-style: solid;
+        }
+        .top-left { top: -2px; left: -2px; border-width: 4px 0 0 4px; border-top-left-radius: 14px; }
+        .top-right { top: -2px; right: -2px; border-width: 4px 4px 0 0; border-top-right-radius: 14px; }
+        .bottom-left { bottom: -2px; left: -2px; border-width: 0 0 4px 4px; border-bottom-left-radius: 14px; }
+        .bottom-right { bottom: -2px; right: -2px; border-width: 0 4px 4px 0; border-bottom-right-radius: 14px; }
+    </style>
+</head>
+<body class="flex flex-col items-center justify-center h-screen bg-black text-white p-4">
+    <div class="camera-bg"></div>
+
+    <div class="flex-grow flex flex-col items-center justify-center">
+        <p class="mb-4 text-lg">将二维码/条码放入框内，即可自动扫描</p>
+        <div class="scan-box">
+            <div class="scan-line"></div>
+            <div class="corner top-left"></div>
+            <div class="corner top-right"></div>
+            <div class="corner bottom-left"></div>
+            <div class="corner bottom-right"></div>
+        </div>
+    </div>
+
+    <div class="flex items-center justify-around w-full mb-8">
+        <button class="text-center text-white">
+            <i class="far fa-lightbulb fa-2x"></i>
+            <span class="block text-sm mt-1">手电筒</span>
+        </button>
+        <button class="text-center text-white">
+            <i class="far fa-image fa-2x"></i>
+            <span class="block text-sm mt-1">相册</span>
+        </button>
+    </div>
+
+    <div class="w-full text-center">
+        <a href="#" class="text-blue-400">无法扫描？尝试手动输入编号</a>
+    </div>
+
+</body>
+</html>

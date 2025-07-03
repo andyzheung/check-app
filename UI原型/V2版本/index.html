@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>机房巡检App - V2原型</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <style>
+        body {
+            background-image: url('https://images.pexels.com/photos/2007647/pexels-photo-2007647.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2');
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        }
+        .iphone-shell {
+            width: 393px; /* iPhone 15 Pro width */
+            height: 852px; /* iPhone 15 Pro height */
+            background-color: #1c1c1e;
+            border-radius: 54px;
+            padding: 12px;
+            box-shadow: 0 0 0 11px #1c1c1e, 0 0 0 13px #999, 0 20px 50px rgba(0,0,0,0.5);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+        .iphone-screen {
+            background-color: #000;
+            flex-grow: 1;
+            border-radius: 42px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+        .status-bar {
+            height: 44px;
+            padding: 0 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: white;
+            font-size: 14px;
+            font-weight: 600;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 10;
+        }
+        .status-bar .time {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        .dynamic-island {
+            position: absolute;
+            top: 12px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 120px;
+            height: 30px;
+            background-color: #000;
+            border-radius: 20px;
+            z-index: 20;
+        }
+        .content-frame {
+            flex-grow: 1;
+            border: none;
+            margin-top: 44px; /* Status bar height */
+            margin-bottom: 83px; /* Tab bar height */
+        }
+        .tab-bar {
+            height: 83px;
+            background-color: rgba(28, 28, 30, 0.85);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: space-around;
+            align-items: flex-start;
+            padding-top: 10px;
+        }
+        .tab-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #8e8e93;
+            font-size: 10px;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        .tab-item.active {
+            color: #0A84FF;
+        }
+        .tab-item i {
+            font-size: 24px;
+            margin-bottom: 4px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="iphone-shell">
+        <div class="iphone-screen">
+            <div class="dynamic-island"></div>
+            <div class="status-bar">
+                <span id="time">9:41</span>
+                <div>
+                    <i class="fa-solid fa-signal"></i>
+                    <i class="fa-solid fa-wifi"></i>
+                    <i class="fa-solid fa-battery-full"></i>
+                </div>
+            </div>
+            
+            <iframe id="main-iframe" src="./pages/v2_home.html" class="content-frame"></iframe>
+
+            <div class="tab-bar">
+                <div class="tab-item active" onclick="navigate('v2_home.html', this)">
+                    <i class="fa-solid fa-house"></i>
+                    <span>首页</span>
+                </div>
+                <div class="tab-item" onclick="navigate('v2_scan.html', this)">
+                    <i class="fa-solid fa-qrcode"></i>
+                    <span>扫码</span>
+                </div>
+                <div class="tab-item" onclick="navigate('v2_records.html', this)">
+                    <i class="fa-solid fa-list-check"></i>
+                    <span>记录</span>
+                </div>
+                <div class="tab-item" onclick="navigate('v2_profile.html', this)">
+                    <i class="fa-solid fa-user"></i>
+                    <span>我的</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function navigate(page, element) {
+            document.getElementById('main-iframe').src = './pages/' + page;
+            document.querySelectorAll('.tab-item').forEach(item => item.classList.remove('active'));
+            element.classList.add('active');
+        }
+
+        function updateTime() {
+            const now = new Date();
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            document.getElementById('time').textContent = `${hours}:${minutes}`;
+        }
+        setInterval(updateTime, 1000);
+        updateTime();
+    </script>
+
+</body>
+</html>
